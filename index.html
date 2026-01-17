@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Controle — BURGUER GRILL</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="icon" href="/meu-favicon.ico" />
+
+  <style>
+    :root { --bg:#121212; --card:#1e1e1e; --border:#333; --accent:#ffbf00; --danger:#d32f2f; --success:#25d366; --text:#eee; --muted:#aaa; }
+    *{box-sizing:border-box}
+    body { background:var(--bg); color:var(--text); font-family:Arial,sans-serif; margin:0; }
+
+    /* Login */
+    #login-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#121212; color:#fff; }
+    #login-screen input { margin:8px; padding:10px; border-radius:6px; border:1px solid var(--border); background:#1e1e1e; color:#fff; width:280px; }
+    #login-screen button { margin-top:12px; }
+
+    header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+    header h1 { margin:0; color:var(--accent); font-size:1.2rem; display:flex; align-items:center; gap:8px; }
+    .actions .btn { min-width:140px; }
+
+    .tabs { display:flex; gap:10px; padding:10px 20px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .tab-btn { background:#222; color:var(--accent); border:none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:bold; }
+    .tab-btn.active { background:var(--accent); color:#000; }
+    .tab { display:none; padding:16px 20px; }
+    .tab.active { display:block; }
+    .subtabs { display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+    .subtab-btn { background:#222; color:var(--accent); border:none; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:bold; }
+    .subtab-btn.active { background:var(--accent); color:#000; }
+    .subtab { display:none; }
+    .subtab.active { display:block; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .card { background:var(--card); border:2px solid var(--border); border-radius:10px; padding:12px; }
+    .muted { color:var(--muted); }
+    .btn { border:none; border-radius:8px; padding:8px 12px; cursor:pointer; font-weight:bold; }
+    .btn-accent { background:var(--accent); color:#000; }
+    .btn-outline { background:#222; color:var(--accent); border:1px solid var(--accent); }
+    .btn-danger { background:var(--danger); color:#fff; }
+    .btn-success { background:var(--success); color:#fff; }
+
+    /* Mesas */
+    .mesas-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; transition:opacity .2s ease; }
+    .mesa-card { border-radius:10px; padding:12px; transition:border-color .2s ease, transform .2s ease, box-shadow .2s ease, opacity .2s ease; }
+    .mesa-card.livre { border-color:var(--success); }
+    .mesa-card.ocupada { border-color:var(--danger); }
+    .mesa-items { border-top:1px dashed var(--border); margin-top:8px; padding-top:8px; max-height:220px; overflow:auto; }
+    .mesa-total { margin-top:8px; font-weight:bold; color:var(--accent); }
+
+    /* Destaque no celular */
+    .mesa-card.highlight { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); transform:scale(1.02); }
+    .mesas-grid.highlight-mode .mesa-card:not(.highlight){ opacity:0.25; pointer-events:none; }
+    @media (max-width:768px){
+      .mesas-grid.highlight-mode { grid-template-columns:1fr; }
+      .mesa-card.highlight { transform:scale(1.03); }
+    }
+
+    /* Botão flutuante */
+    #floating-toggle {
+      position:fixed; right:16px; bottom:16px; z-index:1000;
+      background:var(--accent); color:#000; border:none; border-radius:50px; padding:12px 16px; font-weight:bold; box-shadow:0 6px 18px rgba(0,0,0,0.4); cursor:pointer;
+      display:none;
+    }
+
+    /* Modal carrinho */
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:999; overflow:auto; }
+    .modal-content { max-width:900px; margin:40px auto; background:#1a1a1a; padding:16px; border-radius:10px; border:1px solid var(--border); }
+    .menu-section { margin-bottom:14px; border:1px solid #333; border-radius:8px; overflow:hidden; }
+    .menu-section-header { background:#222; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+    .menu-section-header h3 { margin:0; color:var(--accent); font-size:1rem; }
+    .menu-section-header .toggle { background:#333; color:#fff; border:none; padding:6px 10px; border-radius:6px; font-weight:bold; }
+    .menu-items { display:none; padding:10px 12px; background:#1f1f1f; }
+    .menu-item { background:#222; border:1px solid #333; border-radius:8px; padding:10px; display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+    .menu-item h4 { margin:0; color:#fff; font-size:0.95rem; }
+    .menu-item small { color:var(--muted); }
+    .carrinho-list div { padding:6px 0; border-bottom:1px dashed #333; }
+    .carrinho-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+
+    /* Histórico */
+    .hist-list .card { margin-bottom:10px; }
+    .hist-total { margin-top:8px; font-weight:bold; color:var(--accent); }
+
+    @media (max-width:1024px){
+      .grid, .mesas-grid { grid-template-columns:repeat(2,1fr); }
+    }
+    @media (max-width:768px){
+      .grid, .mesas-grid { grid-template-columns:1fr; }
+      .btn { padding:10px 12px; }
+    }
+    select { background:#222; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; }
+    label { font-size:0.9rem; margin-right:6px; }
+  </style>
+</head>
+<body>
+  <!-- Tela de Login -->
+  <div id="login-screen">
+    <h2><i class="fas fa-lock"></i> Login — BURGUER GRILL</h2>
+    <input id="login-email" type="email" placeholder="Email">
+    <div style="position:relative; width:280px;">
+      <input id="login-password" type="password" placeholder="Senha"
+             style="width:95%; padding:10px; border-radius:6px; border:1px solid #333; background:#1e1e1e; color:#fff;">
+      <i id="toggle-password" class="fas fa-eye"
+         style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#aaa;"></i>
+    </div>
+    <button id="btn-login" class="btn btn-accent"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+    <div id="login-error" class="muted" style="margin-top:10px;"></div>
+    
+  </div>
+
+  <!-- Painel principal -->
+  <div id="main-panel" style="display:none;">
+    <header>
+      <h1><i class="fas fa-receipt"></i> Painel de Controle — BURGUER GRILL</h1>
+      <div class="actions" style="display:flex; gap:8px;">
+        <button id="btn-pdf" class="btn btn-accent"><i class="fas fa-file-pdf"></i> Baixar PDF</button>
+        <button id="btn-apagar-tudo" class="btn btn-danger"><i class="fas fa-trash"></i> Apagar pedidos</button>
+        <button id="btn-logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn" onclick="openTab('delivery')"><i class="fas fa-truck"></i> Delivery</button>
+      <button class="tab-btn" onclick="openTab('mesas')"><i class="fas fa-chair"></i> Mesas</button>
+    </div>
+
+    <!-- Delivery -->
+    <section id="delivery" class="tab">
+      <div class="subtabs">
+        <button class="subtab-btn active" onclick="openSubtab('delivery-list')">Pedidos</button>
+        <button class="subtab-btn" onclick="openSubtab('delivery-hist')">Histórico</button>
+      </div>
+      <div id="delivery-list" class="subtab active">
+        <div class="grid" id="orders-grid"></div>
+        <div class="muted" id="orders-count" style="margin-top:8px;"></div>
+      </div>
+      <div id="delivery-hist" class="subtab">
+        <div class="hist-list" id="delivery-historico"></div>
+        <div class="hist-total" id="delivery-total"></div>
+      </div>
+    </section>
+
+    <!-- Mesas -->
+    <section id="mesas" class="tab">
+      <div class="subtabs">
+        <button class="subtab-btn active" onclick="openSubtab('mesas-controle')">Controle</button>
+        <button class="subtab-btn" onclick="openSubtab('mesas-hist')">Histórico</button>
+      </div>
+      <div id="mesas-controle" class="subtab active">
+        <div class="mesas-grid" id="mesas-grid"></div>
+      </div>
+      <div id="mesas-hist" class="subtab">
+        <div class="hist-list" id="mesas-historico"></div>
+        <div class="hist-total" id="mesas-total"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Botão flutuante para alternar destaque -->
+  <button id="floating-toggle"><i class="fas fa-layer-group"></i> Ver todas as mesas</button>
+
+  <!-- Modal de menu com carrinho -->
+  <div id="menu-modal" class="modal">
+    <div class="modal-content">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+        <h2>Mesa <span id="mesa-atual"></span> — Adicionar itens</h2>
+        <button class="btn btn-danger" onclick="window.fecharMenuMesa()"><i class="fas fa-times"></i> Fechar</button>
+      </div>
+
+      <div id="menu-produtos"></div>
+
+      <h3 style="margin-top:12px;"><i class="fas fa-shopping-basket"></i> Itens selecionados</h3>
+      <div id="carrinho-list" class="carrinho-list"></div>
+
+      <div class="carrinho-actions">
+        <button class="btn btn-outline" onclick="window.limparCarrinho(window.mesaAtual)"><i class="fas fa-trash"></i> Limpar</button>
+        <button class="btn btn-accent" onclick="window.confirmarCarrinho(window.mesaAtual)"><i class="fas fa-check"></i> Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+    // Firebase (seu config)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBlyifaLH-2uUcCybMgjV5nSvOnFtv-Ht0",
+      authDomain: "pedidodegas-ac6de.firebaseapp.com",
+      projectId: "pedidodegas-ac6de",
+      storageBucket: "pedidodegas-ac6de.firebasestorage.app",
+      messagingSenderId: "1015887736520",
+      appId: "1:1015887736520:web:a7de5fd3208d6a0afa3ffd",
+      measurementId: "G-VGNYJD2KK1"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Elementos
+    const ordersGrid = document.getElementById('orders-grid');
+    const ordersCountEl = document.getElementById('orders-count');
+    const mesasGrid = document.getElementById('mesas-grid');
+    const deliveryHistEl = document.getElementById('delivery-historico');
+    const deliveryTotalEl = document.getElementById('delivery-total');
+    const mesasHistEl = document.getElementById('mesas-historico');
+    const mesasTotalEl = document.getElementById('mesas-total');
+    const floatingToggle = document.getElementById('floating-toggle');
+
+    // Estado global
+    window.mesasState = {};      // { [num]: { status, itens:[{name, price, obs}], total, impresso:[string], garcom:string } }
+    window.carrinhoMesa = {};    // { [num]: [{name, price, obs}] }
+    window.mesaAtual = null;
+    window.highlightMesa = null; // número da mesa destacada
+
+    // Persistência local
+    const STORAGE_KEY = 'mesasStateRustica';
+    function saveMesas(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(window.mesasState)); }catch(e){} }
+    function loadMesas(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw){ const parsed = JSON.parse(raw); if(parsed && typeof parsed==='object') window.mesasState = parsed; }
+      }catch(e){}
+    }
+
+    // --- CARDÁPIO COMPLETO COM CATEGORIAS ---
+    const menuData = [
+      { id:101, name:'Grill Burguer', category:'burguers', price:32.00 },
+      { id:102, name:'Picanha Grill', category:'burguers', price:34.00 },
+      { id:103, name:'Burguer de Filé', category:'burguers', price:33.00 },
+      { id:104, name:'Caramelizado', category:'burguers', price:27.00 },
+      { id:105, name:'Smash Gill', category:'burguers', price:20.00 },
+      { id:106, name:'Smash Grill Duplo', category:'burguers', price:22.00 },
+      { id:107, name:'Grill Clássico', category:'burguers', price:24.00 },
+      { id:108, name:'Grill Cheddar', category:'burguers', price:23.00 },
+      { id:109, name:'Frango Burguer', category:'burguers', price:23.00 },
+      { id:110, name:'Kids', category:'burguers', price:12.00 },
+      { id:201, name:'Fritas P', category:'fritas', price:8.00 },
+      { id:202, name:'Fritas M', category:'fritas', price:15.00 },
+      { id:203, name:'Fritas Cheddar e Bacon', category:'fritas', price:22.00 },
+      { id:204, name:'Porção de Macaxeira', category:'fritas', price:15.00 },
+      { id:301, name:'Bife Acebolado', category:'jantinha', price:30.00 },
+      { id:302, name:'Jantinha Carne de Sol', category:'jantinha', price:30.00 },
+      { id:303, name:'Jantinha Frango Grill - Coxinha da Asa', category:'jantinha', price:27.00 },
+      { id:401, name:'Picanha na Chapa 400g', category:'chapas', price:95.00 },
+      { id:402, name:'Picanha na Chapa 600g', category:'chapas', price:100.00 },
+      { id:403, name:'Picanha na Chapa 800g', category:'chapas', price:130.00 },
+      { id:404, name:'Picanha na Chapa 1Kg', category:'chapas', price:160.00 },
+      { id:501, name:'Filé com Batata', category:'tiragosto', price:55.00 },
+      { id:502, name:'Carne de Sol com Macaxeira', category:'tiragosto', price:55.00 },
+      { id:503, name:'Frango a Passarinho (10 un)', category:'tiragosto', price:30.00 },
+      { id:504, name:'Calabresa com Batata', category:'tiragosto', price:25.00 },
+      { id:601, name:'Arroz Branco P', category:'adicionais', price:6.00 },
+      { id:602, name:'Arroz Branco M', category:'adicionais', price:15.00 },
+      { id:603, name:'Arroz Branco G (consultar)', category:'adicionais', price:0.00 },
+      { id:604, name:'Baião P', category:'adicionais', price:6.00 },
+      { id:605, name:'Baião M', category:'adicionais', price:15.00 },
+      { id:606, name:'Baião G (consultar)', category:'adicionais', price:0.00 },
+      { id:607, name:'Salada', category:'adicionais', price:5.00 },
+      { id:608, name:'Cebola Premium (consultar)', category:'adicionais', price:0.00 },
+      { id:609, name:'Molho Picante (consultar)', category:'adicionais', price:0.00 },
+      { id:610, name:'Molho de Bacon Especial (consultar)', category:'adicionais', price:0.00 },
+      { id:701, name:'Skol 600ml', category:'alcoolico', price:12.00 },
+      { id:702, name:'Original 600ml', category:'alcoolico', price:14.00 },
+      { id:703, name:'Brahma 600ml', category:'alcoolico', price:12.00 },
+      { id:704, name:'Amstel 600ml', category:'alcoolico', price:12.00 },
+      { id:705, name:'Heineken 600ml', category:'alcoolico', price:17.00 },
+      { id:706, name:'Budweiser Long Neck 330ml', category:'alcoolico', price:12.00 },
+      { id:707, name:'Heineken Long Neck 0', category:'alcoolico', price:12.00 },
+      { id:708, name:'Stella Long Neck 330ml', category:'alcoolico', price:12.00 },
+      { id:709, name:'Heineken Long Neck 330ml', category:'alcoolico', price:12.00 },
+      { id:710, name:'Corona Long Neck 330ml', category:'alcoolico', price:12.00 },
+      { id:711, name:'Skol Lata', category:'alcoolico', price:5.00 },
+      { id:712, name:'Ice Limão', category:'alcoolico', price:12.00 },
+      { id:713, name:'Ice Balada', category:'alcoolico', price:12.00 },
+      { id:714, name:'Dose Campari', category:'alcoolico', price:15.00 },
+      { id:801, name:'Suco Maracujá (Copo)', category:'bebida', price:9.00 },
+      { id:802, name:'Suco Maracujá (Jarra)', category:'bebida', price:27.00 },
+      { id:803, name:'Suco Acerola (Copo)', category:'bebida', price:8.00 },
+      { id:804, name:'Suco Acerola (Jarra)', category:'bebida', price:20.00 },
+      { id:805, name:'Suco Laranja (Copo)', category:'bebida', price:9.00 },
+      { id:806, name:'Suco Laranja (Jarra)', category:'bebida', price:27.00 },
+      { id:807, name:'Coca Cola Lata 350ml', category:'bebida', price:6.00 },
+      { id:808, name:'Coca Cola 0 350ml', category:'bebida', price:6.00 },
+      { id:809, name:'Fanta Laranja 350ml', category:'bebida', price:6.00 },
+      { id:810, name:'Guaraná 350ml', category:'bebida', price:6.00 },
+      { id:811, name:'Água Tônica', category:'bebida', price:6.00 },
+      { id:812, name:'Red Bull', category:'bebida', price:15.00 },
+      { id:813, name:'Guaraná 1L', category:'bebida', price:10.00 },
+      { id:814, name:'Coca Cola 1L', category:'bebida', price:10.00 },
+      { id:815, name:'Coca Cola 2L', category:'bebida', price:15.00 },
+      { id:816, name:'Coca Cola 1L KS', category:'bebida', price:10.00 },
+      { id:817, name:'Água com Gás', category:'bebida', price:6.00 },
+      { id:818, name:'Água sem Gás', category:'bebida', price:4.00 },
+      { id:819, name:'H2OH! Limão', category:'bebida', price:8.00 },
+      { id:820, name:'H2OH! Limoneto', category:'bebida', price:8.00 },
+    ];
+
+    // Snapshot: atualiza delivery e históricos
+    const pedidosQuery = query(collection(db, "pedidos"));
+    onSnapshot(pedidosQuery, (snapshot) => {
+      const pedidos = [];
+      snapshot.forEach(docSnap => pedidos.push({ id: docSnap.id, ...docSnap.data() }));
+      renderDelivery(pedidos);
+      renderHistoricos(pedidos);
+    });
+
+    // olho da senha (login)
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('login-password');
+    togglePassword.addEventListener('click', ()=>{
+      const isPassword = passwordInput.getAttribute('type') === 'password';
+      passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+      togglePassword.classList.toggle('fa-eye');
+      togglePassword.classList.toggle('fa-eye-slash');
+    });
+
+    // Delivery (lista atual)
+    function renderDelivery(pedidosRaw){
+      const pedidos = [...pedidosRaw]
+        .filter(p => !p.tipo || p.tipo === 'delivery')
+        .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+
+      ordersGrid.innerHTML = '';
+      ordersCountEl.textContent = `${pedidos.length} pedidos`;
+
+      if (pedidos.length === 0) {
+        ordersGrid.innerHTML = `<div class="card"><p class="muted"><i class="fas fa-inbox"></i> Nenhum pedido de delivery.</p></div>`;
+        return;
+      }
+
+      pedidos.forEach((p, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3><span class="muted">#${idx+1}</span> ${p.cliente || 'Cliente'}</h3>
+          ${p.telefone ? `<p><strong>Telefone:</strong> ${p.telefone}</p>` : ''}
+          ${p.endereco ? `<p><strong>Endereço:</strong> ${p.endereco}${p.bairro ? ' - ' + p.bairro : ''}</p>` : ''}
+          ${p.pagamento ? `<p><strong>Pagamento:</strong> ${p.pagamento}</p>` : ''}
+          <p><strong>Itens:</strong> ${p.itens || ''}</p>
+          ${p.obs ? `<p><strong>Obs:</strong> ${p.obs}</p>` : ''}
+          ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
+          ${p.createdAt ? `<p class="muted">${new Date(p.createdAt).toLocaleString('pt-BR')}</p>` : ''}
+        `;
+        ordersGrid.appendChild(card);
+      });
+    }
+
+    // Históricos (mesas e delivery)
+    function renderHistoricos(pedidosRaw){
+      const histMesas = pedidosRaw.filter(p => p.tipo === 'fechamento' && (p.cliente||'').toLowerCase().includes('mesa'))
+        .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+      const histDelivery = pedidosRaw.filter(p => !p.tipo || p.tipo === 'delivery')
+        .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+
+      // Mesas
+      mesasHistEl.innerHTML = '';
+      let totalMesas = 0;
+      if (histMesas.length === 0) {
+        mesasHistEl.innerHTML = `<div class="card"><p class="muted"><i class="fas fa-inbox"></i> Nenhum fechamento de mesa.</p></div>`;
+      } else {
+        histMesas.forEach((p, idx) => {
+          const t = parseFloat(p.total || 0);
+          totalMesas += isNaN(t) ? 0 : t;
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h3><i class="fas fa-chair"></i> ${p.cliente || 'Mesa'}</h3>
+            <p class="muted">#${idx+1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
+            ${p.garcom ? `<p><strong>Garçom:</strong> ${p.garcom}</p>` : ''}
+            ${p.pagamento ? `<p><strong>Pagamento:</strong> ${p.pagamento}</p>` : ''}
+            <p><strong>Itens:</strong> ${p.itens || ''}</p>
+            ${p.obs ? `<p><strong>Obs:</strong> ${p.obs}</p>` : ''}
+            ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
+          `;
+          mesasHistEl.appendChild(card);
+        });
+      }
+      mesasTotalEl.textContent = `Total Mesas: R$ ${totalMesas.toFixed(2).replace('.', ',')}`;
+
+      // Delivery
+      deliveryHistEl.innerHTML = '';
+      let totalDelivery = 0;
+      if (histDelivery.length === 0) {
+        deliveryHistEl.innerHTML = `<div class="card"><p class="muted"><i class="fas fa-inbox"></i> Nenhum pedido de delivery.</p></div>`;
+      } else {
+        histDelivery.forEach((p, idx) => {
+          const t = parseFloat(p.total || 0);
+          totalDelivery += isNaN(t) ? 0 : t;
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h3><i class="fas fa-truck"></i> ${p.cliente || 'Cliente'}</h3>
+            <p class="muted">#${idx+1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
+            ${p.pagamento ? `<p><strong>Pagamento:</strong> ${p.pagamento}</p>` : ''}
+            ${p.endereco ? `<p><strong>Endereço:</strong> ${p.endereco}${p.bairro ? ' - ' + p.bairro : ''}</p>` : ''}
+            <p><strong>Itens:</strong> ${p.itens || ''}</p>
+            ${p.obs ? `<p><strong>Obs:</strong> ${p.obs}</p>` : ''}
+            ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
+          `;
+          deliveryHistEl.appendChild(card);
+        });
+      }
+      deliveryTotalEl.textContent = `Total Delivery: R$ ${totalDelivery.toFixed(2).replace('.', ',')}`;
+    }
+
+    // Mesas — render e UI
+    function renderMesas(){
+      mesasGrid.innerHTML='';
+      for(let i=1;i<=15;i++){
+        if(!window.mesasState[i]) window.mesasState[i] = { status:'Livre', itens:[], total:0, impresso:[], garcom:'' };
+        const m = window.mesasState[i];
+        const card = document.createElement('div');
+        card.className = `card mesa-card ${m.status === 'Livre' ? 'livre' : 'ocupada'}`;
+        card.setAttribute('data-mesa', i);
+        card.innerHTML = `
+          <h3><i class="fas fa-chair"></i> Mesa ${i}</h3>
+          <div class="muted">Status: <span id="mesa-status-${i}">${m.status}</span></div>
+
+          <div style="margin:8px 0;">
+            <label>Garçom:</label>
+            <select id="mesa-garcom-${i}" ${m.status==='Ocupada' ? 'disabled' : ''} onchange="window.selecionarGarcom(${i}, this.value)">
+              <option value="">-- selecione --</option>
+              <option value="Ana" ${m.garcom==='Ana'?'selected':''}>Ana</option>
+              <option value="Carlos" ${m.garcom==='Carlos'?'selected':''}>Carlos</option>
+              <option value="Beto" ${m.garcom==='Beto'?'selected':''}>Beto</option>
+              <option value="Tor" ${m.garcom==='Tor'?'selected':''}>Tor</option>
+            </select>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin:8px 0;">
+            <button class="btn btn-success" onclick="window.abrirMesa(${i})"><i class="fas fa-door-open"></i> Abrir</button>
+            <button class="btn btn-accent" onclick="window.abrirMenuMesa(${i})"><i class="fas fa-plus"></i> Itens</button>
+            <button class="btn btn-outline" onclick="window.enviarParaCozinha(${i})"><i class="fas fa-print"></i> Cozinha</button>
+            <button class="btn btn-danger" onclick="window.fecharMesa(${i})"><i class="fas fa-door-closed"></i> Fechar</button>
+          </div>
+
+          <div class="mesa-items" id="mesa-items-${i}"></div>
+          <div class="mesa-total" id="mesa-total-${i}">Total: R$ ${m.total.toFixed(2).replace('.', ',')}</div>
+        `;
+        mesasGrid.appendChild(card);
+        atualizarUImesa(i);
+
+        // Clique no card ativa destaque
+        card.addEventListener('click', (e)=>{
+          if(e.target.closest('button') || e.target.closest('select')) return;
+          setHighlightMesa(i);
+        });
+      }
+      applyHighlightUI();
+    }
+
+    function setHighlightMesa(numero){
+      window.highlightMesa = numero;
+      applyHighlightUI();
+    }
+    function clearHighlight(){
+      window.highlightMesa = null;
+      applyHighlightUI();
+    }
+    function applyHighlightUI(){
+      const cards = mesasGrid.querySelectorAll('.mesa-card');
+      cards.forEach(c=>{
+        const n = Number(c.getAttribute('data-mesa'));
+        c.classList.toggle('highlight', window.highlightMesa === n);
+      });
+      const isHighlight = !!window.highlightMesa;
+      mesasGrid.classList.toggle('highlight-mode', isHighlight);
+      floatingToggle.style.display = isHighlight ? 'block' : 'none';
+      floatingToggle.innerHTML = `<i class="fas fa-layer-group"></i> Ver todas as mesas`;
+    }
+    floatingToggle.addEventListener('click', clearHighlight);
+
+    window.selecionarGarcom = function(numero, nome){
+      if(!window.mesasState[numero]) return;
+      // Se mesa já está ocupada, não permite alterar
+      if(window.mesasState[numero].status === 'Ocupada'){
+        document.getElementById(`mesa-garcom-${numero}`).value = window.mesasState[numero].garcom || '';
+        return;
+      }
+      window.mesasState[numero].garcom = nome;
+      saveMesas();
+      setHighlightMesa(numero);
+    };
+
+    window.abrirMesa = function(numero){
+      if(!window.mesasState[numero]) window.mesasState[numero] = { status:'Livre', itens:[], total:0, impresso:[], garcom:'' };
+      window.mesasState[numero].status = 'Ocupada';
+      saveMesas();
+      document.getElementById(`mesa-status-${numero}`).innerText = 'Ocupada';
+      const card = document.getElementById(`mesa-status-${numero}`).closest('.mesa-card');
+      card.classList.remove('livre'); card.classList.add('ocupada');
+      // Bloqueia alteração de garçom após abrir
+      const sel = document.getElementById(`mesa-garcom-${numero}`);
+      if(sel) sel.disabled = true;
+      setHighlightMesa(numero);
+    };
+
+    function atualizarUImesa(numero){
+      const itemsEl = document.getElementById(`mesa-items-${numero}`);
+      const totalEl = document.getElementById(`mesa-total-${numero}`);
+      const mesa = window.mesasState[numero];
+      itemsEl.innerHTML='';
+      mesa.itens.forEach(it=>{
+        const obsStr = it.obs ? ` — Obs: ${it.obs}` : '';
+        itemsEl.innerHTML += `<div>• ${it.name} — R$ ${Number(it.price||0).toFixed(2).replace('.', ',')}${obsStr}</div>`;
+      });
+      totalEl.innerText = `Total: R$ ${Number(mesa.total||0).toFixed(2).replace('.', ',')}`;
+    }
+
+    // Modal + Carrinho (accordion de categorias)
+    window.abrirMenuMesa = function(numero){
+      window.mesaAtual = numero;
+      if(!window.carrinhoMesa[numero]) window.carrinhoMesa[numero] = [];
+      document.getElementById('mesa-atual').innerText = numero;
+      document.getElementById('menu-modal').style.display = 'block';
+      renderMenuProdutos(numero);
+      renderCarrinho(numero);
+      setHighlightMesa(numero);
+    };
+    window.fecharMenuMesa = function(){
+      document.getElementById('menu-modal').style.display = 'none';
+    };
+
+    function renderMenuProdutos(numero){
+      const menuEl = document.getElementById('menu-produtos');
+      menuEl.innerHTML='';
+
+      const categorias = [
+        { key:'burguers', label:'Burguers' },
+        { key:'fritas', label:'Fritas' },
+        { key:'jantinha', label:'Jantinha Grill' },
+        { key:'chapas', label:'Chapas' },
+        { key:'tiragosto', label:'Tira Gosto' },
+        { key:'adicionais', label:'Adicionais' },
+        { key:'bebida', label:'Bebidas (Não alcoólicos)' },
+        { key:'alcoolico', label:'Alcoólicos' },
+      ];
+
+      categorias.forEach(cat=>{
+        const section = document.createElement('div');
+        section.className = 'menu-section';
+
+        const header = document.createElement('div');
+        header.className = 'menu-section-header';
+        header.innerHTML = `
+          <h3>${cat.label}</h3>
+          <button class="toggle"><i class="fas fa-chevron-down"></i> Mostrar</button>
+        `;
+        section.appendChild(header);
+
+        const itemsWrap = document.createElement('div');
+        itemsWrap.className = 'menu-items';
+
+        const items = menuData.filter(i=>i.category===cat.key);
+        if(items.length===0){
+          const empty = document.createElement('div');
+          empty.className='muted';
+          empty.innerHTML = `<i class="fas fa-inbox"></i> Sem itens nesta categoria.`;
+          itemsWrap.appendChild(empty);
+        } else {
+          items.forEach(item=>{
+            const row = document.createElement('div');
+            row.className='menu-item';
+            const priceText = item.price>0 ? `R$ ${item.price.toFixed(2).replace('.', ',')}` : 'Preço a consultar';
+            row.innerHTML = `
+              <div>
+                <h4>${item.name}</h4>
+                <small>${priceText}</small>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-outline" onclick="window.addItemCarrinho(${numero}, ${item.id})"><i class="fas fa-plus"></i> Add</button>
+                <button class="btn btn-outline" onclick="window.addItemCarrinhoComObs(${numero}, ${item.id})"><i class="fas fa-comment-dots"></i> Obs</button>
+              </div>
+            `;
+            itemsWrap.appendChild(row);
+          });
+        }
+        section.appendChild(itemsWrap);
+        menuEl.appendChild(section);
+
+        const toggleBtn = header.querySelector('.toggle');
+        toggleBtn.addEventListener('click', ()=>{
+          const isOpen = itemsWrap.style.display === 'block';
+          itemsWrap.style.display = isOpen ? 'none' : 'block';
+          toggleBtn.innerHTML = isOpen
+            ? `<i class="fas fa-chevron-down"></i> Mostrar`
+            : `<i class="fas fa-chevron-up"></i> Esconder`;
+        });
+      });
+    }
+
+    // Toast reutilizável
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1400,
+      background: '#25d366',
+      color: '#fff'
+    });
+
+    window.addItemCarrinho = function(numero, produtoId){
+      const item = menuData.find(i=>i.id===produtoId);
+      if(!item) return;
+      window.carrinhoMesa[numero].push({ name:item.name, price:item.price, obs:'' });
+      renderCarrinho(numero);
+      Toast.fire({ icon:'success', title:`${item.name} adicionado` });
+    };
+
+    window.addItemCarrinhoComObs = async function(numero, produtoId){
+      const item = menuData.find(i=>i.id===produtoId);
+      if(!item) return;
+      const { value: obs } = await Swal.fire({
+        title: `Observações — ${item.name}`,
+        input: 'text',
+        inputPlaceholder: 'Ex: sem cebola, ponto da carne...',
+        showCancelButton: true,
+        confirmButtonText: 'Adicionar',
+        confirmButtonColor: '#ffbf00',
+        background:'#1a1a1a', color:'#fff'
+      });
+      window.carrinhoMesa[numero].push({ name:item.name, price:item.price, obs:(obs||'').trim() });
+      renderCarrinho(numero);
+      Toast.fire({ icon:'success', title:`${item.name} adicionado` });
+    };
+
+    window.removerItemCarrinho = function(numero, idx){
+      if(!window.carrinhoMesa[numero]) return;
+      window.carrinhoMesa[numero].splice(idx, 1);
+      renderCarrinho(numero);
+    };
+
+    window.limparCarrinho = function(numero){
+      window.carrinhoMesa[numero] = [];
+      renderCarrinho(numero);
+    };
+
+    function renderCarrinho(numero){
+      const carrinhoEl = document.getElementById('carrinho-list');
+      carrinhoEl.innerHTML='';
+      const carrinho = window.carrinhoMesa[numero] || [];
+      if(carrinho.length===0){
+        carrinhoEl.innerHTML = `<div class="muted"><i class="fas fa-inbox"></i> Nenhum item selecionado.</div>`;
+        return;
+      }
+      carrinho.forEach((it, idx)=>{
+        const obsStr = it.obs ? ` — Obs: ${it.obs}` : '';
+        const row = document.createElement('div');
+        row.innerHTML = `
+          <span>• ${it.name} — R$ ${Number(it.price||0).toFixed(2).replace('.', ',')}${obsStr}</span>
+          <button class="btn btn-danger" style="float:right;" onclick="window.removerItemCarrinho(${numero}, ${idx})"><i class="fas fa-times"></i></button>
+        `;
+        carrinhoEl.appendChild(row);
+      });
+    }
+
+    // Confirmar carrinho (transfere para mesa)
+    window.confirmarCarrinho = function(numero){
+      const carrinho = window.carrinhoMesa[numero] || [];
+      if(carrinho.length === 0){
+        Swal.fire({ icon:'warning', title:'Carrinho vazio', text:'Adicione itens antes de confirmar.', background:'#1a1a1a', color:'#fff' });
+        return;
+      }
+      if(!window.mesasState[numero]) window.mesasState[numero] = { status:'Livre', itens:[], total:0, impresso:[], garcom:'' };
+      window.mesasState[numero].status = 'Ocupada';
+
+      carrinho.forEach(it=> window.mesasState[numero].itens.push(it));
+      window.mesasState[numero].total = window.mesasState[numero].itens.reduce((sum,it)=>sum+Number(it.price||0),0);
+
+      saveMesas();
+      atualizarUImesa(numero);
+      document.getElementById(`mesa-status-${numero}`).innerText = 'Ocupada';
+      const card = document.getElementById(`mesa-status-${numero}`).closest('.mesa-card');
+      card.classList.remove('livre'); card.classList.add('ocupada');
+
+      // Bloqueia alteração de garçom
+      const sel = document.getElementById(`mesa-garcom-${numero}`);
+      if(sel) sel.disabled = true;
+
+      window.carrinhoMesa[numero] = [];
+      document.getElementById('menu-modal').style.display = 'none';
+      Toast.fire({ icon:'success', title:`Itens adicionados na Mesa ${numero}` });
+      setHighlightMesa(numero);
+    };
+
+    // Enviar para cozinha (apenas novos itens)
+    window.enviarParaCozinha = async function(numero){
+      const mesa = window.mesasState[numero];
+      if(!mesa || mesa.itens.length===0){
+        Swal.fire({ icon:'info', title:'Sem itens', text:'Adicione itens antes de enviar para a cozinha.', background:'#1a1a1a', color:'#fff' });
+        return;
+      }
+      if(!mesa.impresso) mesa.impresso = [];
+
+      const chaveItem = (it) => `${it.name}||${(it.obs||'').trim()}`;
+      const novosItens = mesa.itens.filter(it => !mesa.impresso.includes(chaveItem(it)));
+
+      if(novosItens.length === 0){
+        Swal.fire({ icon:'info', title:'Nada novo', text:'Todos os itens já foram enviados.', background:'#1a1a1a', color:'#fff' });
+        return;
+      }
+
+      const payload = {
+        tipo: 'mesa',
+        cliente: `Mesa ${numero}`,
+        garcom: mesa.garcom || '',
+        itens: novosItens.map(it=>it.name).join('; '),
+        obs: novosItens.map(it=>it.obs).filter(Boolean).join('; '),
+        createdAt: new Date().toISOString()
+      };
+      await addDoc(collection(db, "pedidos"), payload);
+
+      novosItens.forEach(it => mesa.impresso.push(chaveItem(it)));
+      saveMesas();
+
+      Swal.fire({ icon:'success', title:'Enviado para cozinha', text:'Somente novos itens foram impressos.', background:'#1a1a1a', color:'#fff' });
+    };
+
+    // Fechar mesa — envia cupom e limpa garçom
+    window.fecharMesa = async function(numero){
+      const mesa = window.mesasState[numero] || { status:'Livre', itens:[], total:0, impresso:[], garcom:'' };
+
+      const { value: pagamento } = await Swal.fire({
+        title: `Forma de pagamento — Mesa ${numero}`,
+        background:'#1a1a1a', color:'#fff',
+        input: 'radio',
+        inputOptions: { 'PIX': 'PIX', 'Cartão': 'Cartão', 'Dinheiro': 'Dinheiro' },
+        inputValidator: (value) => !value && 'Escolha uma forma de pagamento',
+        confirmButtonText:'Confirmar', confirmButtonColor:'#ffbf00', showCancelButton:true, cancelButtonText:'Cancelar',
+        didOpen: () => {
+          const radios = document.querySelectorAll('.swal2-radio label');
+          radios.forEach(l => { l.style.color = '#000'; });
+        }
+      });
+      if(!pagamento) return;
+
+      // Agrupar itens por nome+preço+obs
+      const map = new Map();
+      mesa.itens.forEach(it=>{
+        const key = `${it.name}||${Number(it.price||0)}||${(it.obs||'').trim()}`;
+        const cur = map.get(key) || { name:it.name, price:Number(it.price||0), obs:(it.obs||'').trim(), qty:0 };
+        cur.qty += 1;
+        map.set(key, cur);
+      });
+      const itensDetalhados = Array.from(map.values());
+
+      const itensStr = itensDetalhados.map(it=>{
+        const base = `${it.name}||${it.qty}||${it.price.toFixed(2)}`;
+        return it.obs ? `${base}||${it.obs}` : base;
+      }).join('; ');
+
+      const obsStr = itensDetalhados.map(it=>it.obs).filter(Boolean).join('; ');
+
+      const payload = {
+        tipo: 'fechamento',
+        cliente: `Mesa ${numero}`,
+        garcom: mesa.garcom || '',
+        endereco: 'Atendimento presencial',
+        pagamento,
+        itens: itensStr,
+        obs: obsStr,
+        total: Number(mesa.total||0).toFixed(2),
+        createdAt: new Date().toISOString()
+      };
+      await addDoc(collection(db, "pedidos"), payload);
+
+      // Limpa garçom ao fechar e libera select
+      window.mesasState[numero] = { status:'Livre', itens:[], total:0, impresso:[], garcom:'' };
+      saveMesas();
+      atualizarUImesa(numero);
+      document.getElementById(`mesa-status-${numero}`).innerText = 'Livre';
+      const card = document.getElementById(`mesa-status-${numero}`).closest('.mesa-card');
+      card.classList.remove('ocupada'); card.classList.add('livre');
+      const sel = document.getElementById(`mesa-garcom-${numero}`);
+      if(sel){ sel.disabled = false; sel.value = ''; }
+
+      clearHighlight();
+
+      Swal.fire({ icon:'success', title:'Mesa fechada', text:`Pagamento: ${pagamento}. Cupom completo enviado.`, background:'#1a1a1a', color:'#fff' });
+    };
+
+    // Abas principais
+    window.openTab = function(tabId){
+      document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));
+      document.querySelector(`.tab-btn[onclick="openTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    };
+
+    // Prompt de gerente com olho na senha
+    async function requireManager(){
+      const user = auth.currentUser;
+      if(!user){
+        Swal.fire({ icon:'error', title:'Sessão inválida', text:'Faça login novamente.', background:'#1a1a1a', color:'#fff' });
+        return false;
+      }
+      const { value: ok } = await Swal.fire({
+        title:'Confirmar senha do gerente',
+        html: `
+          <div style="position:relative; display:flex; align-items:center; gap:8px; justify-content:center;">
+            <input id="mgr-pwd" type="password" placeholder="Digite a mesma senha do login"
+                   style="width:80%; padding:10px; border-radius:6px; border:1px solid #333; background:#1e1e1e; color:#fff;">
+            <i id="mgr-eye" class="fas fa-eye" style="cursor:pointer; color:#aaa;"></i>
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton:true,
+        confirmButtonText:'Confirmar',
+        confirmButtonColor:'#ffbf00',
+        background:'#1a1a1a', color:'#fff',
+        didOpen: ()=>{
+          const input = document.getElementById('mgr-pwd');
+          const eye = document.getElementById('mgr-eye');
+          eye.addEventListener('click', ()=>{
+            const isPwd = input.type === 'password';
+            input.type = isPwd ? 'text' : 'password';
+            eye.classList.toggle('fa-eye');
+            eye.classList.toggle('fa-eye-slash');
+          });
+        },
+        preConfirm: async ()=>{
+          const pwd = (document.getElementById('mgr-pwd').value || '').trim();
+          if(!pwd){ Swal.showValidationMessage('Digite a senha'); return false; }
+          try{
+            await signInWithEmailAndPassword(auth, user.email, pwd);
+            return true;
+          }catch(e){
+            Swal.showValidationMessage('Senha incorreta');
+            return false;
+          }
+        }
+      });
+      return !!ok;
+    }
+
+    // Sub-abas com proteção de gerente para históricos
+    window.openSubtab = async function(subId){
+      if(subId.endsWith('-hist')){
+        const ok = await requireManager();
+        if(!ok) return;
+      }
+      const parent = document.getElementById(subId).closest('section');
+      parent.querySelectorAll('.subtab-btn').forEach(btn=>btn.classList.remove('active'));
+      parent.querySelectorAll('.subtab').forEach(tab=>tab.classList.remove('active'));
+      parent.querySelector(`.subtab-btn[onclick="openSubtab('${subId}')"]`).classList.add('active');
+      document.getElementById(subId).classList.add('active');
+    };
+
+    // Apagar pedidos — protegido por senha
+    document.getElementById('btn-apagar-tudo').addEventListener('click', async ()=>{
+      const ok = await requireManager();
+      if(!ok) return;
+
+      const confirm = await Swal.fire({
+        icon:'warning', title:'Apagar todos os pedidos?', text:'Esta ação não pode ser desfeita.',
+        showCancelButton:true, confirmButtonText:'Apagar', confirmButtonColor:'#d32f2f', cancelButtonText:'Cancelar',
+        background:'#1a1a1a', color:'#fff'
+      });
+      if(!confirm.isConfirmed) return;
+      const snap = await getDocs(collection(db, 'pedidos'));
+      const deletions = [];
+      snap.forEach(d=>deletions.push(deleteDoc(doc(db, 'pedidos', d.id))));
+      await Promise.all(deletions);
+      Swal.fire({ icon:'success', title:'Pronto', text:'Todos os pedidos foram apagados.', background:'#1a1a1a', color:'#fff' });
+    });
+
+    // PDF — protegido por senha
+    document.getElementById('btn-pdf').addEventListener('click', async ()=>{
+      const ok = await requireManager();
+      if(!ok) return;
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit:'pt', format:'a4' });
+      const margin = 40;
+      let y = margin;
+
+      // Header
+      doc.setFillColor(255, 191, 0);
+      doc.rect(0,0,doc.internal.pageSize.getWidth(),60,'F');
+      doc.setTextColor(0);
+      doc.setFont('helvetica','bold'); doc.setFontSize(16);
+      doc.text('BURGUER GRILL — Relatório', margin, 38);
+
+      // Seções
+      doc.setTextColor(20); doc.setFontSize(12);
+
+      // Histórico Mesas
+      doc.setFont('helvetica','bold'); doc.setFontSize(14);
+      y += 40; doc.text('Histórico — Mesas', margin, y);
+      y += 12; doc.setFont('helvetica','normal'); doc.setFontSize(11);
+
+      const mesasCards = mesasHistEl.querySelectorAll('.card');
+      let totalMesas = 0;
+      if (mesasCards.length === 0) {
+        y += 16; doc.text('Nenhum fechamento de mesa.', margin, y);
+      } else {
+        mesasCards.forEach(card=>{
+          const lines = card.innerText.split('\n').filter(Boolean);
+          lines.forEach(line=>{
+            if (line.includes('Total: R$')) {
+              const val = parseFloat(line.replace(/[^\d,.-]/g,'').replace(',','.'));
+              if (!isNaN(val)) totalMesas += val;
+            }
+            y += 14;
+            if (y > doc.internal.pageSize.getHeight() - margin) { doc.addPage(); y = margin; }
+            doc.text(line, margin, y);
+          });
+          y += 8;
+        });
+      }
+      y += 16; doc.setFont('helvetica','bold'); doc.text(`Total Mesas: R$ ${totalMesas.toFixed(2).replace('.', ',')}`, margin, y);
+
+      // Histórico Delivery
+      doc.setFont('helvetica','bold'); doc.setFontSize(14);
+      y += 32; doc.text('Histórico — Delivery', margin, y);
+      y += 12; doc.setFont('helvetica','normal'); doc.setFontSize(11);
+
+      const deliveryCards = deliveryHistEl.querySelectorAll('.card');
+      let totalDelivery = 0;
+      if (deliveryCards.length === 0) {
+        y += 16; doc.text('Nenhum pedido de delivery.', margin, y);
+      } else {
+        deliveryCards.forEach(card=>{
+          const lines = card.innerText.split('\n').filter(Boolean);
+          lines.forEach(line=>{
+            if (line.includes('Total: R$')) {
+              const val = parseFloat(line.replace(/[^\d,.-]/g,'').replace(',','.'));
+              if (!isNaN(val)) totalDelivery += val;
+            }
+            y += 14;
+            if (y > doc.internal.pageSize.getHeight() - margin) { doc.addPage(); y = margin; }
+            doc.text(line, margin, y);
+          });
+          y += 8;
+        });
+      }
+      y += 16; doc.setFont('helvetica','bold'); doc.text(`Total Delivery: R$ ${totalDelivery.toFixed(2).replace('.', ',')}`, margin, y);
+
+      // Total geral
+      const totalGeral = totalMesas + totalDelivery;
+      y += 24; doc.setFontSize(15);
+      doc.text(`Total Geral: R$ ${totalGeral.toFixed(2).replace('.', ',')}`, margin, y);
+
+      doc.save(`RusticaBurger-Relatorio-${new Date().toISOString().slice(0,10)}.pdf`);
+    });
+
+    // LOGIN
+    document.getElementById('btn-login').addEventListener('click', async ()=>{
+      const email = document.getElementById('login-email').value;
+      const senha = document.getElementById('login-password').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+        document.getElementById('login-error').textContent = '';
+      } catch(e){
+        document.getElementById('login-error').textContent = "Usuário ou Senha incorreto! " ;
+      }
+    });
+
+    // Logout manual
+    document.getElementById('btn-logout').addEventListener('click', async ()=>{
+      try {
+        await signOut(auth);
+        Swal.fire({ icon:'success', title:'Logout realizado', background:'#1a1a1a', color:'#fff' })
+          .then(()=> location.reload());
+      } catch(e){
+        Swal.fire({ icon:'error', title:'Erro no logout', text:e.message, background:'#1a1a1a', color:'#fff' });
+      }
+    });
+
+    // Auto-logout às 5h
+    function scheduleAutoLogout(){
+      const now = new Date();
+      const target = new Date(now);
+      target.setHours(5,0,0,0);
+      if(now > target){ target.setDate(target.getDate() + 1); }
+      const msUntil5 = target.getTime() - now.getTime();
+
+      setTimeout(async ()=>{
+        try {
+          await signOut(auth);
+          Swal.fire({ icon:'info', title:'Sessão encerrada', text:'Logout automático às 5h.', background:'#1a1a1a', color:'#fff' });
+        } catch(e){
+          console.error("Erro no logout automático:", e);
+        } finally {
+          scheduleAutoLogout();
+        }
+      }, msUntil5);
+    }
+
+    // Logout apenas ao fechar a página (não em mudança de aba/refresh)
+    window.addEventListener('unload', ()=>{
+      // Tentativa de encerrar sessão ao fechar; navegadores podem limitar operações assíncronas aqui.
+      try { navigator.sendBeacon && navigator.sendBeacon('/logout-beacon'); } catch(e){}
+      // Melhor esforço: não força em refresh/aba; comportamento pode variar por navegador.
+      try { signOut(auth); } catch(e){}
+    });
+
+    // Listener de estado de auth
+    onAuthStateChanged(auth, (user)=>{
+      if(user){
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-panel').style.display = 'block';
+        loadMesas();
+        renderMesas();
+        openTab('mesas');
+      } else {
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('main-panel').style.display = 'none';
+      }
+    });
+
+    // Inicialização geral
+    scheduleAutoLogout();
+  </script>
+</body>
+</html>
