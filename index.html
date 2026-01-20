@@ -310,6 +310,7 @@
       padding: 6px 10px;
       border-radius: 6px;
       font-weight: bold;
+      font-size: 30px;
     }
 
     .menu-items {
@@ -394,6 +395,16 @@
       font-size: 0.9rem;
       margin-right: 6px;
     }
+    .menu-items.show {
+  display: block;
+}
+.swal-radio {
+  color: #000000 !important;
+}
+.swal2-radio label {
+  color: #000000 !important;
+}
+
   </style>
 </head>
 
@@ -768,34 +779,55 @@
     window.fecharMenuMesa = function () { document.getElementById('menu-modal').style.display = 'none'; };
 
     function renderMenuProdutos(numero) {
-      const menuEl = document.getElementById('menu-produtos');
-      menuEl.innerHTML = '';
-      const categorias = [
-        { key: 'burguers', label: 'Burguers' }, { key: 'fritas', label: 'Fritas' }, { key: 'jantinha', label: 'Jantinha' },
-        { key: 'chapas', label: 'Chapas' }, { key: 'tiragosto', label: 'Tira Gosto' }, { key: 'adicionais', label: 'Adicionais' },
-        { key: 'bebida', label: 'Bebidas' }, { key: 'alcoolico', label: 'Alcoólicos' }
-      ];
-      categorias.forEach(cat => {
-        const items = menuData.filter(i => i.category === cat.key);
-        if (items.length === 0) return;
-        const section = document.createElement('div');
-        section.className = 'menu-section';
-        section.innerHTML = `<div class="menu-section-header"><h3>${cat.label}</h3></div>`;
-        const itemsWrap = document.createElement('div');
-        items.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'menu-item';
-          row.innerHTML = `<div><h4>${item.name}</h4><small>R$ ${item.price.toFixed(2)}</small></div>
-            <div style="display:flex; gap:6px;">
-              <button class="btn btn-outline" onclick="window.addItemCarrinho(${numero}, ${item.id})">Add</button>
-              <button class="btn btn-outline" onclick="window.addItemCarrinhoComObs(${numero}, ${item.id})">Obs</button>
-            </div>`;
-          itemsWrap.appendChild(row);
-        });
-        section.appendChild(itemsWrap);
-        menuEl.appendChild(section);
-      });
-    }
+  const menuEl = document.getElementById('menu-produtos');
+  menuEl.innerHTML = '';
+  const categorias = [
+    { key: 'burguers', label: 'Burguers' }, { key: 'fritas', label: 'Fritas' },
+    { key: 'jantinha', label: 'Jantinha' }, { key: 'chapas', label: 'Chapas' },
+    { key: 'tiragosto', label: 'Tira Gosto' }, { key: 'adicionais', label: 'Adicionais' },
+    { key: 'bebida', label: 'Bebidas' }, { key: 'alcoolico', label: 'Alcoólicos' }
+  ];
+
+  categorias.forEach(cat => {
+    const items = menuData.filter(i => i.category === cat.key);
+    if (items.length === 0) return;
+
+    const section = document.createElement('div');
+    section.className = 'menu-section';
+
+    // Cabeçalho com botão toggle
+    const header = document.createElement('div');
+    header.className = 'menu-section-header';
+    header.innerHTML = `<h3>${cat.label}</h3>
+      <button class="toggle">+</button>`;
+    section.appendChild(header);
+
+    // Lista de itens
+    const itemsWrap = document.createElement('div');
+    itemsWrap.className = 'menu-items';
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'menu-item';
+      row.innerHTML = `
+        <div><h4>${item.name}</h4><small>R$ ${item.price.toFixed(2)}</small></div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-outline" onclick="window.addItemCarrinho(${numero}, ${item.id})">Add</button>
+          <button class="btn btn-outline" onclick="window.addItemCarrinhoComObs(${numero}, ${item.id})">Obs</button>
+        </div>`;
+      itemsWrap.appendChild(row);
+    });
+    section.appendChild(itemsWrap);
+
+    // Evento de abrir/fechar
+    header.querySelector('.toggle').addEventListener('click', () => {
+      itemsWrap.classList.toggle('show');
+      header.querySelector('.toggle').textContent = itemsWrap.classList.contains('show') ? '−' : '+';
+    });
+
+    menuEl.appendChild(section);
+  });
+}
+
 
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1400, background: '#25d366', color: '#fff' });
 
@@ -851,21 +883,42 @@
       Swal.fire({ icon: 'success', title: 'Cozinha avisada' });
     };
 
-    window.fecharMesa = async function (num) {
-      const m = window.mesasState[num];
-      if (!m || m.status === 'Livre') return;
-      const { value: pag } = await Swal.fire({ title: 'Pagamento', input: 'radio', inputOptions: { 'PIX': 'PIX', 'Cartão': 'Cartão', 'Dinheiro': 'Dinheiro' }, background: '#1a1a1a', color: '#fff' });
-      if (!pag) return;
+   window.fecharMesa = async function (num) {
+  const m = window.mesasState[num];
+  if (!m || m.status === 'Livre') return;
 
-      await addDoc(collection(db, "pedidos"), {
-        tipo: 'fechamento', cliente: `Mesa ${num}`, garcom: m.garcom, pagamento: pag,
-        itens: m.itens.map(i => i.name).join(', '), total: m.total.toFixed(2), createdAt: new Date().toISOString()
-      });
+  const { value: pag } = await Swal.fire({
+    title: 'Pagamento',
+    input: 'radio',
+    inputOptions: { 
+      'PIX': 'PIX', 
+      'Cartão': 'Cartão', 
+      'Dinheiro': 'Dinheiro' 
+    },
+    background: '#1a1a1a',
+    color: '#fff',
+    customClass: {
+      input: 'swal-radio'
+    }
+  });
 
-      window.mesasState[num] = { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
-      await saveMesaFirebase(num);
-      clearHighlight();
-    };
+  if (!pag) return;
+
+  await addDoc(collection(db, "pedidos"), {
+    tipo: 'fechamento',
+    cliente: `Mesa ${num}`,
+    garcom: m.garcom,
+    pagamento: pag,
+    itens: m.itens.map(i => i.name).join(', '),
+    total: m.total.toFixed(2),
+    createdAt: new Date().toISOString()
+  });
+
+  window.mesasState[num] = { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
+  await saveMesaFirebase(num);
+  clearHighlight();
+};
+
 
     // PDF e Apagar (Com Proteção de Gerente)
     async function requireManager() {
