@@ -431,8 +431,9 @@
       <div class="actions" style="display:flex; gap:8px;">
         <button id="btn-pdf" class="btn btn-accent"><i class="fas fa-file-pdf"></i> Baixar PDF</button>
         <button id="btn-apagar-tudo" class="btn btn-danger"><i class="fas fa-trash"></i> Apagar pedidos</button>
-        <button id="btn-logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
-      </div>
+        
+      </div><br>
+      <button id="btn-logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </header>
 
     <div class="tabs">
@@ -651,48 +652,82 @@
     }
 
     // Históricos
-    function renderHistoricos(pedidosRaw) {
-      const histMesas = pedidosRaw.filter(p => p.tipo === 'fechamento' && (p.cliente || '').toLowerCase().includes('mesa'))
-        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-      const histDelivery = pedidosRaw.filter(p => !p.tipo || p.tipo === 'delivery')
-        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+   function renderHistoricos(pedidosRaw) {
+  const histMesas = pedidosRaw
+    .filter(p => p.tipo === 'fechamento' && (p.cliente || '').toLowerCase().includes('mesa'))
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
-      mesasHistEl.innerHTML = '';
-      let totalMesas = 0;
-      histMesas.forEach((p, idx) => {
-        const t = parseFloat(p.total || 0);
-        totalMesas += isNaN(t) ? 0 : t;
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <h3><i class="fas fa-chair"></i> ${p.cliente || 'Mesa'}</h3>
-          <p class="muted">#${idx + 1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
-          ${p.garcom ? `<p><strong>Garçom:</strong> ${p.garcom}</p>` : ''}
-          ${p.pagamento ? `<p><strong>Pagamento:</strong> ${p.pagamento}</p>` : ''}
-          <p><strong>Itens:</strong> ${p.itens || ''}</p>
-          ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
-        `;
-        mesasHistEl.appendChild(card);
-      });
-      mesasTotalEl.textContent = `Total Mesas: R$ ${totalMesas.toFixed(2).replace('.', ',')}`;
+  const histDelivery = pedidosRaw
+    .filter(p => !p.tipo || p.tipo === 'delivery')
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
-      deliveryHistEl.innerHTML = '';
-      let totalDelivery = 0;
-      histDelivery.forEach((p, idx) => {
-        const t = parseFloat(p.total || 0);
-        totalDelivery += isNaN(t) ? 0 : t;
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <h3><i class="fas fa-truck"></i> ${p.cliente || 'Cliente'}</h3>
-          <p class="muted">#${idx + 1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
-          <p><strong>Itens:</strong> ${p.itens || ''}</p>
-          ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
-        `;
-        deliveryHistEl.appendChild(card);
-      });
-      deliveryTotalEl.textContent = `Total Delivery: R$ ${totalDelivery.toFixed(2).replace('.', ',')}`;
-    }
+  // --- Mesas ---
+  mesasHistEl.innerHTML = '';
+  let totalMesas = 0;
+  histMesas.forEach((p, idx) => {
+    const t = parseFloat(p.total || 0);
+    totalMesas += isNaN(t) ? 0 : t;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3><i class="fas fa-chair"></i> ${p.cliente || 'Mesa'}</h3>
+      <p class="muted">#${idx + 1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
+      ${p.garcom ? `<p><strong>Garçom:</strong> ${p.garcom}</p>` : ''}
+      ${p.pagamento ? `<p><strong>Pagamento:</strong> ${p.pagamento}</p>` : ''}
+      <p><strong>Itens:</strong> ${p.itens || ''}</p>
+      ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
+      <button class="btn btn-outline" onclick="window.reimprimirNota('${p.id}')">
+        <i class="fas fa-print"></i> Reimprimir
+      </button>
+    `;
+    mesasHistEl.appendChild(card);
+  });
+  mesasTotalEl.textContent = `Total Mesas: R$ ${totalMesas.toFixed(2).replace('.', ',')}`;
+
+  // --- Delivery ---
+  deliveryHistEl.innerHTML = '';
+  let totalDelivery = 0;
+  histDelivery.forEach((p, idx) => {
+    const t = parseFloat(p.total || 0);
+    totalDelivery += isNaN(t) ? 0 : t;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3><i class="fas fa-truck"></i> ${p.cliente || 'Cliente'}</h3>
+      <p class="muted">#${idx + 1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
+      <p><strong>Itens:</strong> ${p.itens || ''}</p>
+      ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
+      <button class="btn btn-outline" onclick="window.reimprimirNota('${p.id}')">
+        <i class="fas fa-print"></i> Reimprimir
+      </button>
+    `;
+    deliveryHistEl.appendChild(card);
+  });
+  deliveryTotalEl.textContent = `Total Delivery: R$ ${totalDelivery.toFixed(2).replace('.', ',')}`;
+}
+window.reimprimirNota = async function (pedidoId) {
+  const docRef = doc(db, "pedidos", pedidoId);
+  const snap = await getDocs(query(collection(db, "pedidos")));
+  const pedido = (await getDocs(query(collection(db, "pedidos")))).docs.find(d => d.id === pedidoId)?.data();
+
+  if (!pedido) {
+    Swal.fire('Erro', 'Pedido não encontrado', 'error');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  pdf.setFontSize(14);
+  pdf.text(`Nota - ${pedido.cliente || 'Cliente'}`, 10, 10);
+  pdf.text(`Itens: ${pedido.itens || ''}`, 10, 20);
+  if (pedido.total) pdf.text(`Total: R$ ${pedido.total}`, 10, 30);
+  if (pedido.pagamento) pdf.text(`Pagamento: ${pedido.pagamento}`, 10, 40);
+  pdf.text(`Data: ${new Date(pedido.createdAt).toLocaleString('pt-BR')}`, 10, 50);
+
+  pdf.save(`nota-${pedidoId}.pdf`);
+};
+
 
     // Render Mesas
     function renderMesas() {
@@ -709,10 +744,10 @@
             <label>Garçom:</label>
             <select id="mesa-garcom-${i}" ${m.status === 'Ocupada' ? 'disabled' : ''} onchange="window.selecionarGarcom(${i}, this.value)">
               <option value="">-- selecione --</option>
-              <option value="Ana" ${m.garcom === 'Ana' ? 'selected' : ''}>Ana</option>
-              <option value="Carlos" ${m.garcom === 'Carlos' ? 'selected' : ''}>Carlos</option>
-              <option value="Beto" ${m.garcom === 'Beto' ? 'selected' : ''}>Beto</option>
-              <option value="Tor" ${m.garcom === 'Tor' ? 'selected' : ''}>Tor</option>
+              <option value="Nicole" ${m.garcom === 'Nicole' ? 'selected' : ''}>Nicole</option>
+              <option value="Ingrid" ${m.garcom === 'Ingrid' ? 'selected' : ''}>Ingrid</option>
+              <option value="Alana" ${m.garcom === 'Alana' ? 'selected' : ''}>Alana</option>
+              
             </select>
           </div>
           <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin:8px 0;">
@@ -867,23 +902,35 @@
       window.fecharMenuMesa();
     };
 
-    window.enviarParaCozinha = async function (num) {
-      const m = window.mesasState[num];
-      if (!m || m.itens.length === 0) return;
-      const chave = (it) => `${it.name}||${it.obs}`;
-      const novos = m.itens.filter(it => !m.impresso.includes(chave(it)));
-      if (novos.length === 0) { Swal.fire({ title: 'Já enviado' }); return; }
+   window.enviarParaCozinha = async function (num) {
+  const m = window.mesasState[num];
+  if (!m || m.itens.length === 0) return;
 
-      await addDoc(collection(db, "pedidos"), {
-        tipo: 'mesa', cliente: `Mesa ${num}`, garcom: m.garcom,
-        itens: novos.map(i => i.name).join('; '), obs: novos.map(i => i.obs).join('; '), createdAt: new Date().toISOString()
-      });
-      novos.forEach(it => m.impresso.push(chave(it)));
-      await saveMesaFirebase(num);
-      Swal.fire({ icon: 'success', title: 'Cozinha avisada' });
-    };
+  // chave para evitar duplicados
+  const chave = (it) => `${it.name}||${it.price}||${it.obs || ''}`;
+  const novos = m.itens.filter(it => !m.impresso.includes(chave(it)));
+  if (novos.length === 0) { 
+    Swal.fire({ title: 'Já enviado' }); 
+    return; 
+  }
 
-   window.fecharMesa = async function (num) {
+  // grava no Firestore já no formato esperado pela impressora
+  await addDoc(collection(db, "pedidos"), {
+    tipo: 'mesa',
+    cliente: `Mesa ${num}`,
+    garcom: m.garcom,
+    itens: novos.map(i => `${i.name}||${i.price.toFixed(2)}||${i.obs || ''}`).join(';'),
+    createdAt: new Date().toISOString()
+  });
+
+  // marca como impresso
+  novos.forEach(it => m.impresso.push(chave(it)));
+  await saveMesaFirebase(num);
+
+  Swal.fire({ icon: 'success', title: 'Cozinha avisada' });
+};
+
+window.fecharMesa = async function (num) {
   const m = window.mesasState[num];
   if (!m || m.status === 'Livre') return;
 
@@ -891,9 +938,7 @@
     title: 'Pagamento',
     input: 'radio',
     inputOptions: { 
-      'PIX': 'PIX', 
-      'Cartão': 'Cartão', 
-      'Dinheiro': 'Dinheiro' 
+      'NO LOCAL': 'NO LOCAL',  
     },
     background: '#1a1a1a',
     color: '#fff',
@@ -904,45 +949,92 @@
 
   if (!pag) return;
 
+  // grava fechamento com itens completos
   await addDoc(collection(db, "pedidos"), {
     tipo: 'fechamento',
     cliente: `Mesa ${num}`,
     garcom: m.garcom,
     pagamento: pag,
-    itens: m.itens.map(i => i.name).join(', '),
+    itens: m.itens.map(i => `${i.name}||${i.price.toFixed(2)}||${i.obs || ''}`).join(';'),
     total: m.total.toFixed(2),
     createdAt: new Date().toISOString()
   });
 
+  // libera mesa
   window.mesasState[num] = { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
   await saveMesaFirebase(num);
   clearHighlight();
 };
 
+   // PDF e Apagar (Com Proteção de Gerente)
+async function requireManager() {
+  const user = auth.currentUser;
+  const { value: pwd } = await Swal.fire({
+    title: 'Senha Gerente',
+    input: 'password',
+    background: '#1a1a1a',
+    color: '#fff',
+    showCancelButton: true
+  });
+  if (!pwd) return false;
+  try {
+    await signInWithEmailAndPassword(auth, user.email, pwd);
+    return true;
+  } catch (e) {
+    Swal.fire('Erro', 'Senha incorreta', 'error');
+    return false;
+  }
+}
 
-    // PDF e Apagar (Com Proteção de Gerente)
-    async function requireManager() {
-      const user = auth.currentUser;
-      const { value: pwd } = await Swal.fire({ title: 'Senha Gerente', input: 'password', background: '#1a1a1a', color: '#fff', showCancelButton: true });
-      if (!pwd) return false;
-      try { await signInWithEmailAndPassword(auth, user.email, pwd); return true; }
-      catch (e) { Swal.fire('Erro', 'Senha incorreta', 'error'); return false; }
+document.getElementById('btn-apagar-tudo').addEventListener('click', async () => {
+  if (!(await requireManager())) return;
+  const snap = await getDocs(collection(db, 'pedidos'));
+  snap.forEach(d => deleteDoc(doc(db, 'pedidos', d.id)));
+  Swal.fire('Limpo');
+});
+
+document.getElementById('btn-pdf').addEventListener('click', async () => {
+  if (!(await requireManager())) return;
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  pdf.setFontSize(16);
+  pdf.text("Relatório Burguer Grill", 10, 10);
+
+  let y = 20;
+  let contador = 1;
+  let totalGeral = 0;
+
+  const snap = await getDocs(collection(db, 'pedidos'));
+  snap.forEach((d) => {
+    const p = d.data();
+    const total = parseFloat(p.total || 0);
+    if (!isNaN(total)) totalGeral += total;
+
+    pdf.setFontSize(12);
+    pdf.text(`#${contador} - ${p.cliente || 'Cliente'}`, 10, y);
+    y += 6;
+    if (p.garcom) { pdf.text(`Garçom: ${p.garcom}`, 10, y); y += 6; }
+    if (p.pagamento) { pdf.text(`Pagamento: ${p.pagamento}`, 10, y); y += 6; }
+    if (p.itens) { pdf.text(`Itens: ${p.itens}`, 10, y); y += 6; }
+    pdf.text(`Total: R$ ${p.total || '0,00'}`, 10, y); y += 6;
+    if (p.createdAt) {
+      pdf.text(`Data: ${new Date(p.createdAt).toLocaleString('pt-BR')}`, 10, y);
+      y += 10;
+    } else {
+      y += 10;
     }
 
-    document.getElementById('btn-apagar-tudo').addEventListener('click', async () => {
-      if (!(await requireManager())) return;
-      const snap = await getDocs(collection(db, 'pedidos'));
-      snap.forEach(d => deleteDoc(doc(db, 'pedidos', d.id)));
-      Swal.fire('Limpo');
-    });
+    contador++;
+    if (y > 270) { pdf.addPage(); y = 20; }
+  });
 
-    document.getElementById('btn-pdf').addEventListener('click', async () => {
-      if (!(await requireManager())) return;
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
-      pdf.text("Relatório Burguer Grill", 10, 10);
-      pdf.save("relatorio.pdf");
-    });
+  // Total geral no final
+  pdf.setFontSize(14);
+  pdf.text(`TOTAL GERAL: R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 10, y);
+
+  pdf.save("relatorio.pdf");
+});
 
     // Auth & Tabs
     window.openTab = function (id) {
