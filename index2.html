@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cardápio Burger Grill</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff8f0;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      text-align: center;
+      padding: 20px;
+      background: #d35400;
+      color: white;
+    }
+    h1 { margin: 0; font-size: 2em; }
+    main { padding: 20px; max-width: 900px; margin: auto; }
+    section { margin: 20px 0; }
+    h2 {
+      border-bottom: 2px solid #d35400;
+      padding-bottom: 5px;
+      color: #d35400;
+      font-size: 1.5em;
+    }
+    ul { list-style: none; padding: 0; }
+    li { padding: 10px 0; border-bottom: 1px solid #eee; }
+    .item-nome { font-weight: bold; display: block; font-size: 1.1em; }
+    .item-desc { font-size: 0.9em; color: #555; display: block; margin-top: 3px; }
+    .item-preco { font-weight: bold; color: #27ae60; float: right; }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #f2f2f2;
+      font-size: 0.9em;
+      color: #555;
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 1.5em; }
+      h2 { font-size: 1.2em; }
+      .item-nome { font-size: 1em; }
+      .item-preco { float: none; display: block; margin-top: 5px; }
+    }
+    @media (max-width: 480px) {
+      body { font-size: 14px; }
+      header { padding: 15px; }
+      main { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🍔 Burger Grill</h1>
+    <p>Cardápio Digital</p>
+  </header>
+
+  <main>
+    <!-- Combos -->
+    <section>
+      <h2>Combos</h2>
+      <ul>
+        <li><span class="item-nome">COMBO GRILL <span class="item-preco">R$ 100,00</span></span>
+            <span class="item-desc">Um Grill Cheddar, um Grill Clássico, um Frango Burger, um Smash Grill, 13 nuggets, batata frita, Coca-Cola 1L e molho especial da casa.</span></li>
+      </ul>
+    </section>
+
+    <!-- Burguers -->
+    <section>
+      <h2>Burguers</h2>
+      <ul>
+        <li><span class="item-nome">Grill Burguer <span class="item-preco">R$ 32,00</span></span>
+            <span class="item-desc">Pão brioche, duas carnes 170g, duplo cheddar, duplo bacon, alface, tomate, cebola na manteiga e molho especial. Acompanha fritas.</span></li>
+        <li><span class="item-nome">Picanha Grill <span class="item-preco">R$ 34,00</span></span>
+            <span class="item-desc">Hambúrguer 170g de picanha, bacon, mussarela, cebola premium, maionese caseira, alface e tomate. Acompanha fritas.</span></li>
+        <li><span class="item-nome">Burguer de Filé <span class="item-preco">R$ 33,00</span></span>
+            <span class="item-desc">Filé mignon em cubos, cebola roxa, mussarela, molho de alho, alface e tomate. Acompanha fritas.</span></li>
+        <li><span class="item-nome">Caramelizado <span class="item-preco">R$ 27,00</span></span>
+            <span class="item-desc">Hambúrguer 170g, mussarela, cebola caramelizada, bacon, alface, tomate e molho especial.</span></li>
+        <li><span class="item-nome">Smash Grill <span class="item-preco">R$ 20,00</span></span>
+            <span class="item-desc">Carne smash 100g, cheddar, cebola roxa, alface, tomate e molho defumado.</span></li>
+        <li><span class="item-nome">Smash Grill Duplo <span class="item-preco">R$ 22,00</span></span>
+            <span class="item-desc">2 carnes smash 100g, duplo cheddar, cebola roxa, alface, tomate e molho defumado.</span></li>
+        <li><span class="item-nome">Grill Clássico <span class="item-preco">R$ 24,00</span></span>
+            <span class="item-desc">Hambúrguer 150g, mussarela, alface, tomate e molho especial.</span></li>
+        <li><span class="item-nome">Grill Cheddar <span class="item-preco">R$ 23,00</span></span>
+            <span class="item-desc">Hambúrguer 150g, cheddar, alface, tomate e molho especial.</span></li>
+        <li><span class="item-nome">Frango Burguer <span class="item-preco">R$ 23,00</span></span>
+            <span class="item-desc">Filé de frango grelhado 150g, mussarela, alface, tomate e molho especial. Acompanha batata P.</span></li>
+        <li><span class="item-nome">Kids <span class="item-preco">R$ 12,00</span></span>
+            <span class="item-desc">Carne smash 100g, cheddar e molho defumado. Acompanha fritas.</span></li>
+      </ul>
+    </section>
+    <!-- Fritas & Porções -->
+    <section>
+      <h2>Fritas & Porções</h2>
+      <ul>
+        <li><span class="item-nome">Fritas P <span class="item-preco">R$ 8,00</span></span>
+            <span class="item-desc">Porção pequena de batata frita crocante.</span></li>
+        <li><span class="item-nome">Fritas M <span class="item-preco">R$ 15,00</span></span>
+            <span class="item-desc">Porção média de batata frita crocante.</span></li>
+        <li><span class="item-nome">Fritas Cheddar & Bacon <span class="item-preco">R$ 22,00</span></span>
+            <span class="item-desc">Batata frita com cheddar cremoso e bacon em cubos.</span></li>
+        <li><span class="item-nome">Porção de Macaxeira <span class="item-preco">R$ 15,00</span></span>
+            <span class="item-desc">Macaxeira crocante.</span></li>
+      </ul>
+    </section>
+
+    <!-- Jantinhas -->
+    <section>
+      <h2>Jantinhas</h2>
+      <ul>
+        <li><span class="item-nome">Bife Acebolado <span class="item-preco">R$ 30,00</span></span>
+            <span class="item-desc">Serve 1 pessoa. Acompanha arroz, feijão, farofa, salada e batata.</span></li>
+        <li><span class="item-nome">Jantinha Carne de Sol <span class="item-preco">R$ 30,00</span></span>
+            <span class="item-desc">Serve 1 pessoa. Acompanha arroz, feijão, farofa, salada e macaxeira.</span></li>
+        <li><span class="item-nome">Jantinha Frango Grill - Coxinha da Asa <span class="item-preco">R$ 27,00</span></span>
+            <span class="item-desc">Serve 1 pessoa. Acompanha arroz, feijão, farofa e salada.</span></li>
+      </ul>
+    </section>
+
+    <!-- Chapas -->
+    <section>
+      <h2>Chapas</h2>
+      <ul>
+        <li><span class="item-nome">Picanha na Chapa 400g <span class="item-preco">R$ 95,00</span></span>
+            <span class="item-desc">Acompanha arroz, farofa, salada e batata frita.</span></li>
+        <li><span class="item-nome">Picanha na Chapa 600g <span class="item-preco">R$ 100,00</span></span>
+            <span class="item-desc">Acompanha arroz, farofa, salada e batata frita.</span></li>
+        <li><span class="item-nome">Picanha na Chapa 800g <span class="item-preco">R$ 130,00</span></span>
+            <span class="item-desc">Acompanha arroz, farofa, salada e batata frita.</span></li>
+        <li><span class="item-nome">Picanha na Chapa 1Kg <span class="item-preco">R$ 160,00</span></span>
+            <span class="item-desc">Acompanha arroz, farofa, salada e batata frita.</span></li>
+        <li><span class="item-nome">Filé com Batata <span class="item-preco">R$ 55,00</span></span>
+            <span class="item-desc">Filé mignon na chapa com batata frita crocante.</span></li>
+        <li><span class="item-nome">Carne de Sol com Macaxeira <span class="item-preco">R$ 55,00</span></span>
+            <span class="item-desc">Carne de sol suculenta com macaxeira.</span></li>
+      </ul>
+    </section>
+
+    <!-- Tira Gosto -->
+    <section>
+      <h2>Tira Gosto</h2>
+      <ul>
+        <li><span class="item-nome">Frango a Passarinho <span class="item-preco">R$ 30,00</span></span>
+            <span class="item-desc">Coxinha da asa empanada e frita. Acompanha molho barbecue picante (10 unidades).</span></li>
+        <li><span class="item-nome">Calabresa com Batata <span class="item-preco">R$ 25,00</span></span>
+            <span class="item-desc">Calabresa acebolada com batata frita.</span></li>
+      </ul>
+    </section>
+    <!-- Bebidas -->
+    <section>
+      <h2>Bebidas</h2>
+      <ul>
+        <li><span class="item-nome">Suco Maracujá (Copo) <span class="item-preco">R$ 9,00</span></span>
+            <span class="item-desc">Copo de suco de maracujá.</span></li>
+        <li><span class="item-nome">Suco Maracujá (Jarra) <span class="item-preco">R$ 27,00</span></span>
+            <span class="item-desc">Jarra de suco de maracujá.</span></li>
+        <li><span class="item-nome">Suco Acerola (Copo) <span class="item-preco">R$ 8,00</span></span>
+            <span class="item-desc">Copo de suco de acerola.</span></li>
+        <li><span class="item-nome">Suco Acerola (Jarra) <span class="item-preco">R$ 20,00</span></span>
+            <span class="item-desc">Jarra de suco de acerola.</span></li>
+        <li><span class="item-nome">Coca Cola Lata 350ml <span class="item-preco">R$ 6,00</span></span></li>
+        <li><span class="item-nome">Coca Cola Zero 350ml <span class="item-preco">R$ 6,00</span></span></li>
+        <li><span class="item-nome">Fanta Laranja 350ml <span class="item-preco">R$ 6,00</span></span></li>
+        <li><span class="item-nome">Guaraná 350ml <span class="item-preco">R$ 6,00</span></span></li>
+        <li><span class="item-nome">Água Tônica <span class="item-preco">R$ 6,00</span></span></li>
+        <li><span class="item-nome">Red Bull <span class="item-preco">R$ 15,00</span></span></li>
+        <li><span class="item-nome">Guaraná 1L <span class="item-preco">R$ 10,00</span></span></li>
+        <li><span class="item-nome">Coca Cola 1L <span class="item-preco">R$ 10,00</span></span></li>
+        <li><span class="item-nome">Coca Cola 2L <span class="item-preco">R$ 15,00</span></span></li>
+        <li><span class="item-nome">Coca Cola 1L KS <span class="item-preco">R$ 10,00</span></span></li>
+        <li><span class="item-nome">Água com Gás <span class="item-preco">R$ 6,00</span></span></li>
+        <li><span class="item-nome">Água sem Gás <span class="item-preco">R$ 4,00</span></span></li>
+        <li><span class="item-nome">H2OH! Limão <span class="item-preco">R$ 8,00</span></span></li>
+        <li><span class="item-nome">H2OH! Limoneto <span class="item-preco">R$ 8,00</span></span></li>
+      </ul>
+    </section>
+
+    <!-- Alcoólicos -->
+    <section>
+      <h2>Alcoólicos</h2>
+      <ul>
+        <li><span class="item-nome">Skol 600ml <span class="item-preco">R$ 12,00</span></span></li>
+        <li><span class="item-nome">Original 600ml <span class="item-preco">R$ 14,00</span></span></li>
+        <li><span class="item-nome">Brahma 600ml <span class="item-preco">R$ 12,00</span></span></li>
+        <li><span class="item-nome">Amstel 600ml <span class="item-preco">R$ 12,00</span></span></li>
+        <li><span class="item-nome">Heineken 600ml <span class="item-preco">R$ 17,00</span></span></li>
+        <li><span class="item-nome">Budweiser Long Neck 330ml <span class="item-preco">R$ 12,00</span></span></li>
+        <li><span class="item-nome">Heineken Long Neck 0 <span class="item-preco">R$ 12,00</span></span>
+            <span class="item-desc">Sem álcool.</span></li>
+        <li><span class="item-nome">Stella Long Neck 330ml <span class="item-preco">R$ 12,00</span></span></li>
+        <li><span class="item-nome">Heineken Long Neck 330ml <span class="item-preco">R$ 12,00</span></span></li>
+        <li><span class="item-nome">Corona Long Neck 330ml <span class="item-preco">R$ 12,00</span></span></li>
+        <li><span class="item-nome">Skol Lata <span class="item-preco">R$ 5,00</span></span></li>
+        <li><span class="item-nome">Ice Limão <span class="item-preco">R$ 12,00</span></span></li>
+        <li><span class="item-nome">Ice Balada <span class="item-preco">R$ 12,00</span></span></li>
+        <li><span class="item-nome">Dose Campari <span class="item-preco">R$ 15,00</span></span></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Endereço: Av. Presidente Médice, Praça da Onça – Itinga-MA</p>
+    <p>Contato: (99) 9144-4176</p>
+    <p>Funcionamento: Seg a Dom, 19h às 23h59 (fechado às quartas)</p>
+  </footer>
+</body>
+</html>
