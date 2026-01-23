@@ -662,7 +662,6 @@
   }
 }
 
-
     // Históricos
    function renderHistoricos(pedidosRaw) {
   const histMesas = pedidosRaw
@@ -814,6 +813,7 @@ window.reimprimirNota = async function (pedidoId) {
       setHighlightMesa(numero);
     };
 
+
     // Modal Menu
     window.abrirMenuMesa = function (numero) {
       window.mesaAtual = numero;
@@ -920,11 +920,12 @@ window.reimprimirNota = async function (pedidoId) {
 
   // chave para evitar duplicados
   const chave = (it) => `${it.name}||${it.price}||${it.obs || ''}`;
-  const novos = m.itens.filter(it => !m.impresso.includes(chave(it)));
-  if (novos.length === 0) { 
-    Swal.fire({ title: 'Já enviado' }); 
-    return; 
-  }
+ const novos = m.itens; // imprime sempre todos os itens
+if (novos.length === 0) { 
+  Swal.fire({ title: 'Nenhum item para enviar' }); 
+  return; 
+}
+
 
   // grava no Firestore já no formato esperado pela impressora
   await addDoc(collection(db, "pedidos"), {
@@ -1090,28 +1091,20 @@ window.enviarParaCozinha = async function (num) {
   const m = window.mesasState[num];
   if (!m || m.itens.length === 0) return;
 
-  const novos = m.itens.filter(it => !m.impresso.includes(`${it.name}||${it.price}||${it.obs || ''}`));
-  if (novos.length === 0) { 
-    Swal.fire({ title: 'Já enviado' }); 
-    return; 
-  }
-
-  // 🔧 Agrupa antes de salvar
-  const agrupados = agruparItens(novos);
+  // pega apenas o último item adicionado
+  const ultimoItem = m.itens[m.itens.length - 1];
 
   await addDoc(collection(db, "pedidos"), {
     tipo: 'mesa',
     cliente: `Mesa ${num}`,
     garcom: m.garcom,
-    itens: agrupados.map(i => `${i.qty}x ${i.name}||${(i.price * i.qty).toFixed(2)}||${i.obs || ''}`).join(';'),
+    itens: `${ultimoItem.name}||${ultimoItem.price.toFixed(2)}||${ultimoItem.obs || ''}`,
     createdAt: new Date().toISOString()
   });
 
-  novos.forEach(it => m.impresso.push(`${it.name}||${it.price}||${it.obs || ''}`));
-  await saveMesaFirebase(num);
-
   Swal.fire({ icon: 'success', title: 'Cozinha avisada' });
 };
+
 
 window.fecharMesa = async function (num) {
   const m = window.mesasState[num];
