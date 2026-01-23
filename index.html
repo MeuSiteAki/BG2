@@ -1121,8 +1121,6 @@ window.enviarParaCozinha = async function (num) {
   Swal.fire({ icon: 'success', title: 'Cozinha avisada' });
 };
 
-
-
 window.fecharMesa = async function (num) {
   const m = window.mesasState[num];
   if (!m || m.status === 'Livre') return;
@@ -1138,7 +1136,7 @@ window.fecharMesa = async function (num) {
 
   if (!pag) return;
 
-  // 🔧 Agrupa antes de salvar
+  // 🔧 Agrupa todos os itens da mesa (não importa se já foram impressos antes)
   const agrupados = agruparItens(m.itens);
 
   await addDoc(collection(db, "pedidos"), {
@@ -1151,10 +1149,14 @@ window.fecharMesa = async function (num) {
     createdAt: new Date().toISOString()
   });
 
+  // libera mesa
   window.mesasState[num] = { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
   await saveMesaFirebase(num);
   clearHighlight();
+
+  Swal.fire({ icon: 'success', title: 'Mesa fechada e nota enviada' });
 };
+
 // Estado do bip
 window.bipAtivo = true;
 const btnBip = document.getElementById('btn-bip');
