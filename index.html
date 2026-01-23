@@ -1091,19 +1091,36 @@ window.enviarParaCozinha = async function (num) {
   const m = window.mesasState[num];
   if (!m || m.itens.length === 0) return;
 
-  // pega apenas o último item adicionado
-  const ultimoItem = m.itens[m.itens.length - 1];
+  // chave única para cada item
+  const chave = (it) => `${it.name}||${it.price}||${it.obs || ''}`;
 
+  // pega apenas os itens que ainda não foram impressos
+  const novos = m.itens.filter(it => !m.impresso.includes(chave(it)));
+
+  if (novos.length === 0) {
+    Swal.fire({ title: 'Nenhum item novo para enviar' });
+    return;
+  }
+
+  // agrupa os novos itens
+  const agrupados = agruparItens(novos);
+
+  // grava no Firestore
   await addDoc(collection(db, "pedidos"), {
     tipo: 'mesa',
     cliente: `Mesa ${num}`,
     garcom: m.garcom,
-    itens: `${ultimoItem.name}||${ultimoItem.price.toFixed(2)}||${ultimoItem.obs || ''}`,
+    itens: agrupados.map(i => `${i.qty}x ${i.name}||${(i.price * i.qty).toFixed(2)}||${i.obs || ''}`).join(';'),
     createdAt: new Date().toISOString()
   });
 
+  // marca como impressos
+  novos.forEach(it => m.impresso.push(chave(it)));
+  await saveMesaFirebase(num);
+
   Swal.fire({ icon: 'success', title: 'Cozinha avisada' });
 };
+
 
 
 window.fecharMesa = async function (num) {
