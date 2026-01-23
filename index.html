@@ -743,7 +743,7 @@ window.reimprimirNota = async function (pedidoId) {
     // Render Mesas
     function renderMesas() {
       mesasGrid.innerHTML = '';
-      for (let i = 1; i <= 15; i++) {
+      for (let i = 1; i <= 40; i++) {
         const m = window.mesasState[i] || { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
         const card = document.createElement('div');
         card.className = `card mesa-card ${m.status === 'Livre' ? 'livre' : 'ocupada'}`;
