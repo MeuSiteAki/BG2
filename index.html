@@ -1128,7 +1128,11 @@ window.fecharMesa = async function (num) {
   const { value: pag } = await Swal.fire({
     title: 'Pagamento',
     input: 'radio',
-    inputOptions: { 'NO LOCAL': 'NO LOCAL' },
+    inputOptions: { 
+      'PIX': 'PIX',
+      'CARTAO': 'CARTÃO',
+      'DINHEIRO': 'DINHEIRO'
+    },
     background: '#1a1a1a',
     color: '#fff',
     customClass: { input: 'swal-radio' }
@@ -1143,7 +1147,7 @@ window.fecharMesa = async function (num) {
     tipo: 'fechamento',
     cliente: `Mesa ${num}`,
     garcom: m.garcom,
-    pagamento: pag,
+    pagamento: pag, // ✅ aqui vai salvar PIX, CARTÃO ou DINHEIRO
     itens: agrupados.map(i => `${i.qty}x ${i.name}||${(i.price * i.qty).toFixed(2)}||${i.obs || ''}`).join(';'),
     total: m.total.toFixed(2),
     createdAt: new Date().toISOString()
@@ -1156,6 +1160,7 @@ window.fecharMesa = async function (num) {
 
   Swal.fire({ icon: 'success', title: 'Mesa fechada e nota enviada' });
 };
+
 
 // Estado do bip
 window.bipAtivo = true;
