@@ -1134,7 +1134,6 @@ window.enviarParaCozinha = async function (num) {
   novos.forEach(it => m.impresso.push(chave(it)));
   await saveMesaFirebase(num);
 
-  Swal.fire({ icon: 'success', title: 'Cozinha avisada' });
 };
 
 window.fecharMesa = async function (num) {
