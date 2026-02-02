@@ -646,14 +646,15 @@
     // Delivery (lista atual)
     function renderDelivery(pedidosRaw) {
   const pedidos = [...pedidosRaw]
-    .filter(p => !p.tipo || p.tipo === 'delivery')
+    // 🔧 agora inclui também retirada
+    .filter(p => !p.tipo || p.tipo === 'delivery' || p.tipo === 'retirada')
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
   ordersGrid.innerHTML = '';
   ordersCountEl.textContent = `${pedidos.length} pedidos`;
 
   if (pedidos.length === 0) {
-    ordersGrid.innerHTML = `<div class="card"><p class="muted"><i class="fas fa-inbox"></i> Nenhum pedido de delivery.</p></div>`;
+    ordersGrid.innerHTML = `<div class="card"><p class="muted"><i class="fas fa-inbox"></i> Nenhum pedido de delivery/retirada.</p></div>`;
     return;
   }
 
@@ -663,7 +664,11 @@
     card.innerHTML = `
       <h3><span class="muted">#${idx + 1}</span> ${p.cliente || 'Cliente'}</h3>
       ${p.telefone ? `<p><strong>Telefone:</strong> ${p.telefone}</p>` : ''}
-      ${p.endereco ? `<p><strong>Endereço:</strong> ${p.endereco}${p.bairro ? ' - ' + p.bairro : ''}</p>` : ''}
+      ${
+        p.tipo === 'retirada'
+          ? `<p><strong>Tipo:</strong> Retirada no Local</p>`
+          : (p.endereco ? `<p><strong>Endereço:</strong> ${p.endereco}${p.bairro ? ' - ' + p.bairro : ''}</p>` : '')
+      }
       ${p.pagamento ? `<p><strong>Pagamento:</strong> ${p.pagamento}</p>` : ''}
       <p><strong>Itens:</strong> ${p.itens || ''}</p>
       ${p.obs ? `<p><strong>Obs:</strong> ${p.obs}</p>` : ''}
@@ -673,11 +678,12 @@
     ordersGrid.appendChild(card);
   });
 
-  // 🔔 dispara bip somente se houver pedidos de delivery e bip estiver ativo
+  // 🔔 dispara bip somente se houver pedidos e bip estiver ativo
   if (window.bipAtivo && pedidos.length > 0) {
-    tocarBip(); // função que toca 3 bips curtos
+    tocarBip();
   }
 }
+
 
     // Históricos
    function renderHistoricos(pedidosRaw) {
@@ -1146,7 +1152,8 @@ window.fecharMesa = async function (num) {
     input: 'radio',
     inputOptions: { 
       'PIX': 'PIX',
-      'CARTAO': 'CARTÃO',
+      'DEBITO': 'DEBITO',
+      'CREDITO': 'CREDITO',
       'DINHEIRO': 'DINHEIRO'
     },
     background: '#1a1a1a',
