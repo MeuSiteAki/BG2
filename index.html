@@ -1113,33 +1113,58 @@ window.enviarParaCozinha = async function (num) {
   const m = window.mesasState[num];
   if (!m || m.itens.length === 0) return;
 
-  // chave única para cada item
-  const chave = (it) => `${it.name}||${it.price}||${it.obs || ''}`;
+  // Função para criar a assinatura do item
+  const gerarChave = (it) => `${it.name}||${it.price}||${it.obs || ''}`;
 
-  // pega apenas os itens que ainda não foram impressos
-  const novos = m.itens.filter(it => !m.impresso.includes(chave(it)));
+  // 1. Contabiliza quantas vezes cada chave já foi impressa
+  const contagemImpressos = {};
+  m.impresso.forEach(c => {
+    contagemImpressos[c] = (contagemImpressos[c] || 0) + 1;
+  });
 
-  if (novos.length === 0) {
-    Swal.fire({ title: 'Nenhum item novo para enviar' });
+  // 2. Filtra apenas o que sobrou (o que é novo ou repetição nova)
+  const novosParaImprimir = [];
+  const copiaImpressos = [...m.impresso]; // Cópia para atualizar o estado depois
+
+  m.itens.forEach(item => {
+    const chave = gerarChave(item);
+    if (contagemImpressos[chave] > 0) {
+      // Se já imprimiu antes, decrementa a contagem e não adiciona nos "novos"
+      contagemImpressos[chave]--;
+    } else {
+      // Se a contagem acabou ou nunca existiu, é um item novo/repetido
+      novosParaImprimir.push(item);
+      copiaImpressos.push(chave);
+    }
+  });
+
+  if (novosParaImprimir.length === 0) {
+    Swal.fire({ title: 'Atenção', text: 'Todos os itens atuais já foram enviados!', icon: 'info' });
     return;
   }
 
-  // agrupa os novos itens
-  const agrupados = agruparItens(novos);
+  // 3. Agrupa os novos itens para a comanda sair bonita (ex: 2x Coca)
+  const agrupados = agruparItens(novosParaImprimir);
 
-  // grava no Firestore
-  await addDoc(collection(db, "pedidos"), {
-    tipo: 'mesa',
-    cliente: `Mesa ${num}`,
-    garcom: m.garcom,
-    itens: agrupados.map(i => `${i.qty}x ${i.name}||${(i.price * i.qty).toFixed(2)}||${i.obs || ''}`).join(';'),
-    createdAt: new Date().toISOString()
-  });
+  try {
+    // 4. Grava no Firestore para o servidor Node.js ler
+    await addDoc(collection(db, "pedidos"), {
+      tipo: 'mesa',
+      cliente: `Mesa ${num}`,
+      garcom: m.garcom || 'Geral',
+      itens: agrupados.map(i => `${i.qty}x ${i.name}||${(i.price * i.qty).toFixed(2)}||${i.obs || ''}`).join(';'),
+      createdAt: new Date().toISOString()
+    });
 
-  // marca como impressos
-  novos.forEach(it => m.impresso.push(chave(it)));
-  await saveMesaFirebase(num);
+    // 5. Atualiza o estado da mesa com a nova lista de impressos
+    m.impresso = copiaImpressos;
+    await saveMesaFirebase(num);
 
+    Swal.fire({ icon: 'success', title: 'Cozinha Avisada!', timer: 1000, showConfirmButton: false });
+  } catch (error) {
+    console.error("Erro ao enviar:", error);
+    Swal.fire('Erro', 'Não foi possível enviar para a cozinha', 'error');
+  }
 };
 
 window.fecharMesa = async function (num) {
@@ -1147,7 +1172,7 @@ window.fecharMesa = async function (num) {
   if (!m || m.status === 'Livre') return;
 
   const { value: pag } = await Swal.fire({
-    title: 'Pagamento',
+    title: 'Fechar Mesa ' + num,
     input: 'radio',
     inputOptions: { 
       'PIX': 'PIX',
@@ -1157,30 +1182,36 @@ window.fecharMesa = async function (num) {
     },
     background: '#1a1a1a',
     color: '#fff',
-    customClass: { input: 'swal-radio' }
+    showCancelButton: true,
+    cancelButtonText: 'Voltar'
   });
 
   if (!pag) return;
 
-  // 🔧 Agrupa todos os itens da mesa (não importa se já foram impressos antes)
-  const agrupados = agruparItens(m.itens);
+  // No fechamento, agrupamos TODOS os itens da mesa para a nota final
+  const agrupadosGeral = agruparItens(m.itens);
 
-  await addDoc(collection(db, "pedidos"), {
-    tipo: 'fechamento',
-    cliente: `Mesa ${num}`,
-    garcom: m.garcom,
-    pagamento: pag, // ✅ aqui vai salvar PIX, CARTÃO ou DINHEIRO
-    itens: agrupados.map(i => `${i.qty}x ${i.name}||${(i.price * i.qty).toFixed(2)}||${i.obs || ''}`).join(';'),
-    total: m.total.toFixed(2),
-    createdAt: new Date().toISOString()
-  });
+  try {
+    await addDoc(collection(db, "pedidos"), {
+      tipo: 'fechamento',
+      cliente: `Mesa ${num}`,
+      garcom: m.garcom,
+      pagamento: pag,
+      itens: agrupadosGeral.map(i => `${i.qty}x ${i.name}||${(i.price * i.qty).toFixed(2)}||${i.obs || ''}`).join(';'),
+      total: m.total.toFixed(2),
+      createdAt: new Date().toISOString()
+    });
 
-  // libera mesa
-  window.mesasState[num] = { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
-  await saveMesaFirebase(num);
-  clearHighlight();
+    // Reseta a mesa para o estado Livre
+    window.mesasState[num] = { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
+    await saveMesaFirebase(num);
+    
+    if (typeof clearHighlight === 'function') clearHighlight();
 
-  Swal.fire({ icon: 'success', title: 'Mesa fechada e nota enviada' });
+    Swal.fire({ icon: 'success', title: 'Mesa Finalizada!', text: 'Cupom enviado para a impressora principal.' });
+  } catch (error) {
+    Swal.fire('Erro', 'Erro ao fechar mesa no banco.', 'error');
+  }
 };
 
 
