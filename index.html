@@ -9,421 +9,329 @@
   <link rel="icon" href="/meu-favicon.ico" />
 
   <style>
-    :root {
-      --bg: #121212;
-      --card: #1e1e1e;
-      --border: #333;
-      --accent: #ffbf00;
-      --danger: #d32f2f;
-      --success: #25d366;
-      --text: #eee;
-      --muted: #aaa;
-    }
+   :root {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --border: #333;
+  --accent: #ffbf00;
+  --danger: #d32f2f;
+  --success: #25d366;
+  --text: #eee;
+  --muted: #aaa;
+}
 
-    * {
-      box-sizing: border-box
-    }
+* {
+  box-sizing: border-box;
+}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, sans-serif;
-      margin: 0;
-    }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
 
-    /* Login */
-    #login-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background: #121212;
-      color: #fff;
-    }
+/* --- LOGIN SCREEN --- */
+#login-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: var(--bg);
+}
 
-    #login-screen input {
-      margin: 8px;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: #1e1e1e;
-      color: #fff;
-      width: 280px;
-    }
+#login-screen input:not([type="password"]) {
+  margin: 8px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: #fff;
+  width: 280px;
+}
 
-    #login-screen button {
-      margin-top: 12px;
-    }
+/* Container específico para o input de senha com olhinho */
+.password-container {
+  position: relative;
+  width: 280px;
+  margin: 8px auto;
+}
 
-    header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+.password-container input {
+  width: 100% !important;
+  padding: 10px 40px 10px 10px !important; /* Espaço na direita para o ícone */
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: #fff;
+  margin: 0 !important;
+}
 
-    header h1 {
-      margin: 0;
-      color: var(--accent);
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+#toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--muted);
+  z-index: 10;
+  font-size: 1.1rem;
+}
 
-    .actions .btn {
-      min-width: 140px;
-    }
+#toggle-password:hover {
+  color: var(--accent);
+}
 
-    .tabs {
-      display: flex;
-      gap: 10px;
-      padding: 10px 20px;
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
+#login-screen button {
+  margin-top: 12px;
+}
 
-    .tab-btn {
-      background: #222;
-      color: var(--accent);
-      border: none;
-      padding: 10px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+/* --- INTERFACE GERAL --- */
+header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
-    .tab-btn.active {
-      background: var(--accent);
-      color: #000;
-    }
+header h1 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    .tab {
-      display: none;
-      padding: 16px 20px;
-    }
+.actions .btn {
+  min-width: 140px;
+}
 
-    .tab.active {
-      display: block;
-    }
+.tabs, .subtabs {
+  display: flex;
+  gap: 10px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
 
-    .subtabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
+.subtabs {
+  padding: 0;
+  border-bottom: none;
+  margin-bottom: 12px;
+}
 
-    .subtab-btn {
-      background: #222;
-      color: var(--accent);
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+.tab-btn, .subtab-btn {
+  background: #222;
+  color: var(--accent);
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
 
-    .subtab-btn.active {
-      background: var(--accent);
-      color: #000;
-    }
+.subtab-btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+}
 
-    .subtab {
-      display: none;
-    }
+.tab-btn.active, .subtab-btn.active {
+  background: var(--accent);
+  color: #000;
+}
 
-    .subtab.active {
-      display: block;
-    }
+.tab, .subtab {
+  display: none;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .btn {
-      border: none;
-      border-radius: 8px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .btn-accent {
-      background: var(--accent);
-      color: #000;
-    }
-
-    .btn-outline {
-      background: #222;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      color: #fff;
-    }
-
-    .btn-success {
-      background: var(--success);
-      color: #fff;
-    }
-
-    /* Mesas */
-    .mesas-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      transition: opacity .2s ease;
-    }
-
-    .mesa-card {
-      border-radius: 10px;
-      padding: 12px;
-      transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease, opacity .2s ease;
-    }
-
-    .mesa-card.livre {
-      border-color: var(--success);
-    }
-
-    .mesa-card.ocupada {
-      border-color: var(--danger);
-    }
-
-    .mesa-items {
-      border-top: 1px dashed var(--border);
-      margin-top: 8px;
-      padding-top: 8px;
-      max-height: 220px;
-      overflow: auto;
-    }
-
-    .mesa-total {
-      margin-top: 8px;
-      font-weight: bold;
-      color: var(--accent);
-    }
-
-    /* Destaque no celular */
-    .mesa-card.highlight {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--accent);
-      transform: scale(1.02);
-    }
-
-    .mesas-grid.highlight-mode .mesa-card:not(.highlight) {
-      opacity: 0.25;
-      pointer-events: none;
-    }
-
-    @media (max-width:768px) {
-      .mesas-grid.highlight-mode {
-        grid-template-columns: 1fr;
-      }
-
-      .mesa-card.highlight {
-        transform: scale(1.03);
-      }
-    }
-
-    /* Botão flutuante */
-    #floating-toggle {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 1000;
-      background: var(--accent);
-      color: #000;
-      border: none;
-      border-radius: 50px;
-      padding: 12px 16px;
-      font-weight: bold;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-      cursor: pointer;
-      display: none;
-    }
-
-    /* Modal carrinho */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 999;
-      overflow: auto;
-    }
-
-    .modal-content {
-      max-width: 900px;
-      margin: 40px auto;
-      background: #1a1a1a;
-      padding: 16px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-
-    .menu-section {
-      margin-bottom: 14px;
-      border: 1px solid #333;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .menu-section-header {
-      background: #222;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-    }
-
-    .menu-section-header h3 {
-      margin: 0;
-      color: var(--accent);
-      font-size: 1rem;
-    }
-
-    .menu-section-header .toggle {
-      background: #333;
-      color: #fff;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 30px;
-    }
-
-    .menu-items {
-      display: none;
-      padding: 10px 12px;
-      background: #1f1f1f;
-    }
-
-    .menu-item {
-      background: #222;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .menu-item h4 {
-      margin: 0;
-      color: #fff;
-      font-size: 0.95rem;
-    }
-
-    .menu-item small {
-      color: var(--muted);
-    }
-
-    .carrinho-list div {
-      padding: 6px 0;
-      border-bottom: 1px dashed #333;
-    }
-
-    .carrinho-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-      margin-top: 12px;
-    }
-
-    /* Histórico */
-    .hist-list .card {
-      margin-bottom: 10px;
-    }
-
-    .hist-total {
-      margin-top: 8px;
-      font-weight: bold;
-      color: var(--accent);
-    }
-
-    @media (max-width:1024px) {
-
-      .grid,
-      .mesas-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width:768px) {
-
-      .grid,
-      .mesas-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .btn {
-        padding: 10px 12px;
-      }
-    }
-
-    select {
-      background: #222;
-      color: #fff;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 8px;
-    }
-
-    label {
-      font-size: 0.9rem;
-      margin-right: 6px;
-    }
-    .menu-items.show {
+.tab.active, .subtab.active {
   display: block;
 }
-.swal-radio {
-  color: #000000 !important;
-}
-.swal2-radio label {
-  color: #000000 !important;
+
+.tab {
+  padding: 16px 20px;
 }
 
+/* --- GRID E CARDS --- */
+.grid, .mesas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.card, .mesa-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.mesa-card {
+  transition: border-color .2s, transform .2s, box-shadow .2s, opacity .2s;
+}
+
+.mesa-card.livre { border-color: var(--success); }
+.mesa-card.ocupada { border-color: var(--danger); }
+
+.mesa-items {
+  border-top: 1px dashed var(--border);
+  margin-top: 8px;
+  padding-top: 8px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.mesa-total, .hist-total {
+  margin-top: 8px;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+/* --- ESTADOS DE DESTAQUE --- */
+.mesa-card.highlight {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+  transform: scale(1.02);
+}
+
+.mesas-grid.highlight-mode .mesa-card:not(.highlight) {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* --- BOTÃO FLUTUANTE --- */
+#floating-toggle {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1000;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 16px;
+  font-weight: bold;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  display: none;
+}
+
+/* --- BOTÕES --- */
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-accent { background: var(--accent); color: #000; }
+.btn-outline { background: #222; color: var(--accent); border: 1px solid var(--accent); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+
+/* --- MODAL --- */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 999;
+  overflow: auto;
+}
+
+.modal-content {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #1a1a1a;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.menu-section {
+  margin-bottom: 14px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.menu-section-header {
+  background: #222;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.menu-section-header h3 { margin: 0; color: var(--accent); font-size: 1rem; }
+.menu-section-header .toggle { font-size: 24px; background: transparent; color: #fff; border: none; cursor: pointer; }
+
+.menu-items { display: none; padding: 10px 12px; background: #1f1f1f; }
+.menu-items.show { display: block; }
+
+.menu-item {
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.carrinho-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+/* --- INPUTS GERAIS --- */
+select {
+  background: #222;
+  color: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.swal2-radio label { color: #000 !important; }
+
+/* --- MEDIA QUERIES --- */
+@media (max-width:1024px) {
+  .grid, .mesas-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width:768px) {
+  .grid, .mesas-grid { grid-template-columns: 1fr; }
+  .mesas-grid.highlight-mode { grid-template-columns: 1fr; }
+  .mesa-card.highlight { transform: scale(1.03); }
+  .btn { padding: 10px 12px; }
+}
   </style>
 </head>
 
 <body>
   <!-- Tela de Login -->
-  <div id="login-screen">
-    <h2><i class="fas fa-lock"></i> Login — BURGUER GRILL</h2>
-    <input id="login-email" type="email" placeholder="Email">
-    <div style="position:relative; width:280px;">
-      <input id="login-password" type="password" placeholder="Senha"
-        style="width:95%; padding:10px; border-radius:6px; border:1px solid #333; background:#1e1e1e; color:#fff;">
-      <i id="toggle-password" class="fas fa-eye"
-        style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#aaa;"></i>
-    </div>
-    <button id="btn-login" class="btn btn-accent"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-    <div id="login-error" class="muted" style="margin-top:10px;"></div>
-
+ <div id="login-screen">
+  <h2><i class="fas fa-lock"></i> Login — BURGUER GRILL</h2>
+  
+  <input id="login-email" type="email" placeholder="Email">
+  
+  <div class="password-container">
+    <input id="login-password" type="password" placeholder="Senha">
+    <i id="toggle-password" class="fas fa-eye"></i>
   </div>
-
+  
+  <button id="btn-login" class="btn btn-accent">
+    <i class="fas fa-sign-in-alt"></i> Entrar
+  </button>
+  
+  <div id="login-error" class="muted" style="margin-top:10px;"></div>
+</div>
   <!-- Painel principal -->
   <div id="main-panel" style="display:none;">
     <header>
@@ -631,16 +539,6 @@
         window.mesasState[docSnap.id] = docSnap.data();
       });
       renderMesas();
-    });
-
-    // Olho da senha (login)
-    const togglePassword = document.getElementById('toggle-password');
-    const passwordInput = document.getElementById('login-password');
-    togglePassword.addEventListener('click', () => {
-      const isPassword = passwordInput.getAttribute('type') === 'password';
-      passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-      togglePassword.classList.toggle('fa-eye');
-      togglePassword.classList.toggle('fa-eye-slash');
     });
 
     // Delivery (lista atual)
@@ -1001,74 +899,208 @@ window.fecharMesa = async function (num) {
   clearHighlight();
 };
 
-   // PDF e Apagar (Com Proteção de Gerente)
+  // --- Proteção de Gerente com Olhinho no SweetAlert ---
 async function requireManager() {
   const user = auth.currentUser;
+  
   const { value: pwd } = await Swal.fire({
     title: 'Senha Gerente',
-    input: 'password',
     background: '#1a1a1a',
     color: '#fff',
-    showCancelButton: true
+    html: `
+      <div style="position:relative; width: 100%; margin-top: 15px;">
+        <input id="swal-input-password" type="password" class="swal2-input" 
+               placeholder="Digite a senha" 
+               style="width: 80%; background: #222; color: #fff; border: 1px solid #444;">
+        <i id="swal-toggle-password" class="fas fa-eye" 
+           style="position:absolute; right:15%; top:50%; transform:translateY(-50%); cursor:pointer; color: #ffbf00; z-index:100; font-size: 18px;"></i>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Confirmar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ffbf00',
+    focusConfirm: false,
+    didOpen: () => {
+      // Lógica do olhinho dentro do alerta
+      const toggleBtn = document.getElementById('swal-toggle-password');
+      const pwdInput = document.getElementById('swal-input-password');
+      
+      toggleBtn.addEventListener('click', () => {
+        const isPassword = pwdInput.type === 'password';
+        pwdInput.type = isPassword ? 'text' : 'password';
+        toggleBtn.classList.toggle('fa-eye');
+        toggleBtn.classList.toggle('fa-eye-slash');
+      });
+
+      // Permitir apertar "Enter" para confirmar
+      pwdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') Swal.clickConfirm();
+      });
+    },
+    preConfirm: () => {
+      const val = document.getElementById('swal-input-password').value;
+      if (!val) {
+        Swal.showValidationMessage('Por favor, digite a senha');
+      }
+      return val;
+    }
   });
+
   if (!pwd) return false;
+
   try {
+    // Re-autentica o usuário para garantir que é o gerente
     await signInWithEmailAndPassword(auth, user.email, pwd);
     return true;
   } catch (e) {
-    Swal.fire('Erro', 'Senha incorreta', 'error');
+    Swal.fire({ icon: 'error', title: 'Erro', text: 'Senha incorreta', background: '#1a1a1a', color: '#fff' });
     return false;
   }
 }
 
+// --- Botão Apagar Tudo ---
 document.getElementById('btn-apagar-tudo').addEventListener('click', async () => {
-  if (!(await requireManager())) return;
-  const snap = await getDocs(collection(db, 'pedidos'));
-  snap.forEach(d => deleteDoc(doc(db, 'pedidos', d.id)));
-  Swal.fire('Limpo');
-});
-
-document.getElementById('btn-pdf').addEventListener('click', async () => {
-  if (!(await requireManager())) return;
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-
-  pdf.setFontSize(16);
-  pdf.text("Relatório Burguer Grill", 10, 10);
-
-  let y = 20;
-  let contador = 1;
-  let totalGeral = 0;
-
-  const snap = await getDocs(collection(db, 'pedidos'));
-  snap.forEach((d) => {
-    const p = d.data();
-    const total = parseFloat(p.total || 0);
-    if (!isNaN(total)) totalGeral += total;
-
-    pdf.setFontSize(12);
-    pdf.text(`#${contador} - ${p.cliente || 'Cliente'}`, 10, y);
-    y += 6;
-    if (p.garcom) { pdf.text(`Garçom: ${p.garcom}`, 10, y); y += 6; }
-    if (p.pagamento) { pdf.text(`Pagamento: ${p.pagamento}`, 10, y); y += 6; }
-    if (p.itens) { pdf.text(`Itens: ${p.itens}`, 10, y); y += 6; }
-    pdf.text(`Total: R$ ${p.total || '0,00'}`, 10, y); y += 6;
-    if (p.createdAt) {
-      pdf.text(`Data: ${new Date(p.createdAt).toLocaleString('pt-BR')}`, 10, y);
-      y += 10;
-    } else {
-      y += 10;
-    }
-
-    contador++;
-    if (y > 270) { pdf.addPage(); y = 20; }
+  const confirm = await Swal.fire({
+    title: 'Tem certeza?',
+    text: "Isso apagará TODO o histórico de pedidos!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#333',
+    confirmButtonText: 'Sim, apagar tudo',
+    background: '#1a1a1a',
+    color: '#fff'
   });
 
-  // Total geral no final
-  pdf.setFontSize(14);
-  pdf.text(`TOTAL GERAL: R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 10, y);
+  if (!confirm.isConfirmed) return;
 
-  pdf.save("relatorio.pdf");
+  if (!(await requireManager())) return;
+
+  const snap = await getDocs(collection(db, 'pedidos'));
+  const promises = snap.docs.map(d => deleteDoc(doc(db, 'pedidos', d.id)));
+  await Promise.all(promises);
+  
+  Swal.fire({ title: 'Limpo!', icon: 'success', background: '#1a1a1a', color: '#fff' });
+});
+
+// --- Botão Gerar PDF (Financeiro Separado) ---
+document.getElementById('btn-pdf').addEventListener('click', async () => {
+  if (!(await requireManager())) return;
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  
+  // (Aqui continua o código do PDF que fizemos anteriormente...)
+  // Se precisar que eu repita o código completo do PDF aqui embaixo, é só pedir!
+  // Cabeçalho Principal
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(20);
+  pdf.setTextColor(255, 191, 0); // Cor Amarela do Burguer Grill
+  pdf.text("BURGUER GRILL", 105, 15, { align: "center" });
+  
+  pdf.setFontSize(14);
+  pdf.setTextColor(100);
+  pdf.text("Relatório Detalhado de Vendas", 105, 22, { align: "center" });
+  
+  pdf.setDrawColor(200);
+  pdf.line(10, 25, 200, 25); // Linha divisória
+
+  let y = 35;
+  let totalGeral = 0;
+  
+  // Variáveis para os totais separados
+  let totalPix = 0;
+  let totalCartao = 0; // Soma Crédito + Débito
+  let totalDinheiro = 0;
+
+  const snap = await getDocs(collection(db, 'pedidos'));
+  const docs = snap.docs.map(d => d.data());
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(10);
+  pdf.setTextColor(0);
+
+  docs.forEach((p) => {
+    // Filtro para ignorar comandos de cozinha e focar em fechamentos/delivery
+    if (p.tipo === 'mesa') return;
+
+    const valor = parseFloat(p.total || 0);
+    if (isNaN(valor)) return;
+
+    totalGeral += valor;
+
+    // Lógica de separação por método de pagamento
+    const pag = (p.pagamento || "").toUpperCase();
+    if (pag.includes("PIX")) {
+      totalPix += valor;
+    } else if (pag.includes("CREDITO") || pag.includes("DEBITO") || pag.includes("CARTAO")) {
+      totalCartao += valor;
+    } else if (pag.includes("DINHEIRO")) {
+      totalDinheiro += valor;
+    }
+
+    // Renderização de cada pedido no corpo do PDF
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`${p.cliente || 'Cliente'}`, 10, y);
+    
+    pdf.setFont("helvetica", "normal");
+    const dataFormatada = p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : '---';
+    pdf.text(`Data: ${dataFormatada} | Pagamento: ${p.pagamento || 'N/A'}`, 10, y + 5);
+    
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, 200, y + 5, { align: "right" });
+
+    y += 15;
+
+    // Nova página se necessário
+    if (y > 270) {
+      pdf.addPage();
+      y = 20;
+    }
+  });
+
+  // --- SEÇÃO FINAL: SUMÁRIO DE VALORES ---
+  if (y > 220) { pdf.addPage(); y = 20; } // Garante espaço para o fechamento
+
+  y += 10;
+  pdf.setDrawColor(0);
+  pdf.setLineWidth(0.5);
+  pdf.line(10, y, 200, y);
+  y += 10;
+
+  pdf.setFontSize(14);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("RESUMO FINANCEIRO", 10, y);
+  y += 10;
+
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "normal");
+  
+  // Linhas do resumo
+  pdf.text("Total em PIX:", 10, y);
+  pdf.text(`R$ ${totalPix.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
+  y += 7;
+
+  pdf.text("Total em CARTÃO (Créd./Déb.):", 10, y);
+  pdf.text(`R$ ${totalCartao.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
+  y += 7;
+
+  pdf.text("Total em DINHEIRO:", 10, y);
+  pdf.text(`R$ ${totalDinheiro.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
+  y += 10;
+
+  // Total Geral com destaque
+  pdf.setFillColor(240, 240, 240);
+  pdf.rect(10, y, 190, 12, 'F'); // Fundo cinza claro
+  
+  pdf.setFontSize(16);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(211, 47, 47); // Vermelho escuro
+  pdf.text("FATURAMENTO TOTAL:", 15, y + 8);
+  pdf.text(`R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 195, y + 8, { align: "right" });
+
+  pdf.save(`relatorio_financeiro_${new Date().toISOString().slice(0,10)}.pdf`);
 });
 
     // Auth & Tabs
@@ -1239,6 +1271,20 @@ function tocarBip() {
     osc.stop(audioCtx.currentTime + i * 0.4 + 0.2);
   }
 }
+
+// Lógica para mostrar/esconder senha
+const togglePassword = document.getElementById('toggle-password');
+const passwordInput = document.getElementById('login-password');
+
+togglePassword.addEventListener('click', function() {
+  // Alterna entre 'password' (escondido) e 'text' (visível)
+  const isPassword = passwordInput.type === 'password';
+  passwordInput.type = isPassword ? 'text' : 'password';
+
+  // Alterna o ícone entre olho aberto e olho cortado
+  this.classList.toggle('fa-eye');
+  this.classList.toggle('fa-eye-slash');
+});
 // Bloqueios de segurança (mantidos como no original)
 document.addEventListener('keydown', function (e) {
     if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) { e.preventDefault(); }
@@ -1256,3 +1302,4 @@ document.addEventListener('contextmenu', function (event) { event.preventDefault
 </html>
 
 <!-- { id: 111, name: 'COMBO GRILL', category: 'burguers', price: 35.99 }, -->
+  
