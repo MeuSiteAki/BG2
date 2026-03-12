@@ -502,11 +502,16 @@ select {
       { id: 706, name: 'Budweiser Long Neck 330ml', category: 'alcoolico', price: 12.00 },
       { id: 712, name: 'Corona Long Neck 330ml', category: 'alcoolico', price: 12.00 },
       { id: 711, name: 'Skol Lata', category: 'alcoolico', price: 5.00 },
+      { id: 713, name: 'Heineken Long Neck 330ml', category: 'alcoolico', price: 12.00 },
+      { id: 714, name: 'Stella Long Neck 330ml', category: 'alcoolico', price: 12.00 },
+      { id: 715, name: 'Budweiser lata 0', category: 'alcoolico', price: 12.00 },
       { id: 801, name: 'Suco Maracujá (Copo)', category: 'bebida', price: 9.00 },
       { id: 828, name: 'Suco Acerola (Copo)', category: 'bebida', price: 8.00 },
       { id: 829, name: 'Suco Maracujá (Jarra)', category: 'bebida', price: 27.00 },
       { id: 830, name: 'Suco Acerola (Jarra)', category: 'bebida', price: 20.00 },
       { id: 807, name: 'Coca Cola Lata 350ml', category: 'bebida', price: 6.00 },
+      { id: 808, name: 'Guarana Lata 350ml', category: 'bebida', price: 6.00 },
+      { id: 809, name: 'Coca Cola Lata 220ml', category: 'bebida', price: 4.00 },
       { id: 814, name: 'Coca Cola 1L', category: 'bebida', price: 10.00 },
       { id: 825, name: 'Fanta Laranja 350ml', category: 'bebida', price: 6.00 },
       { id: 832, name: 'Coca 0 350ml', category: 'bebida', price: 6.00 },
@@ -680,6 +685,7 @@ window.reimprimirNota = async function (pedidoId) {
               <option value="Fernanda" ${m.garcom === 'Fernanda' ? 'selected' : ''}>Fernanda</option>
               <option value="Alana" ${m.garcom === 'Alana' ? 'selected' : ''}>Alana</option>
               <option value="Cleo" ${m.garcom === 'Cleo' ? 'selected' : ''}>Cleo</option>
+              <option value="Ana" ${m.garcom === 'Ana' ? 'selected' : ''}>Ana</option>
             </select>
           </div>
           <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin:8px 0;">
