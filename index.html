@@ -588,7 +588,6 @@ select {
   }
 }
 
-
     // Históricos
    function renderHistoricos(pedidosRaw) {
   const histMesas = pedidosRaw
@@ -665,7 +664,6 @@ window.reimprimirNota = async function (pedidoId) {
 
   pdf.save(`nota-${pedidoId}.pdf`);
 };
-
 
     // Render Mesas
     function renderMesas() {
@@ -998,8 +996,6 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
   
-  // (Aqui continua o código do PDF que fizemos anteriormente...)
-  // Se precisar que eu repita o código completo do PDF aqui embaixo, é só pedir!
   // Cabeçalho Principal
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(20);
@@ -1303,10 +1299,7 @@ document.addEventListener('keydown', function (event) {
 document.addEventListener('contextmenu', function (event) { event.preventDefault(); });
 </script>
 
-  </script>
 </body>
 
 </html>
-
 <!-- { id: 111, name: 'COMBO GRILL', category: 'burguers', price: 35.99 }, -->
-  
