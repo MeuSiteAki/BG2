@@ -311,6 +311,59 @@ select {
   .mesa-card.highlight { transform: scale(1.03); }
   .btn { padding: 10px 12px; }
 }
+/* --- NOVA SIDEBAR --- */
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100%;
+  background: #1a1a1a;
+  border-right: 1px solid #333;
+  z-index: 1000;
+  transition: 0.3s;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+#sidebar.open { left: 0; }
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  z-index: 1000;
+}
+.sidebar-overlay.active { display: block; }
+
+.sidebar-nav { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+.sidebar-btn {
+  background: #222;
+  color: #fff;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+}
+.sidebar-btn:hover { background: var(--accent); color: #000; }
+.swal2-container {
+  z-index: 10000 !important;
+}
+/* Ajuste do Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start !important;
+  gap: 15px;
+  padding: 10px 20px;
+}
   </style>
 </head>
 
@@ -333,56 +386,122 @@ select {
   <div id="login-error" class="muted" style="margin-top:10px;"></div>
 </div>
   <!-- Painel principal -->
-  <div id="main-panel" style="display:none;">
-    <header>
-      <h1><i class="fas fa-receipt"></i> Painel de Controle — BURGUER GRILL</h1>
-      <div class="actions" style="display:flex; gap:8px;">
-        <button id="btn-pdf" class="btn btn-accent"><i class="fas fa-file-pdf"></i> Baixar PDF</button>
-        <button id="btn-apagar-tudo" class="btn btn-danger"><i class="fas fa-trash"></i> Apagar pedidos</button>
-        <button id="btn-bip" class="btn btn-outline"><i class="fas fa-bell"></i> Bip: ON</button>
-
-      </div><br>
-      <button id="btn-logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
-      <a href="index2.html"><button class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Menu</button></a>
-      
-    </header>
-
-    <div class="tabs">
-      <button class="tab-btn" onclick="openTab('delivery')"><i class="fas fa-truck"></i> Delivery</button>
-      <button class="tab-btn" onclick="openTab('mesas')"><i class="fas fa-chair"></i> Mesas</button>
+ <div id="main-panel" style="display:none;">
+  
+  <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <div id="sidebar">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="color:var(--accent); margin:0;">Menu</h3>
+      <button onclick="toggleSidebar()" style="background:none; border:none; color:#fff; font-size:25px; cursor:pointer;">&times;</button>
     </div>
-
-    <!-- Delivery -->
-    <section id="delivery" class="tab">
-      <div class="subtabs">
-        <button class="subtab-btn active" onclick="openSubtab('delivery-list')">Pedidos</button>
-        <button class="subtab-btn" onclick="openSubtab('delivery-hist')">Histórico</button>
-      </div>
-      <div id="delivery-list" class="subtab active">
-        <div class="grid" id="orders-grid"></div>
-        <div class="muted" id="orders-count" style="margin-top:8px;"></div>
-      </div>
-      <div id="delivery-hist" class="subtab">
-        <div class="hist-list" id="delivery-historico"></div>
-        <div class="hist-total" id="delivery-total"></div>
-      </div>
-    </section>
-
-    <!-- Mesas -->
-    <section id="mesas" class="tab">
-      <div class="subtabs">
-        <button class="subtab-btn active" onclick="openSubtab('mesas-controle')">Controle</button>
-        <button class="subtab-btn" onclick="openSubtab('mesas-hist')">Histórico</button>
-      </div>
-      <div id="mesas-controle" class="subtab active">
-        <div class="mesas-grid" id="mesas-grid"></div>
-      </div>
-      <div id="mesas-hist" class="subtab">
-        <div class="hist-list" id="mesas-historico"></div>
-        <div class="hist-total" id="mesas-total"></div>
-      </div>
-    </section>
+    
+    <nav class="sidebar-nav">
+      <button id="btn-pdf" class="sidebar-btn"><i class="fas fa-file-pdf"></i> Baixar PDF Vendas</button>
+      <button id="btn-bip" class="sidebar-btn"><i class="fas fa-bell"></i> Bip: ON</button>
+      <a href="index2.html" style="text-decoration:none;"><button class="sidebar-btn"><i class="fas fa-utensils"></i> Ir para Menu</button></a>
+      <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+      <button id="btn-apagar-tudo" class="sidebar-btn" style="color:#d32f2f;"><i class="fas fa-trash"></i> Apagar Vendas (Firebase)</button>
+      <button id="btn-logout" class="sidebar-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </nav>
   </div>
+
+  <header>
+    <button onclick="toggleSidebar()" class="btn btn-outline" style="min-width:auto; padding: 10px 15px;">
+      <i class="fas fa-bars"></i>
+    </button>
+    <h1><i class="fas fa-receipt"></i> Painel — BURGUER GRILL</h1>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="openTab('delivery')"><i class="fas fa-truck"></i> Delivery</button>
+    <button class="tab-btn" onclick="openTab('mesas')"><i class="fas fa-chair"></i> Mesas</button>
+    <button class="tab-btn" onclick="openTab('staff')"><i class="fas fa-users"></i> Funcionarios & Despesas</button>
+  </div>
+
+  <section id="delivery" class="tab active">
+    <div class="subtabs">
+      <button class="subtab-btn active" onclick="openSubtab('delivery-list')">Pedidos</button>
+      <button class="subtab-btn" onclick="openSubtab('delivery-hist')">Histórico</button>
+    </div>
+    <div id="delivery-list" class="subtab active">
+      <div class="grid" id="orders-grid"></div>
+      <div class="muted" id="orders-count" style="margin-top:8px;"></div>
+    </div>
+    <div id="delivery-hist" class="subtab">
+      <div class="hist-list" id="delivery-historico"></div>
+    </div>
+  </section>
+
+  <section id="mesas" class="tab">
+    <div class="subtabs">
+      <button class="subtab-btn active" onclick="openSubtab('mesas-controle')">Controle</button>
+      <button class="subtab-btn" onclick="openSubtab('mesas-hist')">Histórico</button>
+    </div>
+    <div id="mesas-controle" class="subtab active">
+      <div class="mesas-grid" id="mesas-grid"></div>
+    </div>
+    <div id="mesas-hist" class="subtab">
+      <div class="hist-list" id="mesas-historico"></div>
+    </div>
+  </section>
+
+  <section id="staff" class="tab">
+    <div class="grid" style="grid-template-columns: 1fr 1.5fr; gap: 20px;">
+      
+     <div class="card">
+  <h3><i class="fas fa-edit"></i> Registar Movimentação</h3>
+  
+  <label>Tipo de Lançamento:</label>
+  <select id="staff-tipo" class="swal2-input" style="width:100%; margin:10px 0;" onchange="toggleStaffFields()">
+    <option value="consumo">Consumo de Funcionário</option>
+    <option value="despesa">Despesa Diversa (Saída de Caixa)</option>
+  </select>
+
+  <div id="field-funcionario">
+    <label>Funcionário:</label>
+    <select id="staff-nome" class="swal2-input" style="width:100%; margin-bottom:10px;">
+      <option value="Alana">Alana</option>
+      <option value="Matheus">Matheus</option>
+      <option value="Fernanda">Fernanda</option>
+      <option value="Cleo">Cleo</option>
+      <option value="Ines">Ines</option>
+      <option value="César">César</option>
+      <option value="Lucas">Lucas</option>
+      <option value="Luciano">Luciano</option>
+    </select>
+    
+    <label>Produto Consumido:</label>
+    <select id="staff-item" class="swal2-input" style="width:100%;"></select>
+  </div>
+
+  <div id="field-despesa" style="display:none;">
+  <label>O que foi comprado?</label>
+  <input id="staff-desc" type="text" class="swal2-input" placeholder="Ex: Gelo, Coentro, Alface..." style="width:100%; margin-bottom: 10px;">
+  
+  <label>Valor da Despesa:</label>
+  <input id="staff-valor-formatado" type="text" class="swal2-input" placeholder="R$ 0,00" style="width:100%;" oninput="mascaraMoeda(this)">
+</div>
+
+  <button class="btn btn-accent" style="width:100%; margin-top:20px;" onclick="lancarLocal()">
+    <i class="fas fa-check"></i> Confirmar Lançamento
+  </button>
+</div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h3>Resumo Interno</h3>
+          <div style="display:flex; gap:5px;">
+            <button class="btn btn-danger" onclick="limparStaffLocal()"><i class="fas fa-trash-alt"></i></button>
+            <button class="btn btn-outline" onclick="gerarPDFStaffLocal()"><i class="fas fa-file-pdf"></i></button>
+          </div>
+        </div>
+        <div id="staff-local-list"></div>
+        <div id="staff-local-total" class="mesa-total" style="margin-top:15px;"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
 
   <!-- Botão flutuante para alternar destaque -->
   <button id="floating-toggle"><i class="fas fa-layer-group"></i> Ver todas as mesas</button>
@@ -673,30 +792,46 @@ window.reimprimirNota = async function (pedidoId) {
         const card = document.createElement('div');
         card.className = `card mesa-card ${m.status === 'Livre' ? 'livre' : 'ocupada'}`;
         card.setAttribute('data-mesa', i);
-        card.innerHTML = `
-          <h3><i class="fas fa-chair"></i> Mesa ${i}</h3>
-          <div class="muted">Status: <span id="mesa-status-${i}">${m.status}</span></div>
-          <div style="margin:8px 0;">
-            <label>Garçom:</label>
-            <select id="mesa-garcom-${i}" ${m.status === 'Ocupada' ? 'disabled' : ''} onchange="window.selecionarGarcom(${i}, this.value)">
-              <option value="">-- selecione --</option>
-              <option value="Fernanda" ${m.garcom === 'Fernanda' ? 'selected' : ''}>Fernanda</option>
-              <option value="Alana" ${m.garcom === 'Alana' ? 'selected' : ''}>Alana</option>
-              <option value="Cleo" ${m.garcom === 'Cleo' ? 'selected' : ''}>Cleo</option>
-              <option value="Ana" ${m.garcom === 'Ana' ? 'selected' : ''}>Ana</option>
-            </select>
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin:8px 0;">
-            <button class="btn btn-success" onclick="window.abrirMesa(${i})"><i class="fas fa-door-open"></i> Abrir</button>
-            <button class="btn btn-accent" onclick="window.abrirMenuMesa(${i})"><i class="fas fa-plus"></i> Itens</button>
-            <button class="btn btn-outline" onclick="window.enviarParaCozinha(${i})"><i class="fas fa-print"></i> Cozinha</button>
-            <button class="btn btn-danger" onclick="window.fecharMesa(${i})"><i class="fas fa-door-closed"></i> Fechar</button>
-          </div>
-          <div class="mesa-items" id="mesa-items-${i}">
-            ${m.itens.map(it => `<div>• ${it.name} — R$ ${it.price.toFixed(2)}${it.obs ? ' (Obs: ' + it.obs + ')' : ''}</div>`).join('')}
-          </div>
-          <div class="mesa-total" id="mesa-total-${i}">Total: R$ ${Number(m.total || 0).toFixed(2).replace('.', ',')}</div>
-        `;
+      card.innerHTML = `
+  <h3><i class="fas fa-chair"></i> Mesa ${i}</h3>
+  <div class="muted">Status: <span id="mesa-status-${i}">${m.status}</span></div>
+  
+  <div style="margin:8px 0;">
+    <label>Garçom:</label>
+    <select id="mesa-garcom-${i}" ${m.status === 'Ocupada' ? 'disabled' : ''} onchange="window.selecionarGarcom(${i}, this.value)">
+      <option value="">-- selecione --</option>
+      <option value="Alana" ${m.garcom === 'Alana' ? 'selected' : ''}>Alana</option>
+      <option value="Matheus" ${m.garcom === 'Matheus' ? 'selected' : ''}>Matheus</option>
+      <option value="Fernanda" ${m.garcom === 'Fernanda' ? 'selected' : ''}>Fernanda</option>
+      <option value="Cleo" ${m.garcom === 'Cleo' ? 'selected' : ''}>Cleo</option>
+      <option value="Ana" ${m.garcom === 'Ana' ? 'selected' : ''}>Ana</option>
+    </select>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin:8px 0;">
+    <button class="btn btn-success" onclick="window.abrirMesa(${i})"><i class="fas fa-door-open"></i> Abrir</button>
+    <button class="btn btn-accent" onclick="window.abrirMenuMesa(${i})"><i class="fas fa-plus"></i> Itens</button>
+    <button class="btn btn-outline" onclick="window.enviarParaCozinha(${i})"><i class="fas fa-print"></i> Cozinha</button>
+    <button class="btn btn-danger" onclick="window.fecharMesa(${i})"><i class="fas fa-wallet"></i> Pagar</button>
+  </div>
+
+  <div class="mesa-items" id="mesa-items-${i}" style="max-height: 80px; overflow-y: auto; border-bottom: 1px dashed #444; margin-bottom: 5px;">
+    ${m.itens.map(it => `<div style="font-size: 0.85rem;">• ${it.name} — R$ ${it.price.toFixed(2)}</div>`).join('')}
+  </div>
+
+  <div class="mesa-valores" style="display: flex; justify-content: space-between; align-items: flex-end; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 5px;">
+    <div style="font-size: 0.8rem; color: #aaa; line-height: 1.4;">
+      Consumo: R$ ${Number(m.total || 0).toFixed(2).replace('.', ',')}<br>
+      Pago: <span style="color: #00ff00;">- R$ ${Number(m.pago || 0).toFixed(2).replace('.', ',')}</span>
+    </div>
+    <div style="text-align: right;">
+      <span style="font-size: 0.75rem; color: #ff4444; font-weight: bold; text-transform: uppercase;">Falta Pagar</span><br>
+      <strong style="font-size: 1.4rem; color: #ff4444; letter-spacing: -1px;">
+        R$ ${Math.max(0, (Number(m.total || 0) - Number(m.pago || 0))).toFixed(2).replace('.', ',')}
+      </strong>
+    </div>
+  </div>
+`;
         mesasGrid.appendChild(card);
         card.addEventListener('click', (e) => {
           if (e.target.closest('button') || e.target.closest('select')) return;
@@ -989,148 +1124,178 @@ document.getElementById('btn-apagar-tudo').addEventListener('click', async () =>
   Swal.fire({ title: 'Limpo!', icon: 'success', background: '#1a1a1a', color: '#fff' });
 });
 
-// --- Botão Gerar PDF (Financeiro Separado) ---
+// --- Botão Gerar PDF (Versão Corrigida para Cartões e Acentos) ---
 document.getElementById('btn-pdf').addEventListener('click', async () => {
   if (!(await requireManager())) return;
 
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
   
-  // Cabeçalho Principal
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(20);
-  pdf.setTextColor(255, 191, 0); // Cor Amarela do Burguer Grill
+  pdf.setFontSize(22);
+  pdf.setTextColor(255, 191, 0); 
   pdf.text("BURGUER GRILL", 105, 15, { align: "center" });
   
-  pdf.setFontSize(14);
+  pdf.setFontSize(10);
   pdf.setTextColor(100);
-  pdf.text("Relatório Detalhado de Vendas", 105, 22, { align: "center" });
+  pdf.text(`RELATÓRIO DE VENDAS E FECHAMENTO`, 105, 21, { align: "center" });
+  pdf.setFontSize(9);
+  pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 105, 26, { align: "center" });
   
   pdf.setDrawColor(200);
-  pdf.line(10, 25, 200, 25); // Linha divisória
+  pdf.line(10, 30, 200, 30);
 
-  let y = 35;
+  let y = 40;
   let totalGeral = 0;
-  
-  // Variáveis para os totais separados
   let totalPix = 0;
-  let totalCartao = 0; // Soma Crédito + Débito
+  let totalCartao = 0;
   let totalDinheiro = 0;
 
   const snap = await getDocs(collection(db, 'pedidos'));
-  const docs = snap.docs.map(d => d.data());
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
-  pdf.setTextColor(0);
+  const docs = snap.docs.map(d => d.data())
+                       .filter(p => ['venda_mesa', 'delivery', 'retirada', 'fechamento'].includes(p.tipo)) 
+                       .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   docs.forEach((p) => {
-    // Filtro para ignorar comandos de cozinha e focar em fechamentos/delivery
-    if (p.tipo === 'mesa') return;
-
     const valor = parseFloat(p.total || 0);
-    if (isNaN(valor)) return;
+    if (isNaN(valor) || valor <= 0) return;
 
     totalGeral += valor;
 
-    // Lógica de separação por método de pagamento
-    const pag = (p.pagamento || "").toUpperCase();
-    if (pag.includes("PIX")) {
-      totalPix += valor;
-    } else if (pag.includes("CREDITO") || pag.includes("DEBITO") || pag.includes("CARTAO")) {
-      totalCartao += valor;
-    } else if (pag.includes("DINHEIRO")) {
-      totalDinheiro += valor;
+    // Normaliza o texto para busca (remove acentos e coloca em maiúsculo)
+    const pagTxt = (p.pagamento || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+    
+    const extrairValor = (metodosArray, texto) => {
+        let somaInterna = 0;
+        metodosArray.forEach(metodo => {
+            if (texto.includes(metodo)) {
+                try {
+                    let parte = texto.split(metodo)[1].split('|')[0]; 
+                    somaInterna += parseFloat(parte.replace(/[^\d.,]/g, "").replace(",", "."));
+                } catch(e) {}
+            }
+        });
+        return somaInterna;
+    };
+
+    // --- LÓGICA DE SOMA REVISADA ---
+    const vPix = extrairValor(["PIX"], pagTxt);
+    const vDin = extrairValor(["DIN"], pagTxt);
+    // Agora busca por CRED, DEB ou CART (cobre Crédito, Débito, Cartão)
+    const vCartao = extrairValor(["CRED", "DEB", "CART"], pagTxt);
+
+    if (vPix > 0 || vDin > 0 || vCartao > 0) {
+        totalPix += vPix;
+        totalDinheiro += vDin;
+        totalCartao += vCartao;
+    } else {
+        // Fallback para pagamentos simples sem o formato "Método: Valor"
+        if (pagTxt.includes("PIX")) totalPix += valor;
+        else if (pagTxt.includes("DIN")) totalDinheiro += valor;
+        else totalCartao += valor;
     }
 
-    // Renderização de cada pedido no corpo do PDF
+    // --- LISTAGEM ---
     pdf.setFont("helvetica", "bold");
-    pdf.text(`${p.cliente || 'Cliente'}`, 10, y);
+    pdf.setFontSize(10);
+    pdf.setTextColor(40);
+    pdf.text(`${p.cliente || 'Venda'} | Garçom: ${p.garcom || "Geral"}`, 10, y);
     
     pdf.setFont("helvetica", "normal");
-    const dataFormatada = p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : '---';
-    pdf.text(`Data: ${dataFormatada} | Pagamento: ${p.pagamento || 'N/A'}`, 10, y + 5);
+    pdf.setFontSize(8);
+    const dataF = p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : '---';
     
+    // Mostra o que foi usado (PIX, CRÉDITO, etc)
+    let meiosPagamento = (p.pagamento || "").split('|').map(item => item.split(':')[0].trim()).join(' + ');
+
+    pdf.text(`Data: ${dataF} | Meio: ${meiosPagamento}`, 10, y + 5);
     pdf.setFont("helvetica", "bold");
     pdf.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, 200, y + 5, { align: "right" });
 
-    y += 15;
-
-    // Nova página se necessário
-    if (y > 270) {
-      pdf.addPage();
-      y = 20;
-    }
+    y += 12; 
+    if (y > 275) { pdf.addPage(); y = 20; }
   });
 
-  // --- SEÇÃO FINAL: SUMÁRIO DE VALORES ---
-  if (y > 220) { pdf.addPage(); y = 20; } // Garante espaço para o fechamento
-
-  y += 10;
+  // --- RESUMO FINAL ---
+  y += 5;
   pdf.setDrawColor(0);
-  pdf.setLineWidth(0.5);
   pdf.line(10, y, 200, y);
-  y += 10;
-
-  pdf.setFontSize(14);
+  y += 8;
   pdf.setFont("helvetica", "bold");
-  pdf.text("RESUMO FINANCEIRO", 10, y);
-  y += 10;
-
-  pdf.setFontSize(12);
+  pdf.setFontSize(11);
+  pdf.text("RESUMO DE CAIXA POR MÉTODO", 10, y);
+  y += 7;
+  
+  pdf.setFontSize(10);
   pdf.setFont("helvetica", "normal");
-  
-  // Linhas do resumo
-  pdf.text("Total em PIX:", 10, y);
-  pdf.text(`R$ ${totalPix.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
-  y += 7;
+  pdf.text(`Total em PIX:`, 15, y); pdf.text(`R$ ${totalPix.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 6;
+  pdf.text(`Total em Cartões:`, 15, y); pdf.text(`R$ ${totalCartao.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 6;
+  pdf.text(`Total em Dinheiro:`, 15, y); pdf.text(`R$ ${totalDinheiro.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 12;
 
-  pdf.text("Total em CARTÃO (Créd./Déb.):", 10, y);
-  pdf.text(`R$ ${totalCartao.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
-  y += 7;
-
-  pdf.text("Total em DINHEIRO:", 10, y);
-  pdf.text(`R$ ${totalDinheiro.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
-  y += 10;
-
-  // Total Geral com destaque
-  pdf.setFillColor(240, 240, 240);
-  pdf.rect(10, y, 190, 12, 'F'); // Fundo cinza claro
-  
-  pdf.setFontSize(16);
-  pdf.setFont("helvetica", "bold");
-  pdf.setTextColor(211, 47, 47); // Vermelho escuro
-  pdf.text("FATURAMENTO TOTAL:", 15, y + 8);
+  pdf.setFillColor(30, 30, 30);
+  pdf.rect(10, y, 190, 12, 'F');
+  pdf.setTextColor(255, 191, 0);
+  pdf.setFontSize(12);
+  pdf.text("FATURAMENTO LÍQUIDO TOTAL:", 15, y + 8);
+  pdf.setFontSize(14);
   pdf.text(`R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 195, y + 8, { align: "right" });
 
-  pdf.save(`relatorio_financeiro_${new Date().toISOString().slice(0,10)}.pdf`);
+  pdf.save(`relatorio_financeiro.pdf`);
+});
+    // Auth & Tabs
+// ATUALIZAÇÃO: openTab com trava de segurança para Staff
+window.openTab = async function (id) {
+  // Se tentar entrar na aba staff, exige senha de gerente
+  if (id === 'staff') {
+    if (!(await requireManager())) return; 
+  }
+
+  // Remove o 'active' de todas as abas e botões
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  // Ativa a aba selecionada
+  const targetTab = document.getElementById(id);
+  if (targetTab) {
+    targetTab.classList.add('active');
+  }
+
+  // Ativa o botão correspondente para manter o destaque visual
+  const targetBtn = document.querySelector(`.tab-btn[onclick*="'${id}'"]`);
+  if (targetBtn) {
+    targetBtn.classList.add('active');
+  }
+};
+
+window.openSubtab = async function (id) {
+  if (id.endsWith('-hist')) { 
+    if (!(await requireManager())) return; 
+  }
+  document.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active')); // Opcional: destaque no botão da subtab
+  
+  const targetSub = document.getElementById(id);
+  if (targetSub) targetSub.classList.add('active');
+};
+
+document.getElementById('btn-login').addEventListener('click', async () => {
+  const e = document.getElementById('login-email').value;
+  const s = document.getElementById('login-password').value;
+  try { 
+    await signInWithEmailAndPassword(auth, e, s); 
+  } catch (err) { 
+    alert("Erro login"); 
+  }
 });
 
-    // Auth & Tabs
-    window.openTab = function (id) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    };
+document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-    window.openSubtab = async function (id) {
-      if (id.endsWith('-hist')) { if (!(await requireManager())) return; }
-      document.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    };
+onAuthStateChanged(auth, (user) => {
+  document.getElementById('login-screen').style.display = user ? 'none' : 'flex';
+  document.getElementById('main-panel').style.display = user ? 'block' : 'none';
+  if (user) openTab('mesas');
+});
 
-    document.getElementById('btn-login').addEventListener('click', async () => {
-      const e = document.getElementById('login-email').value;
-      const s = document.getElementById('login-password').value;
-      try { await signInWithEmailAndPassword(auth, e, s); } catch (err) { alert("Erro login"); }
-    });
-
-    document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
-
-    onAuthStateChanged(auth, (user) => {
-      document.getElementById('login-screen').style.display = user ? 'none' : 'flex';
-      document.getElementById('main-panel').style.display = user ? 'block' : 'none';
-      if (user) openTab('mesas');
-    });
 // Função auxiliar para agrupar itens iguais
 function agruparItens(itens) {
   const grouped = {};
@@ -1202,54 +1367,152 @@ window.enviarParaCozinha = async function (num) {
   }
 };
 
+// --- FUNÇÃO GLOBAL DE FECHAMENTO DE MESA (VERSÃO COM ABATIMENTO PARA GERENTE) ---
 window.fecharMesa = async function (num) {
   const m = window.mesasState[num];
   if (!m || m.status === 'Livre') return;
 
-  const { value: pag } = await Swal.fire({
-    title: 'Fechar Mesa ' + num,
-    input: 'radio',
-    inputOptions: { 
-      'PIX': 'PIX',
-      'DEBITO': 'DEBITO',
-      'CREDITO': 'CREDITO',
-      'DINHEIRO': 'DINHEIRO'
-    },
+  // RECALCULO DINÂMICO: Garante que o consumo seja a soma real dos itens no momento
+  let consumoTotalAtual = m.itens.reduce((acc, it) => acc + it.price, 0);
+  let jaPagoAcumulado = m.pago || 0; 
+  let saldoMesa = consumoTotalAtual - jaPagoAcumulado;
+
+  let novosPagamentos = []; 
+
+  window.acaoAddPagamento = function(metodo) {
+    const input = document.getElementById('swal-valor-pago');
+    let valorStr = input.value.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
+    let valor = parseFloat(valorStr);
+
+    if (isNaN(valor) || valor <= 0) return;
+    if (valor > saldoMesa + 0.05) { alert("Valor maior que o saldo!"); return; }
+
+    novosPagamentos.push({ metodo, valor });
+    saldoMesa -= valor;
+    input.value = "";
+    atualizarInterface();
+  };
+
+  window.preencherRestante = function() {
+    const input = document.getElementById('swal-valor-pago');
+    input.value = `R$ ${saldoMesa.toFixed(2).replace('.', ',')}`;
+    window.mascaraMoeda(input);
+  };
+
+  const atualizarInterface = () => {
+    const displaySaldo = document.getElementById('swal-saldo');
+    if(displaySaldo) displaySaldo.innerText = `R$ ${saldoMesa.toFixed(2).replace('.', ',')}`;
+    
+    const totalNestaRodada = novosPagamentos.reduce((acc, p) => acc + p.valor, 0);
+    const displayRodada = document.getElementById('swal-pago-agora');
+    if(displayRodada) displayRodada.innerText = `R$ ${totalNestaRodada.toFixed(2).replace('.', ',')}`;
+
+    const lista = document.getElementById('swal-lista-pags');
+    if(lista) {
+      lista.innerHTML = novosPagamentos.map((p) => `
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#10b981; padding:4px 0; border-bottom:1px solid #333;">
+          <span>${p.metodo}</span>
+          <span>R$ ${p.valor.toFixed(2).replace('.', ',')}</span>
+        </div>
+      `).join('');
+    }
+  };
+
+  const htmlModal = `
+    <div style="text-align: left; background: #1a1a1a; padding: 5px;">
+      <div style="background:#222; padding:15px; border-radius:10px; border:1px solid #333; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div>
+          <small style="color:#888;">Consumo Bruto:</small><br>
+          <strong style="font-size:1.1rem; color:#fff;">R$ ${consumoTotalAtual.toFixed(2).replace('.', ',')}</strong>
+        </div>
+        <div style="text-align:right">
+          <small style="color:#ff4444;">Faltando Pagar:</small><br>
+          <strong id="swal-saldo" style="font-size:1.3rem; color:#ff4444;">R$ ${saldoMesa.toFixed(2).replace('.', ',')}</strong>
+        </div>
+        <div style="grid-column: span 2; border-top: 1px solid #333; padding-top: 5px; margin-top: 5px;">
+           <small style="color:#00ff00;">Total já abatido anteriormente: R$ ${jaPagoAcumulado.toFixed(2).replace('.', ',')}</small>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; background:#222; padding:15px; border-radius:10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <small style="color:#ffbf00;">LANÇAR VALOR:</small>
+            <small style="color:#aaa;">Soma agora: <strong id="swal-pago-agora" style="color:#fff;">R$ 0,00</strong></small>
+        </div>
+        <div style="display:flex; gap:5px; margin-bottom:10px;">
+            <input id="swal-valor-pago" class="swal2-input" type="text" placeholder="R$ 0,00" style="flex:1; margin:0;" oninput="window.mascaraMoeda(this)">
+            <button onclick="window.preencherRestante()" style="background:#444; color:white; border:none; border-radius:5px; padding:0 10px; cursor:pointer;">Tudo</button>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+          <button type="button" onclick="window.acaoAddPagamento('PIX')" class="btn btn-outline">PIX</button>
+          <button type="button" onclick="window.acaoAddPagamento('DINHEIRO')" class="btn btn-outline">DINHEIRO</button>
+          <button type="button" onclick="window.acaoAddPagamento('DÉBITO')" class="btn btn-outline">DÉBITO</button>
+          <button type="button" onclick="window.acaoAddPagamento('CRÉDITO')" class="btn btn-outline">CRÉDITO</button>
+        </div>
+      </div>
+      <div id="swal-lista-pags" style="margin-top:10px; max-height:100px; overflow-y:auto;"></div>
+    </div>
+  `;
+
+  const { isConfirmed } = await Swal.fire({
+    title: 'Acerto de Mesa ' + num,
+    html: htmlModal,
+    showCancelButton: true,
+    confirmButtonText: 'Confirmar Lançamento',
     background: '#1a1a1a',
     color: '#fff',
-    showCancelButton: true,
-    cancelButtonText: 'Voltar'
+    didOpen: () => {
+        const input = document.getElementById('swal-valor-pago');
+        if(input) input.focus();
+    }
   });
 
-  if (!pag) return;
+  if (!isConfirmed || novosPagamentos.length === 0) {
+    delete window.acaoAddPagamento;
+    delete window.preencherRestante;
+    return;
+  }
 
-  // No fechamento, agrupamos TODOS os itens da mesa para a nota final
-  const agrupadosGeral = agruparItens(m.itens);
+  const totalPagoAgora = novosPagamentos.reduce((acc, cur) => acc + cur.valor, 0);
+  const ehFechamentoTotal = (saldoMesa <= 0.05);
 
   try {
+    // 1. Registra no Firebase
     await addDoc(collection(db, "pedidos"), {
-      tipo: 'fechamento',
+      tipo: ehFechamentoTotal ? 'fechamento' : 'venda_mesa',
       cliente: `Mesa ${num}`,
-      garcom: m.garcom,
-      pagamento: pag,
-      itens: agrupadosGeral.map(i => `${i.qty}x ${i.name}||${(i.price * i.qty).toFixed(2)}||${i.obs || ''}`).join(';'),
-      total: m.total.toFixed(2),
+      garcom: m.garcom || "Geral",
+      pagamento: novosPagamentos.map(p => `${p.metodo}: R$ ${p.valor.toFixed(2)}`).join(' | '),
+      total: totalPagoAgora.toFixed(2),
+      
+      // CAMPO PARA O GERENTE: Envia o valor pago anteriormente se for o fechamento final
+      abatidoAnterior: (ehFechamentoTotal && jaPagoAcumulado > 0) ? jaPagoAcumulado.toFixed(2) : null,
+      
+      // SE FOR FECHAMENTO TOTAL, ENVIA OS ITENS PARA A IMPRESSORA MOSTRAR O CONSUMO
+      itens: ehFechamentoTotal ? m.itens.map(it => `${it.name} || ${it.price.toFixed(2)} || ${it.obs || ''}`).join(';') : "",
       createdAt: new Date().toISOString()
     });
 
-    // Reseta a mesa para o estado Livre
-    window.mesasState[num] = { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
-    await saveMesaFirebase(num);
-    
-    if (typeof clearHighlight === 'function') clearHighlight();
+    // 2. Atualiza o estado local da mesa
+    if (ehFechamentoTotal) {
+      window.mesasState[num] = { status: 'Livre', itens: [], total: 0, pago: 0, impresso: [], garcom: '' };
+    } else {
+      window.mesasState[num].total = consumoTotalAtual; 
+      window.mesasState[num].pago = jaPagoAcumulado + totalPagoAgora;
+    }
 
-    Swal.fire({ icon: 'success', title: 'Mesa Finalizada!', text: 'Cupom enviado para a impressora principal.' });
-  } catch (error) {
-    Swal.fire('Erro', 'Erro ao fechar mesa no banco.', 'error');
+    await saveMesaFirebase(num);
+    if (typeof renderMesas === 'function') renderMesas();
+    
+    Swal.fire({ icon: 'success', title: 'Pagamento registrado!', timer: 1000, showConfirmButton: false });
+  } catch (e) { 
+    console.error(e); 
+    Swal.fire('Erro', 'Erro ao salvar no banco.', 'error');
+  } finally {
+    delete window.acaoAddPagamento;
+    delete window.preencherRestante;
   }
 };
-
-
 // Estado do bip
 window.bipAtivo = true;
 const btnBip = document.getElementById('btn-bip');
@@ -1288,6 +1551,289 @@ togglePassword.addEventListener('click', function() {
   this.classList.toggle('fa-eye');
   this.classList.toggle('fa-eye-slash');
 });
+
+// --- CONFIGURAÇÃO INICIAL E RENDERIZAÇÃO ---
+
+// Carregar itens do cardápio no select ao iniciar
+function popularItensStaff() {
+  const select = document.getElementById('staff-item');
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Selecione o Item --</option>';
+  menuData.forEach(item => {
+    select.innerHTML += `<option value="${item.name}||${item.price}">${item.name} - R$ ${item.price.toFixed(2)}</option>`;
+  });
+}
+
+// Chamar ao carregar a página
+document.addEventListener('DOMContentLoaded', () => {
+  popularItensStaff();
+  renderStaffLocal();
+});
+
+// --- FUNÇÕES DE INTERFACE (MÁSCARAS E TOGGLE) ---
+
+// Formata o input em tempo real (R$ 0,00)
+window.mascaraMoeda = function(i) {
+  let v = i.value.replace(/\D/g, '');
+  v = (v / 100).toFixed(2).replace(".", ",");
+  v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+  v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+  i.value = "R$ " + v;
+};
+
+// Alterna entre campos de Consumo e Despesa
+window.toggleStaffFields = function() {
+  const tipo = document.getElementById('staff-tipo').value;
+  const divFunc = document.getElementById('field-funcionario');
+  const divDesp = document.getElementById('field-despesa');
+  
+  if (tipo === 'consumo') {
+    divFunc.style.display = 'block';
+    divDesp.style.display = 'none';
+  } else {
+    divFunc.style.display = 'none';
+    divDesp.style.display = 'block';
+  }
+};
+
+// --- LÓGICA DE DADOS (LOCALSTORAGE) ---
+
+// Salvar Lançamento
+window.lancarLocal = function() {
+  const tipo = document.getElementById('staff-tipo').value;
+  const listaAtual = JSON.parse(localStorage.getItem('burguer_staff') || '[]');
+  
+  let novoItem = {
+    id: Date.now(),
+    tipo: tipo
+  };
+
+  if (tipo === 'consumo') {
+    const itemRaw = document.getElementById('staff-item').value;
+    const funcNome = document.getElementById('staff-nome').value;
+    if (!itemRaw) return Swal.fire('Erro', 'Selecione um item', 'error');
+    
+    const [nomeItem, precoItem] = itemRaw.split('||');
+    novoItem.desc = `Funcionário: ${funcNome} (${nomeItem})`;
+    novoItem.valor = parseFloat(precoItem);
+  } else {
+    const desc = document.getElementById('staff-desc').value;
+    const valorF = document.getElementById('staff-valor-formatado').value;
+    
+    // Converte "R$ 1.250,50" -> 1250.50
+    const valorNumerico = parseFloat(valorF.replace("R$ ", "").replace(/\./g, "").replace(",", "."));
+
+    if (!desc || isNaN(valorNumerico) || valorNumerico <= 0) {
+      return Swal.fire('Erro', 'Preencha a descrição e o valor corretamente', 'error');
+    }
+
+    novoItem.desc = `DESPESA: ${desc}`;
+    novoItem.valor = valorNumerico;
+  }
+
+  listaAtual.push(novoItem);
+  localStorage.setItem('burguer_staff', JSON.stringify(listaAtual));
+  
+  // Limpar campos de despesa
+  document.getElementById('staff-desc').value = '';
+  document.getElementById('staff-valor-formatado').value = '';
+  
+  renderStaffLocal();
+  
+  const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1000 });
+  Toast.fire({ icon: 'success', title: 'Lançado com sucesso!' });
+};
+
+// Renderizar lista e somar totais
+window.renderStaffLocal = function() {
+  const lista = document.getElementById('staff-local-list');
+  const totalEl = document.getElementById('staff-local-total');
+  if (!lista || !totalEl) return;
+
+  const dados = JSON.parse(localStorage.getItem('burguer_staff') || '[]');
+  
+  lista.innerHTML = '';
+  let totalConsumo = 0;
+  let totalDespesa = 0;
+
+  if (dados.length === 0) {
+    lista.innerHTML = '<div class="muted" style="text-align:center; padding:20px;">Carrinho vazio.</div>';
+    totalEl.innerHTML = "Consumo: R$ 0,00 | Despesas: R$ 0,00";
+    return;
+  }
+
+  dados.forEach((item, index) => {
+    const valor = parseFloat(item.valor) || 0;
+    if (item.tipo === 'consumo') totalConsumo += valor; else totalDespesa += valor;
+
+    const bordaCor = item.tipo === 'consumo' ? '#ffbf00' : '#ff4444';
+    const icone = item.tipo === 'consumo' ? '🍴' : '💸';
+
+    lista.innerHTML += `
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#222; padding:10px; margin-bottom:8px; border-radius:5px; border-left: 5px solid ${bordaCor};">
+        <div style="flex:1">
+          <small style="color:#888;">${new Date(item.id).toLocaleTimeString('pt-BR')}</small><br>
+          <span style="font-size: 0.9rem;">${icone} <strong>${item.desc}</strong></span>
+        </div>
+        <div style="text-align:right; margin-right:15px; min-width:95px;">
+          <strong style="color:#fff">R$ ${valor.toFixed(2).replace('.', ',')}</strong>
+        </div>
+        <button class="btn btn-danger" style="padding:4px 10px; font-size:12px; min-width:auto;" onclick="removerItemStaffLocal(${index})">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+  });
+
+  totalEl.innerHTML = `
+    <div style="display:flex; justify-content:space-between; width:100%; padding: 5px 10px; font-size:0.9rem;">
+      <span>Consumo Funcionário: <strong style="color:#ffbf00">R$ ${totalConsumo.toFixed(2).replace('.', ',')}</strong></span>
+      <span>Despesas: <strong style="color:#ff4444">R$ ${totalDespesa.toFixed(2).replace('.', ',')}</strong></span>
+    </div>
+    <div style="text-align:center; margin-top:8px; border-top: 1px solid #444; padding-top:8px;">
+      Total Interno: <strong style="font-size:1.1rem;">R$ ${(totalConsumo + totalDespesa).toFixed(2).replace('.', ',')}</strong>
+    </div>
+  `;
+};
+
+// Remover Item Único
+window.removerItemStaffLocal = function(index) {
+  const atual = JSON.parse(localStorage.getItem('burguer_staff') || '[]');
+  atual.splice(index, 1);
+  localStorage.setItem('burguer_staff', JSON.stringify(atual));
+  renderStaffLocal();
+};
+
+// Limpar Tudo
+window.limparStaffLocal = async function() {
+  const { isConfirmed } = await Swal.fire({
+    title: 'Zerar Relatório Interno?',
+    text: "Isso apagará todos os consumos e despesas desta aba!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    confirmButtonText: 'Sim, apagar tudo!',
+    background: '#1a1a1a',
+    color: '#fff'
+  });
+
+  if (isConfirmed) {
+    localStorage.removeItem('burguer_staff');
+    renderStaffLocal();
+  }
+};
+window.gerarPDFStaffLocal = function() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  const dados = JSON.parse(localStorage.getItem('burguer_staff') || '[]');
+  
+  if (dados.length === 0) {
+    return Swal.fire('Aviso', 'Não há dados para gerar o PDF!', 'info');
+  }
+
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const hora = new Date().toLocaleTimeString('pt-BR');
+
+  // Cabeçalho Estilizado
+  pdf.setFillColor(30, 30, 30);
+  pdf.rect(0, 0, 210, 35, 'F');
+  pdf.setTextColor(255, 191, 0);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(20);
+  pdf.text("BURGUER GRILL", 105, 15, { align: "center" });
+  
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFontSize(10);
+  pdf.text("RELATÓRIO DE CONSUMO INTERNO E DESPESAS", 105, 23, { align: "center" });
+  pdf.text(`Gerado em: ${hoje} às ${hora}`, 105, 29, { align: "center" });
+
+  let y = 45;
+  let totalC = 0;
+  let totalD = 0;
+
+  // Linhas do Relatório
+  pdf.setTextColor(0, 0, 0);
+  pdf.setFontSize(11);
+
+  dados.forEach((item, index) => {
+    // Alternar cor de fundo suave para leitura
+    if (index % 2 === 0) {
+      pdf.setFillColor(245, 245, 245);
+      pdf.rect(10, y - 5, 190, 10, 'F');
+    }
+
+    const valor = parseFloat(item.valor) || 0;
+    if (item.tipo === 'consumo') totalC += valor; else totalD += valor;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text(item.desc, 15, y);
+    
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, 195, y, { align: "right" });
+
+    y += 10;
+
+    // Nova página se necessário
+    if (y > 270) {
+      pdf.addPage();
+      y = 20;
+    }
+  });
+
+  // Resumo Final
+  y += 10;
+  pdf.setDrawColor(200);
+  pdf.line(10, y, 200, y);
+  y += 10;
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(12);
+  pdf.text("RESUMO FINANCEIRO:", 10, y);
+  y += 8;
+
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Total Consumo Staff:`, 15, y);
+  pdf.text(`R$ ${totalC.toFixed(2).replace('.', ',')}`, 195, y, { align: "right" });
+  y += 6;
+
+  pdf.text(`Total Despesas Diversas:`, 15, y);
+  pdf.text(`R$ ${totalD.toFixed(2).replace('.', ',')}`, 195, y, { align: "right" });
+  y += 10;
+
+  // Total Geral Destacado
+  pdf.setFillColor(255, 191, 0);
+  pdf.rect(10, y, 190, 12, 'F');
+  pdf.setTextColor(0);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("CUSTO TOTAL INTERNO:", 15, y + 8);
+  pdf.text(`R$ ${(totalC + totalD).toFixed(2).replace('.', ',')}`, 195, y + 8, { align: "right" });
+
+  // Nome do arquivo com data
+  const nomeArquivo = `Relatorio_Interno_${hoje.replace(/\//g, '-')}.pdf`;
+  pdf.save(nomeArquivo);
+};
+
+// menu lateral
+window.toggleSidebar = function() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  
+  if (!sidebar || !overlay) {
+    console.error("ERRO: Elementos da sidebar não encontrados!");
+    return;
+  }
+
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('active');
+  
+  console.log("Sidebar status:", sidebar.classList.contains('open') ? "Aberta" : "Fechada");
+};
+// Garante que a lista comece zerada ou carregue o que já existe
+document.addEventListener('DOMContentLoaded', () => {
+  if(document.getElementById('staff-local-list')) renderStaffLocal();
+});
+// Chamar renderização ao abrir a aba
+renderStaffLocal();
 // Bloqueios de segurança (mantidos como no original)
 document.addEventListener('keydown', function (e) {
     if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) { e.preventDefault(); }
@@ -1302,4 +1848,3 @@ document.addEventListener('contextmenu', function (event) { event.preventDefault
 </body>
 
 </html>
-<!-- { id: 111, name: 'COMBO GRILL', category: 'burguers', price: 35.99 }, -->
