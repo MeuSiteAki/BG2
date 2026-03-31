@@ -364,6 +364,50 @@ header {
   gap: 15px;
   padding: 10px 20px;
 }
+/* --- DELIVERY CARDS GLASS --- */
+.dcard {
+  position: relative;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+.dcard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.dcard-delivery::before { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+.dcard-retirada::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+
+.dcard-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.dcard-nome { font-size: 17px; font-weight: 500; color: #fff; margin: 0 0 2px; }
+.dcard-num { font-size: 12px; color: #888; }
+
+.dcard-badge { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+.dcard-badge-delivery { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+.dcard-badge-retirada { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+
+.dcard-info-row { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #aaa; margin-bottom: 6px; }
+.dcard-icon { font-size: 12px; width: 16px; flex-shrink: 0; margin-top: 2px; }
+
+.dcard-pag-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 3px 10px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #aaa; margin-bottom: 10px; }
+
+.dcard-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 10px 0; }
+
+.dcard-itens { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.dcard-item-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+.dcard-item-nome { color: #eee; flex: 1; }
+.dcard-item-obs { font-size: 11px; color: #888; }
+.dcard-item-preco { font-size: 13px; font-weight: 500; color: #6ee7b7; flex-shrink: 0; margin-left: 8px; }
+
+.dcard-footer { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 4px; }
+.dcard-total-label { font-size: 11px; color: #888; margin-bottom: 2px; }
+.dcard-total-valor { font-size: 22px; font-weight: 500; color: #34d399; line-height: 1; }
+.dcard-hora { font-size: 11px; color: #888; text-align: right; }
+.dcard-badge-mesa { background: rgba(37,211,102,0.15); color: #6ee7b7; border: 1px solid rgba(37,211,102,0.3); }
+.dcard-mesa::before { background: linear-gradient(90deg, #25d366, #059669); }
   </style>
 </head>
 
@@ -413,7 +457,7 @@ header {
   </header>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="openTab('delivery')"><i class="fas fa-truck"></i> Delivery</button>
+    <button class="tab-btn active" onclick="openTab('delivery')"><i class="fas fa-truck"></i>Pedidos/Mesas</button>
     <button class="tab-btn" onclick="openTab('mesas')"><i class="fas fa-chair"></i> Mesas</button>
     <button class="tab-btn" onclick="openTab('staff')"><i class="fas fa-users"></i> Funcionarios & Despesas</button>
   </div>
@@ -668,10 +712,9 @@ header {
     });
 
     // Delivery (lista atual)
-    function renderDelivery(pedidosRaw) {
+  function renderDelivery(pedidosRaw) {
   const pedidos = [...pedidosRaw]
-    // 🔧 agora inclui também retirada
-    .filter(p => !p.tipo || p.tipo === 'delivery' || p.tipo === 'retirada')
+    .filter(p => !p.tipo || p.tipo === 'delivery' || p.tipo === 'retirada' || (p.tipo === 'fechamento' && (p.cliente || '').toLowerCase().includes('mesa')))
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
   ordersGrid.innerHTML = '';
@@ -683,33 +726,61 @@ header {
   }
 
   pedidos.forEach((p, idx) => {
+    const isMesa = p.tipo === 'fechamento' && (p.cliente || '').toLowerCase().includes('mesa');
+    const tipo = isMesa ? 'mesa' : (p.tipo === 'retirada' ? 'retirada' : 'delivery');
+    const badgeIcon = isMesa ? '🪑' : (tipo === 'retirada' ? '🏠' : '🛵');
+    const badgeLabel = isMesa ? 'Mesa' : (tipo === 'retirada' ? 'Retirada' : 'Delivery');
+
+    const itensHTML = (p.itens || '').split(';').map(item => {
+      const partes = item.split('||');
+      const nome = partes[0]?.trim();
+      const preco = partes[1]?.trim();
+      const obs = partes[2]?.trim();
+      if (!nome) return '';
+      return `
+        <div class="dcard-item-row">
+          <span class="dcard-item-nome">${nome}${obs ? ` <span class="dcard-item-obs">(${obs})</span>` : ''}</span>
+          ${preco ? `<span class="dcard-item-preco">R$ ${preco}</span>` : ''}
+        </div>`;
+    }).join('');
+
     const card = document.createElement('div');
-    card.className = 'card';
+    card.className = `card dcard dcard-${tipo}`;
     card.innerHTML = `
-      <h3><span class="muted">#${idx + 1}</span> ${p.cliente || 'Cliente'}</h3>
-      ${p.telefone ? `<p><strong>Telefone:</strong> ${p.telefone}</p>` : ''}
-      ${
-        p.tipo === 'retirada'
-          ? `<p><strong>Tipo:</strong> Retirada no Local</p>`
-          : (p.endereco ? `<p><strong>Endereço:</strong> ${p.endereco}${p.bairro ? ' - ' + p.bairro : ''}</p>` : '')
-      }
-      ${p.pagamento ? `<p><strong>Pagamento:</strong> ${p.pagamento}</p>` : ''}
-      <p><strong>Itens:</strong> ${p.itens || ''}</p>
-      ${p.obs ? `<p><strong>Obs:</strong> ${p.obs}</p>` : ''}
-      ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
-      ${p.createdAt ? `<p class="muted">${new Date(p.createdAt).toLocaleString('pt-BR')}</p>` : ''}
+      <div class="dcard-top">
+        <div>
+          <p class="dcard-nome">${p.cliente || 'Cliente'}</p>
+          <span class="dcard-num">#${idx + 1}</span>
+        </div>
+        <span class="dcard-badge dcard-badge-${tipo}">${badgeIcon} ${badgeLabel}</span>
+      </div>
+
+      ${p.telefone ? `<div class="dcard-info-row"><i class="fas fa-phone dcard-icon"></i><span>${p.telefone}</span></div>` : ''}
+      ${!isMesa && tipo !== 'retirada' && p.endereco ? `<div class="dcard-info-row"><i class="fas fa-map-marker-alt dcard-icon"></i><span>${p.endereco}${p.bairro ? ' — ' + p.bairro : ''}</span></div>` : ''}
+      ${isMesa && p.garcom ? `<div class="dcard-info-row"><i class="fas fa-user dcard-icon"></i><span>Garçom: ${p.garcom}</span></div>` : ''}
+      ${p.pagamento ? `<div class="dcard-pag-tag"><i class="fas fa-wallet"></i> ${p.pagamento}</div>` : ''}
+
+      <hr class="dcard-divider">
+
+      <div class="dcard-itens">${itensHTML}</div>
+
+      <div class="dcard-footer">
+        <div>
+          <div class="dcard-total-label">total do pedido</div>
+          <div class="dcard-total-valor">${p.total ? `R$ ${p.total}` : '—'}</div>
+        </div>
+        ${p.createdAt ? `<div class="dcard-hora">${new Date(p.createdAt).toLocaleString('pt-BR')}</div>` : ''}
+      </div>
     `;
     ordersGrid.appendChild(card);
   });
 
-  // 🔔 dispara bip somente se houver pedidos e bip estiver ativo
   if (window.bipAtivo && pedidos.length > 0) {
     tocarBip();
   }
 }
 
-    // Históricos
-   function renderHistoricos(pedidosRaw) {
+function renderHistoricos(pedidosRaw) {
   const histMesas = pedidosRaw
     .filter(p => p.tipo === 'fechamento' && (p.cliente || '').toLowerCase().includes('mesa'))
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
@@ -731,7 +802,15 @@ header {
       <p class="muted">#${idx + 1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
       ${p.garcom ? `<p><strong>Garçom:</strong> ${p.garcom}</p>` : ''}
       ${p.pagamento ? `<p><strong>Pagamento:</strong> ${p.pagamento}</p>` : ''}
-      <p><strong>Itens:</strong> ${p.itens || ''}</p>
+      <p><strong>Itens:</strong><br>${
+        (p.itens || '').split(';').map(item => {
+          const partes = item.split('||');
+          const nome = partes[0]?.trim();
+          const preco = partes[1]?.trim();
+          const obs = partes[2]?.trim();
+          return `&nbsp;&nbsp;• ${nome}${preco ? ' — <b>R$ ' + preco + '</b>' : ''}${obs ? ' <em style="color:#aaa">(${obs})</em>' : ''}`;
+        }).join('<br>')
+      }</p>
       ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
       <button class="btn btn-outline" onclick="window.reimprimirNota('${p.id}')">
         <i class="fas fa-print"></i> Reimprimir
@@ -752,7 +831,15 @@ header {
     card.innerHTML = `
       <h3><i class="fas fa-truck"></i> ${p.cliente || 'Cliente'}</h3>
       <p class="muted">#${idx + 1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
-      <p><strong>Itens:</strong> ${p.itens || ''}</p>
+      <p><strong>Itens:</strong><br>${
+        (p.itens || '').split(';').map(item => {
+          const partes = item.split('||');
+          const nome = partes[0]?.trim();
+          const preco = partes[1]?.trim();
+          const obs = partes[2]?.trim();
+          return `&nbsp;&nbsp;• ${nome}${preco ? ' — <b>R$ ' + preco + '</b>' : ''}${obs ? ' <em style="color:#aaa">(${obs})</em>' : ''}`;
+        }).join('<br>')
+      }</p>
       ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
       <button class="btn btn-outline" onclick="window.reimprimirNota('${p.id}')">
         <i class="fas fa-print"></i> Reimprimir
@@ -762,6 +849,7 @@ header {
   });
   deliveryTotalEl.textContent = `Total Delivery: R$ ${totalDelivery.toFixed(2).replace('.', ',')}`;
 }
+
 window.reimprimirNota = async function (pedidoId) {
   const docRef = doc(db, "pedidos", pedidoId);
   const snap = await getDocs(query(collection(db, "pedidos")));
@@ -971,7 +1059,6 @@ window.cancelarItemMesa = async function(num, idx) {
     menuEl.appendChild(section);
   });
 }
-
 
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1400, background: '#25d366', color: '#fff' });
 
