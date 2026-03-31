@@ -817,7 +817,12 @@ window.reimprimirNota = async function (pedidoId) {
   </div>
 
   <div class="mesa-items" id="mesa-items-${i}" style="max-height: 80px; overflow-y: auto; border-bottom: 1px dashed #444; margin-bottom: 5px;">
-    ${m.itens.map(it => `<div style="font-size: 0.85rem;">• ${it.name} — R$ ${it.price.toFixed(2)}</div>`).join('')}
+   ${m.itens.map((it, idx) => `
+  <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.85rem; padding:2px 0; border-bottom:1px solid #2a2a2a;">
+    <span>• ${it.name}${it.obs ? ` <em style="color:#aaa">(${it.obs})</em>` : ''} — R$ ${it.price.toFixed(2)}</span>
+    <button onclick="window.cancelarItemMesa(${i}, ${idx})" style="background:transparent; border:1px solid #d32f2f; color:#d32f2f; border-radius:4px; padding:1px 6px; cursor:pointer; font-size:0.7rem; flex-shrink:0; margin-left:6px;">✕</button>
+  </div>
+`).join('')}
   </div>
 
   <div class="mesa-valores" style="display: flex; justify-content: space-between; align-items: flex-end; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 5px;">
@@ -842,6 +847,37 @@ window.reimprimirNota = async function (pedidoId) {
       applyHighlightUI();
     }
 
+    // apagar itens
+window.cancelarItemMesa = async function(num, idx) {
+  const m = window.mesasState[num];
+  if (!m || !m.itens[idx]) return;
+
+  const item = m.itens[idx];
+
+  // Pede senha de gerente
+  if (!(await requireManager())) return;
+
+  const { isConfirmed } = await Swal.fire({
+    title: 'Cancelar item?',
+    html: `<b style="color:#ffbf00">${item.name}</b><br><small>R$ ${item.price.toFixed(2)}</small>`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    confirmButtonText: 'Sim, cancelar',
+    cancelButtonText: 'Voltar',
+    background: '#1a1a1a',
+    color: '#fff'
+  });
+
+  if (!isConfirmed) return;
+
+  // Remove o item e recalcula o total
+  m.itens.splice(idx, 1);
+  m.total = m.itens.reduce((s, i) => s + i.price, 0);
+  await saveMesaFirebase(num);
+
+  Swal.fire({ icon: 'success', title: 'Item cancelado!', timer: 900, showConfirmButton: false });
+};
     function setHighlightMesa(numero) { window.highlightMesa = numero; applyHighlightUI(); }
     function clearHighlight() { window.highlightMesa = null; applyHighlightUI(); }
     function applyHighlightUI() {
@@ -1139,7 +1175,7 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
   
   pdf.setFontSize(10);
   pdf.setTextColor(100);
-  pdf.text(`RELATÓRIO DE VENDAS E FECHAMENTO`, 105, 21, { align: "center" });
+  pdf.text(`RELATORIO DE VENDAS E FECHAMENTO`, 105, 21, { align: "center" });
   pdf.setFontSize(9);
   pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 105, 26, { align: "center" });
   
@@ -1163,57 +1199,90 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
 
     totalGeral += valor;
 
-    // Normaliza o texto para busca (remove acentos e coloca em maiúsculo)
+    // Normaliza o texto (remove acentos, maiúsculo)
     const pagTxt = (p.pagamento || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-    
-    const extrairValor = (metodosArray, texto) => {
-        let somaInterna = 0;
-        metodosArray.forEach(metodo => {
-            if (texto.includes(metodo)) {
-                try {
-                    let parte = texto.split(metodo)[1].split('|')[0]; 
-                    somaInterna += parseFloat(parte.replace(/[^\d.,]/g, "").replace(",", "."));
-                } catch(e) {}
-            }
-        });
-        return somaInterna;
-    };
 
-    // --- LÓGICA DE SOMA REVISADA ---
-    const vPix = extrairValor(["PIX"], pagTxt);
-    const vDin = extrairValor(["DIN"], pagTxt);
-    // Agora busca por CRED, DEB ou CART (cobre Crédito, Débito, Cartão)
-    const vCartao = extrairValor(["CRED", "DEB", "CART"], pagTxt);
+    // --- SOMA POR MÉTODO ---
+    const partesComValor = pagTxt.split('|');
+    let temValorExplicito = false;
 
-    if (vPix > 0 || vDin > 0 || vCartao > 0) {
-        totalPix += vPix;
-        totalDinheiro += vDin;
-        totalCartao += vCartao;
-    } else {
-        // Fallback para pagamentos simples sem o formato "Método: Valor"
-        if (pagTxt.includes("PIX")) totalPix += valor;
-        else if (pagTxt.includes("DIN")) totalDinheiro += valor;
-        else totalCartao += valor;
+    partesComValor.forEach(parte => {
+      const matchValor = parte.match(/([\d]+[.,][\d]{2})/);
+      if (!matchValor) return;
+      const val = parseFloat(matchValor[1].replace(',', '.'));
+      if (isNaN(val) || val <= 0) return;
+      temValorExplicito = true;
+
+      if (parte.includes('PIX')) totalPix += val;
+      else if (parte.includes('DIN')) totalDinheiro += val;
+      else if (parte.includes('CRED') || parte.includes('DEB') || parte.includes('CART')) totalCartao += val;
+    });
+
+    // Formato simples sem valor explícito (ex: vindo do site de delivery)
+    if (!temValorExplicito) {
+      if (pagTxt.includes('PIX')) totalPix += valor;
+      else if (pagTxt.includes('DIN')) totalDinheiro += valor;
+      else if (pagTxt.includes('CART') || pagTxt.includes('CRED') || pagTxt.includes('DEB')) totalCartao += valor;
+      else totalDinheiro += valor;
     }
 
     // --- LISTAGEM ---
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
     pdf.setTextColor(40);
-    pdf.text(`${p.cliente || 'Venda'} | Garçom: ${p.garcom || "Geral"}`, 10, y);
-    
+    pdf.text(`${p.cliente || 'Venda'} | Garcom: ${p.garcom || "Geral"}`, 10, y);
+
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);
     const dataF = p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : '---';
-    
-    // Mostra o que foi usado (PIX, CRÉDITO, etc)
-    let meiosPagamento = (p.pagamento || "").split('|').map(item => item.split(':')[0].trim()).join(' + ');
+    pdf.text(`Data: ${dataF}`, 10, y + 5);
+    y += 11;
 
-    pdf.text(`Data: ${dataF} | Meio: ${meiosPagamento}`, 10, y + 5);
-    pdf.setFont("helvetica", "bold");
-    pdf.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, 200, y + 5, { align: "right" });
+    // Quebra cada método de pagamento em linha separada
+    const partesPag = (p.pagamento || "").split('|').map(s => s.trim()).filter(Boolean);
 
-    y += 12; 
+    if (partesPag.length > 1) {
+      // Pagamento misto: uma linha por método com seu valor
+      partesPag.forEach(parte => {
+        const matchValor = parte.match(/([\d]+[.,][\d]{2})/);
+        const valParte = matchValor ? parseFloat(matchValor[1].replace(',', '.')) : 0;
+        const nomeParte = parte.split(':')[0].trim();
+
+        pdf.setTextColor(80);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(`  -> ${nomeParte}:`, 12, y);
+        if (valParte > 0) {
+          pdf.setFont("helvetica", "bold");
+          pdf.setTextColor(40);
+          pdf.text(`R$ ${valParte.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
+        }
+        y += 5;
+        if (y > 275) { pdf.addPage(); y = 20; }
+      });
+
+      // Total da venda
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(20);
+      pdf.text(`  TOTAL:`, 12, y);
+      pdf.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
+      y += 9;
+
+    } else {
+      // Pagamento simples: uma linha só
+      const meioSimples = (p.pagamento || "Nao informado").split(':')[0].trim();
+      pdf.setTextColor(40);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(`Meio: ${meioSimples}`, 10, y);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
+      y += 9;
+    }
+
+    // Linha separadora entre vendas
+    pdf.setDrawColor(220);
+    pdf.line(10, y, 200, y);
+    y += 4;
+
     if (y > 275) { pdf.addPage(); y = 20; }
   });
 
@@ -1224,25 +1293,27 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
   y += 8;
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(11);
-  pdf.text("RESUMO DE CAIXA POR MÉTODO", 10, y);
+  pdf.setTextColor(40);
+  pdf.text("RESUMO DE CAIXA POR METODO", 10, y);
   y += 7;
   
   pdf.setFontSize(10);
   pdf.setFont("helvetica", "normal");
   pdf.text(`Total em PIX:`, 15, y); pdf.text(`R$ ${totalPix.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 6;
-  pdf.text(`Total em Cartões:`, 15, y); pdf.text(`R$ ${totalCartao.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 6;
+  pdf.text(`Total em Cartoes:`, 15, y); pdf.text(`R$ ${totalCartao.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 6;
   pdf.text(`Total em Dinheiro:`, 15, y); pdf.text(`R$ ${totalDinheiro.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 12;
 
   pdf.setFillColor(30, 30, 30);
   pdf.rect(10, y, 190, 12, 'F');
   pdf.setTextColor(255, 191, 0);
   pdf.setFontSize(12);
-  pdf.text("FATURAMENTO LÍQUIDO TOTAL:", 15, y + 8);
+  pdf.text("FATURAMENTO LIQUIDO TOTAL:", 15, y + 8);
   pdf.setFontSize(14);
   pdf.text(`R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 195, y + 8, { align: "right" });
 
   pdf.save(`relatorio_financeiro.pdf`);
 });
+
     // Auth & Tabs
 // ATUALIZAÇÃO: openTab com trava de segurança para Staff
 window.openTab = async function (id) {
