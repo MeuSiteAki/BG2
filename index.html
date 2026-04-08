@@ -408,6 +408,71 @@ header {
 .dcard-hora { font-size: 11px; color: #888; text-align: right; }
 .dcard-badge-mesa { background: rgba(37,211,102,0.15); color: #6ee7b7; border: 1px solid rgba(37,211,102,0.3); }
 .dcard-mesa::before { background: linear-gradient(90deg, #25d366, #059669); }
+
+.menu-section-header h3 {
+    font-size: 1.4rem !important; 
+    font-weight: 800 !important;
+    color: #ffbf00 !important;   
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* 2. Botão de + e - das categorias */
+.menu-section-header .toggle {
+    font-size: 1.6rem !important;
+    font-weight: bold;
+    color: #ffbf00 !important;
+    width: 40px;
+    height: 40px;
+}
+
+/* 3. Título "Itens Selecionados" (Carrinho no modal) */
+#menu-modal h3:contains("Mesa"), 
+#menu-modal h4:contains("Itens"),
+#menu-modal b, 
+.modal-content h3 {
+    font-size: 1.3rem !important;
+    color: #25d366 !important; 
+    font-weight: 800 !important;
+}
+
+/* 4. ITENS DO CARDÁPIO (O ajuste que você pediu) */
+.menu-item h4 {
+    font-size: 1.25rem !important; /* Aumentado para leitura rápida */
+    font-weight: 800 !important;  /* Fonte bem "viva" e grossa */
+    color: #ffffff !important;    /* Branco puro para brilhar no escuro */
+    margin-bottom: 2px;
+}
+
+/* 5. Preço dos itens no Menu */
+.menu-item small {
+    font-size: 1.05rem !important; /* Preço um pouco maior também */
+    color: #00ff00 !important;     /* Verde limão vivo para o preço saltar aos olhos */
+    font-weight: 700;
+}
+
+/* 6. Itens já adicionados no Carrinho (Aumentados também) */
+#carrinho-list div {
+    font-size: 1.2rem !important;  /* Mais visível no checkout */
+    font-weight: 700 !important;
+    color: #fff !important;
+    padding: 10px 0;
+    border-bottom: 1px solid #444;
+}
+
+/* 7. Botão X de remover do carrinho */
+#carrinho-list .btn-danger {
+    padding: 6px 14px !important;
+    font-size: 1.1rem !important;
+    margin-left: 10px;
+}
+
+/* 8. Botão Adicionar (Add) e Obs no Menu */
+.menu-item .btn-outline {
+    font-size: 1rem !important;
+    font-weight: bold !important;
+    padding: 8px 12px !important;
+}
   </style>
 </head>
 
@@ -552,26 +617,38 @@ header {
   <button id="floating-toggle"><i class="fas fa-layer-group"></i> Ver todas as mesas</button>
 
   <!-- Modal de menu com carrinho -->
-  <div id="menu-modal" class="modal">
-    <div class="modal-content">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-        <h2>Mesa <span id="mesa-atual"></span> — Adicionar itens</h2>
-        <button class="btn btn-danger" onclick="window.fecharMenuMesa()"><i class="fas fa-times"></i> Fechar</button>
-      </div>
+ <div id="menu-modal" class="modal">
+  <div class="modal-content">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+      <h2 style="margin:0;">Mesa <span id="mesa-atual"></span> — Itens</h2>
+      <button class="btn btn-danger" onclick="window.fecharMenuMesa()"><i class="fas fa-times"></i> Fechar</button>
+    </div>
 
-      <div id="menu-produtos"></div>
+    <div style="margin-bottom: 15px; position: relative;">
+      <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #ffbf00; font-size: 1.2rem;"></i>
+      <input type="text" id="input-busca-menu" 
+             placeholder="Digite para buscar (ex: Coca, X-Tudo...)" 
+             style="width: 100%; padding: 14px 14px 14px 42px; border-radius: 10px; border: 2px solid #444; background: #1a1a1a; color: #fff; font-size: 1.1rem; outline: none;"
+             onkeyup="window.filtrarMenu(this.value)">
+    </div>
 
-      <h3 style="margin-top:12px;"><i class="fas fa-shopping-basket"></i> Itens selecionados</h3>
-      <div id="carrinho-list" class="carrinho-list"></div>
+    <div id="menu-produtos" style="max-height: 50vh; overflow-y: auto; border-radius: 8px;"></div>
 
-      <div class="carrinho-actions">
-        <button class="btn btn-outline" onclick="window.limparCarrinho(window.mesaAtual)"><i class="fas fa-trash"></i>
-          Limpar</button>
-        <button class="btn btn-accent" onclick="window.confirmarCarrinho(window.mesaAtual)"><i class="fas fa-check"></i>
-          Confirmar</button>
-      </div>
+    <h3 style="margin-top:15px; border-top: 1px solid #333; padding-top: 15px;">
+      <i class="fas fa-shopping-basket"></i> Itens selecionados
+    </h3>
+    <div id="carrinho-list" class="carrinho-list"></div>
+
+    <div class="carrinho-actions">
+      <button class="btn btn-outline" onclick="window.limparCarrinho(window.mesaAtual)">
+        <i class="fas fa-trash"></i> Limpar
+      </button>
+      <button class="btn btn-accent" style="background: #25d366; border: none;" onclick="window.confirmarCarrinho(window.mesaAtual)">
+        <i class="fas fa-check"></i> Confirmar
+      </button>
     </div>
   </div>
+</div>
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -1972,6 +2049,44 @@ window.gerarPDFStaffLocal = function() {
   pdf.save(nomeArquivo);
 };
 
+// BUSCAR MENU
+window.filtrarMenu = function(termo) {
+  // 1. Normaliza o termo de busca (tira acentos e deixa minúsculo)
+  const busca = termo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const itens = document.querySelectorAll('.menu-item');
+  const secoes = document.querySelectorAll('.menu-section');
+
+  // 2. Filtra os itens individualmente
+  itens.forEach(item => {
+    const nome = item.querySelector('h4').innerText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    item.style.display = nome.includes(busca) ? 'flex' : 'none';
+  });
+
+  // 3. Gerencia a visibilidade das seções (categorias)
+  secoes.forEach(secao => {
+    const listaItens = secao.querySelector('.menu-items');
+    const btnToggle = secao.querySelector('.toggle');
+    
+    // Verifica se existe algum item visível nesta seção
+    const temVisivel = Array.from(secao.querySelectorAll('.menu-item')).some(i => i.style.display === 'flex');
+
+    if (busca === "") {
+      // --- ESTADO NORMAL: Se a busca estiver vazia, volta ao padrão fechado ---
+      secao.style.display = 'block';
+      if (listaItens) listaItens.classList.remove('show'); // Esconde a lista
+      if (btnToggle) btnToggle.textContent = '+';          // Volta o ícone para +
+    } else {
+      // --- ESTADO DE BUSCA: Mostra apenas se tiver o que o usuário quer ---
+      if (temVisivel) {
+        secao.style.display = 'block';
+        if (listaItens) listaItens.classList.add('show'); // Abre automaticamente
+        if (btnToggle) btnToggle.textContent = '−';       // Muda ícone para -
+      } else {
+        secao.style.display = 'none'; // Esconde a categoria se não tiver o item
+      }
+    }
+  });
+};
 // menu lateral
 window.toggleSidebar = function() {
   const sidebar = document.getElementById('sidebar');
