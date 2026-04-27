@@ -1363,10 +1363,8 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
 
     totalGeral += valor;
 
-    // Normaliza o texto (remove acentos, maiúsculo)
     const pagTxt = (p.pagamento || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
 
-    // --- SOMA POR MÉTODO ---
     const partesComValor = pagTxt.split('|');
     let temValorExplicito = false;
 
@@ -1382,12 +1380,22 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
       else if (parte.includes('CRED') || parte.includes('DEB') || parte.includes('CART')) totalCartao += val;
     });
 
-    // Formato simples sem valor explícito (ex: vindo do site de delivery)
     if (!temValorExplicito) {
       if (pagTxt.includes('PIX')) totalPix += valor;
       else if (pagTxt.includes('DIN')) totalDinheiro += valor;
       else if (pagTxt.includes('CART') || pagTxt.includes('CRED') || pagTxt.includes('DEB')) totalCartao += valor;
       else totalDinheiro += valor;
+    }
+
+    // --- VERIFICA ESPAÇO ANTES DE CADA VENDA ---
+    // Estima altura necessária para este registro
+    const partesPagEstimativa = (p.pagamento || "").split('|').map(s => s.trim()).filter(Boolean);
+    const linhasEstimadas = partesPagEstimativa.length > 1 ? (partesPagEstimativa.length + 2) : 1;
+    const alturaEstimada = 11 + (linhasEstimadas * 5) + 9 + 4;
+
+    if (y + alturaEstimada > 265) { 
+      pdf.addPage(); 
+      y = 20; 
     }
 
     // --- LISTAGEM ---
@@ -1402,11 +1410,9 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
     pdf.text(`Data: ${dataF}`, 10, y + 5);
     y += 11;
 
-    // Quebra cada método de pagamento em linha separada
     const partesPag = (p.pagamento || "").split('|').map(s => s.trim()).filter(Boolean);
 
     if (partesPag.length > 1) {
-      // Pagamento misto: uma linha por método com seu valor
       partesPag.forEach(parte => {
         const matchValor = parte.match(/([\d]+[.,][\d]{2})/);
         const valParte = matchValor ? parseFloat(matchValor[1].replace(',', '.')) : 0;
@@ -1421,10 +1427,9 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
           pdf.text(`R$ ${valParte.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
         }
         y += 5;
-        if (y > 275) { pdf.addPage(); y = 20; }
+        if (y > 265) { pdf.addPage(); y = 20; }
       });
 
-      // Total da venda
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(20);
       pdf.text(`  TOTAL:`, 12, y);
@@ -1432,7 +1437,6 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
       y += 9;
 
     } else {
-      // Pagamento simples: uma linha só
       const meioSimples = (p.pagamento || "Nao informado").split(':')[0].trim();
       pdf.setTextColor(40);
       pdf.setFont("helvetica", "normal");
@@ -1442,16 +1446,20 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
       y += 9;
     }
 
-    // Linha separadora entre vendas
     pdf.setDrawColor(220);
     pdf.line(10, y, 200, y);
     y += 4;
-
-    if (y > 275) { pdf.addPage(); y = 20; }
   });
 
-  // --- RESUMO FINAL ---
+  // --- RESUMO FINAL (com verificação de espaço garantida) ---
   y += 5;
+
+  // Altura necessária para o bloco resumo: ~70px no total
+  if (y + 70 > 280) { 
+    pdf.addPage(); 
+    y = 20; 
+  }
+
   pdf.setDrawColor(0);
   pdf.line(10, y, 200, y);
   y += 8;
