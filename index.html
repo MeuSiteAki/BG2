@@ -570,13 +570,8 @@ header {
     <label>Funcionário:</label>
     <select id="staff-nome" class="swal2-input" style="width:100%; margin-bottom:10px;">
       <option value="Ana">Ana</option>
-      <option value="Alana">Alana</option>
-      <option value="Matheus">Matheus</option>
-      <option value="Fernanda">Fernanda</option>
-      <option value="Cleo">Cleo</option>
-      <option value="Ines">Ines</option>
-      <option value="César">César</option>
-      <option value="Lucas">Lucas</option>
+      <option value="Mônica">Mônica</option>
+      <option value="Vitória">Vitória</option>
       <option value="Luciano">Luciano</option>
     </select>
     
@@ -966,11 +961,10 @@ window.reimprimirNota = async function (pedidoId) {
     <label>Garçom:</label>
     <select id="mesa-garcom-${i}" ${m.status === 'Ocupada' ? 'disabled' : ''} onchange="window.selecionarGarcom(${i}, this.value)">
       <option value="">-- selecione --</option>
-      <option value="Alana" ${m.garcom === 'Alana' ? 'selected' : ''}>Alana</option>
-      <option value="Matheus" ${m.garcom === 'Matheus' ? 'selected' : ''}>Matheus</option>
-      <option value="Fernanda" ${m.garcom === 'Fernanda' ? 'selected' : ''}>Fernanda</option>
-      <option value="Cleo" ${m.garcom === 'Cleo' ? 'selected' : ''}>Cleo</option>
+      <option value="Mônica" ${m.garcom === 'Mônica' ? 'selected' : ''}>Mônica</option>
+      <option value="Vitória" ${m.garcom === 'Vitória' ? 'selected' : ''}>Vitória</option>
       <option value="Ana" ${m.garcom === 'Ana' ? 'selected' : ''}>Ana</option>
+       <option value="Luciano" ${m.garcom === 'Luciano' ? 'selected' : ''}>Luciano</option>
     </select>
   </div>
 
