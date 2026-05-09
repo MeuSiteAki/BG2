@@ -951,68 +951,139 @@ window.reimprimirNota = async function (pedidoId) {
 };
 
     // Render Mesas
-    function renderMesas() {
-      mesasGrid.innerHTML = '';
-      for (let i = 1; i <= 40; i++) {
-        const m = window.mesasState[i] || { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
-        const card = document.createElement('div');
-        card.className = `card mesa-card ${m.status === 'Livre' ? 'livre' : 'ocupada'}`;
-        card.setAttribute('data-mesa', i);
-      card.innerHTML = `
-  <h3><i class="fas fa-chair"></i> Mesa ${i}</h3>
-  <div class="muted">Status: <span id="mesa-status-${i}">${m.status}</span></div>
-  
-  <div style="margin:8px 0;">
-    <label>Garçom:</label>
-    <select id="mesa-garcom-${i}" ${m.status === 'Ocupada' ? 'disabled' : ''} onchange="window.selecionarGarcom(${i}, this.value)">
-      <option value="">-- selecione --</option>
-      <option value="Mônica" ${m.garcom === 'Mônica' ? 'selected' : ''}>Mônica</option>
-      <option value="Vitória" ${m.garcom === 'Vitória' ? 'selected' : ''}>Vitória</option>
-      <option value="Lorrany" ${m.garcom === 'Lorrany' ? 'selected' : ''}>Lorrany</option>
-      <option value="Michely" ${m.garcom === 'Michely' ? 'selected' : ''}>Michely</option>
-      <option value="Ana" ${m.garcom === 'Ana' ? 'selected' : ''}>Ana</option>
-       <option value="Luciano" ${m.garcom === 'Luciano' ? 'selected' : ''}>Luciano</option>
-    </select>
-  </div>
+function renderMesas() {
+  mesasGrid.innerHTML = '';
+  for (let i = 1; i <= 40; i++) {
+    const m = window.mesasState[i] || { status: 'Livre', itens: [], total: 0, pago: 0, impresso: [], garcom: '' };
+    const card = document.createElement('div');
+    
+    // Adicionado position: relative para o botão X se posicionar corretamente
+    card.className = `card mesa-card ${m.status === 'Livre' ? 'livre' : 'ocupada'}`;
+    card.style.position = 'relative'; 
+    card.setAttribute('data-mesa', i);
 
-  <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin:8px 0;">
-    <button class="btn btn-success" onclick="window.abrirMesa(${i})"><i class="fas fa-door-open"></i> Abrir</button>
-    <button class="btn btn-accent" onclick="window.abrirMenuMesa(${i})"><i class="fas fa-plus"></i> Itens</button>
-    <button class="btn btn-outline" onclick="window.enviarParaCozinha(${i})"><i class="fas fa-print"></i> Cozinha</button>
-    <button class="btn btn-danger" onclick="window.fecharMesa(${i})"><i class="fas fa-wallet"></i> Pagar</button>
-  </div>
+    card.innerHTML = `
+      <!-- Botão X para cancelar abertura (Só aparece se estiver ocupada) -->
+      ${m.status === 'Ocupada' ? `
+        <button class="btn-cancelar-mesa" 
+                onclick="window.cancelarAberturaMesa(${i})" 
+                title="Cancelar abertura"
+                style="position: absolute; top: 8px; right: 8px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+          ×
+        </button>
+      ` : ''}
 
-  <div class="mesa-items" id="mesa-items-${i}" style="max-height: 80px; overflow-y: auto; border-bottom: 1px dashed #444; margin-bottom: 5px;">
-   ${m.itens.map((it, idx) => `
-  <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.85rem; padding:2px 0; border-bottom:1px solid #2a2a2a;">
-    <span>• ${it.name}${it.obs ? ` <em style="color:#aaa">(${it.obs})</em>` : ''} — R$ ${it.price.toFixed(2)}</span>
-    <button onclick="window.cancelarItemMesa(${i}, ${idx})" style="background:transparent; border:1px solid #d32f2f; color:#d32f2f; border-radius:4px; padding:1px 6px; cursor:pointer; font-size:0.7rem; flex-shrink:0; margin-left:6px;">✕</button>
-  </div>
-`).join('')}
-  </div>
+      <h3><i class="fas fa-chair"></i> Mesa ${i}</h3>
+      <div class="muted">Status: <span id="mesa-status-${i}">${m.status}</span></div>
+      
+      <div style="margin:8px 0;">
+        <label>Garçom:</label>
+        <select id="mesa-garcom-${i}" ${m.status === 'Ocupada' ? 'disabled' : ''} onchange="window.selecionarGarcom(${i}, this.value)">
+          <option value="">-- selecione --</option>
+          <option value="Mônica" ${m.garcom === 'Mônica' ? 'selected' : ''}>Mônica</option>
+          <option value="Vitória" ${m.garcom === 'Vitória' ? 'selected' : ''}>Vitória</option>
+          <option value="Lorrany" ${m.garcom === 'Lorrany' ? 'selected' : ''}>Lorrany</option>
+          <option value="Michely" ${m.garcom === 'Michely' ? 'selected' : ''}>Michely</option>
+          <option value="Ana" ${m.garcom === 'Ana' ? 'selected' : ''}>Ana</option>
+          <option value="Luciano" ${m.garcom === 'Luciano' ? 'selected' : ''}>Luciano</option>
+        </select>
+      </div>
 
-  <div class="mesa-valores" style="display: flex; justify-content: space-between; align-items: flex-end; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 5px;">
-    <div style="font-size: 0.8rem; color: #aaa; line-height: 1.4;">
-      Consumo: R$ ${Number(m.total || 0).toFixed(2).replace('.', ',')}<br>
-      Pago: <span style="color: #00ff00;">- R$ ${Number(m.pago || 0).toFixed(2).replace('.', ',')}</span>
-    </div>
-    <div style="text-align: right;">
-      <span style="font-size: 0.75rem; color: #ff4444; font-weight: bold; text-transform: uppercase;">Falta Pagar</span><br>
-      <strong style="font-size: 1.4rem; color: #ff4444; letter-spacing: -1px;">
-        R$ ${Math.max(0, (Number(m.total || 0) - Number(m.pago || 0))).toFixed(2).replace('.', ',')}
-      </strong>
-    </div>
-  </div>
-`;
-        mesasGrid.appendChild(card);
-        card.addEventListener('click', (e) => {
-          if (e.target.closest('button') || e.target.closest('select')) return;
-          setHighlightMesa(i);
-        });
-      }
-      applyHighlightUI();
-    }
+      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin:8px 0;">
+        <button class="btn btn-success" onclick="window.abrirMesa(${i})"><i class="fas fa-door-open"></i> Abrir</button>
+        <button class="btn btn-accent" onclick="window.abrirMenuMesa(${i})"><i class="fas fa-plus"></i> Itens</button>
+        <button class="btn btn-outline" onclick="window.enviarParaCozinha(${i})"><i class="fas fa-print"></i> Cozinha</button>
+        <button class="btn btn-danger" onclick="window.fecharMesa(${i})"><i class="fas fa-wallet"></i> Pagar</button>
+      </div>
 
+      <div class="mesa-items" id="mesa-items-${i}" style="max-height: 80px; overflow-y: auto; border-bottom: 1px dashed #444; margin-bottom: 5px;">
+        ${m.itens.map((it, idx) => `
+          <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.85rem; padding:2px 0; border-bottom:1px solid #2a2a2a;">
+            <span>• ${it.name}${it.obs ? ` <em style="color:#aaa">(${it.obs})</em>` : ''} — R$ ${it.price.toFixed(2)}</span>
+            <button onclick="window.cancelarItemMesa(${i}, ${idx})" style="background:transparent; border:1px solid #d32f2f; color:#d32f2f; border-radius:4px; padding:1px 6px; cursor:pointer; font-size:0.7rem; flex-shrink:0; margin-left:6px;">✕</button>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="mesa-valores" style="display: flex; justify-content: space-between; align-items: flex-end; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 5px;">
+        <div style="font-size: 0.8rem; color: #aaa; line-height: 1.4;">
+          Consumo: R$ ${Number(m.total || 0).toFixed(2).replace('.', ',')}<br>
+          Pago: <span style="color: #00ff00;">- R$ ${Number(m.pago || 0).toFixed(2).replace('.', ',')}</span>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 0.75rem; color: #ff4444; font-weight: bold; text-transform: uppercase;">Falta Pagar</span><br>
+          <strong style="font-size: 1.4rem; color: #ff4444; letter-spacing: -1px;">
+            R$ ${Math.max(0, (Number(m.total || 0) - Number(m.pago || 0))).toFixed(2).replace('.', ',')}
+          </strong>
+        </div>
+      </div>
+    `;
+    
+    mesasGrid.appendChild(card);
+    card.addEventListener('click', (e) => {
+      // Evita disparar o highlight se clicar no botão de fechar ou outros controles
+      if (e.target.closest('button') || e.target.closest('select')) return;
+      setHighlightMesa(i);
+    });
+  }
+  applyHighlightUI();
+}
+
+window.cancelarAberturaMesa = async function (num) {
+  const m = window.mesasState[num];
+  if (!m || m.status === 'Livre') return;
+
+  // 1. VERIFICAÇÃO DE SEGURANÇA: Tem itens lançados?
+  const temConsumo = m.itens && m.itens.length > 0;
+
+  if (temConsumo) {
+    // Se tem itens, exige a senha do gerente (sua função requireManager com HASH)
+    const confirm = await Swal.fire({
+      title: 'Mesa com Itens!',
+      text: "Esta mesa possui consumo lançado. Somente o gerente pode cancelar.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Chamar Gerente',
+      cancelButtonText: 'Voltar',
+      background: '#1a1a1a',
+      color: '#fff'
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    // Chama sua função de senha que já existe no código
+    const autorizado = await requireManager();
+    if (!autorizado) return; // Se a senha estiver errada ou cancelar, para aqui
+  }
+
+  // 2. PROCESSO DE LIMPEZA (Se não tinha itens OU se o gerente autorizou)
+  try {
+    // Reseta os dados da mesa no Firebase
+    window.mesasState[num] = { 
+      status: 'Livre', 
+      itens: [], 
+      total: 0, 
+      pago: 0, 
+      impresso: [], 
+      garcom: '' 
+    };
+
+    await saveMesaFirebase(num);
+
+    // Se estiver no modo de foco (highlight), limpa a visão
+    if (window.highlightMesa === num) clearHighlight();
+
+    Toast.fire({ 
+      icon: 'success', 
+      title: 'Mesa liberada com sucesso',
+      background: '#2d2d2d'
+    });
+    
+  } catch (error) {
+    console.error("Erro ao resetar mesa:", error);
+    Swal.fire('Erro', 'Não foi possível comunicar com o banco de dados.', 'error');
+  }
+};
     // apagar itens
 window.cancelarItemMesa = async function(num, idx) {
   const m = window.mesasState[num];
