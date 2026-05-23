@@ -1,602 +1,610 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
   <meta charset="UTF-8" />
-  <title>Painel de Controle — BURGUER GRILL</title>
+  <title>Painel — BURGUER GRILL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="icon" href="/meu-favicon.ico" />
-
+  <link rel="icon" href="meu-favicon.ico" type="image/x-icon">
   <style>
-   :root {
-  --bg: #121212;
-  --card: #1e1e1e;
-  --border: #333;
-  --accent: #ffbf00;
-  --danger: #d32f2f;
-  --success: #25d366;
-  --text: #eee;
-  --muted: #aaa;
-}
+    /* ==================== VARIÁVEIS ==================== */
+    :root {
+      --bg:      #121212;
+      --card:    #1e1e1e;
+      --border:  #333;
+      --accent:  #ffbf00;
+      --danger:  #d32f2f;
+      --success: #25d366;
+      --text:    #eee;
+      --muted:   #aaa;
+    }
 
-* {
-  box-sizing: border-box;
-}
+    * { box-sizing: border-box; }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: Arial, sans-serif;
-  margin: 0;
-}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
 
-/* --- LOGIN SCREEN --- */
-#login-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: var(--bg);
-}
+    /* ==================== LOGIN ==================== */
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
 
-#login-screen input:not([type="password"]) {
-  margin: 8px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: #fff;
-  width: 280px;
-}
+    #login-screen input {
+      width: 280px;
+      margin: 8px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: #fff;
+    }
 
-/* Container específico para o input de senha com olhinho */
-.password-container {
-  position: relative;
-  width: 280px;
-  margin: 8px auto;
-}
+    .password-container {
+      position: relative;
+      width: 280px;
+      margin: 8px auto;
+    }
 
-.password-container input {
-  width: 100% !important;
-  padding: 10px 40px 10px 10px !important; /* Espaço na direita para o ícone */
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: #fff;
-  margin: 0 !important;
-}
+    .password-container input {
+      width: 100%;
+      padding: 10px 40px 10px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: #fff;
+      margin: 0;
+    }
 
-#toggle-password {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  color: var(--muted);
-  z-index: 10;
-  font-size: 1.1rem;
-}
+    #toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
 
-#toggle-password:hover {
-  color: var(--accent);
-}
+    #toggle-password:hover { color: var(--accent); }
 
-#login-screen button {
-  margin-top: 12px;
-}
+    /* ==================== LAYOUT GERAL ==================== */
+    header {
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
-/* --- INTERFACE GERAL --- */
-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+    header h1 {
+      margin: 0;
+      color: var(--accent);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-header h1 {
-  margin: 0;
-  color: var(--accent);
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+    /* ==================== SIDEBAR ==================== */
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100%;
+      background: #1a1a1a;
+      border-right: 1px solid var(--border);
+      z-index: 1000;
+      transition: 0.3s;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
 
-.actions .btn {
-  min-width: 140px;
-}
+    #sidebar.open { left: 0; }
 
-.tabs, .subtabs {
-  display: flex;
-  gap: 10px;
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-}
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      z-index: 999;
+    }
 
-.subtabs {
-  padding: 0;
-  border-bottom: none;
-  margin-bottom: 12px;
-}
+    .sidebar-overlay.active { display: block; }
 
-.tab-btn, .subtab-btn {
-  background: #222;
-  color: var(--accent);
-  border: none;
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
 
-.subtab-btn {
-  padding: 8px 12px;
-  border-radius: 6px;
-}
+    .sidebar-btn {
+      background: #222;
+      color: #fff;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      width: 100%;
+    }
 
-.tab-btn.active, .subtab-btn.active {
-  background: var(--accent);
-  color: #000;
-}
+    .sidebar-btn:hover { background: var(--accent); color: #000; }
 
-.tab, .subtab {
-  display: none;
-}
+    /* ==================== ABAS ==================== */
+    .tabs, .subtabs {
+      display: flex;
+      gap: 10px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
 
-.tab.active, .subtab.active {
-  display: block;
-}
+    .subtabs {
+      padding: 0;
+      border-bottom: none;
+      margin-bottom: 12px;
+    }
 
-.tab {
-  padding: 16px 20px;
-}
+    .tab-btn, .subtab-btn {
+      background: #222;
+      color: var(--accent);
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-/* --- GRID E CARDS --- */
-.grid, .mesas-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
+    .subtab-btn { padding: 8px 12px; border-radius: 6px; }
 
-.card, .mesa-card {
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-}
+    .tab-btn.active, .subtab-btn.active {
+      background: var(--accent);
+      color: #000;
+    }
 
-.mesa-card {
-  transition: border-color .2s, transform .2s, box-shadow .2s, opacity .2s;
-}
+    .tab, .subtab { display: none; }
+    .tab.active, .subtab.active { display: block; }
+    .tab { padding: 16px 20px; }
 
-.mesa-card.livre { border-color: var(--success); }
-.mesa-card.ocupada { border-color: var(--danger); }
+    /* ==================== GRIDS E CARDS ==================== */
+    .grid, .mesas-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
 
-.mesa-items {
-  border-top: 1px dashed var(--border);
-  margin-top: 8px;
-  padding-top: 8px;
-  max-height: 220px;
-  overflow: auto;
-}
+    .card, .mesa-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
 
-.mesa-total, .hist-total {
-  margin-top: 8px;
-  font-weight: bold;
-  color: var(--accent);
-}
+    .mesa-card {
+      position: relative;
+      transition: border-color .2s, transform .2s, box-shadow .2s, opacity .2s;
+    }
 
-/* --- ESTADOS DE DESTAQUE --- */
-.mesa-card.highlight {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent);
-  transform: scale(1.02);
-}
+    .mesa-card.livre   { border-color: var(--success); }
+    .mesa-card.ocupada { border-color: var(--danger); }
 
-.mesas-grid.highlight-mode .mesa-card:not(.highlight) {
-  opacity: 0.25;
-  pointer-events: none;
-}
+    .mesa-items {
+      border-top: 1px dashed var(--border);
+      margin-top: 8px;
+      padding-top: 8px;
+      max-height: 80px;
+      overflow-y: auto;
+      border-bottom: 1px dashed #444;
+      margin-bottom: 5px;
+    }
 
-/* --- BOTÃO FLUTUANTE --- */
-#floating-toggle {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 1000;
-  background: var(--accent);
-  color: #000;
-  border: none;
-  border-radius: 50px;
-  padding: 12px 16px;
-  font-weight: bold;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  display: none;
-}
+    .mesa-total, .hist-total {
+      margin-top: 8px;
+      font-weight: bold;
+      color: var(--accent);
+    }
 
-/* --- BOTÕES --- */
-.btn {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-weight: bold;
-}
+    /* ==================== DESTAQUE DE MESA ==================== */
+    .mesa-card.highlight {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent);
+      transform: scale(1.02);
+    }
 
-.btn-accent { background: var(--accent); color: #000; }
-.btn-outline { background: #222; color: var(--accent); border: 1px solid var(--accent); }
-.btn-danger { background: var(--danger); color: #fff; }
-.btn-success { background: var(--success); color: #fff; }
+    /* ==================== BOTÃO FLUTUANTE ==================== */
+    #floating-toggle {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 1000;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 16px;
+      font-weight: bold;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+      cursor: pointer;
+      display: none;
+    }
 
-/* --- MODAL --- */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 999;
-  overflow: auto;
-}
+    /* ==================== BOTÕES ==================== */
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-.modal-content {
-  max-width: 900px;
-  margin: 40px auto;
-  background: #1a1a1a;
-  padding: 16px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-}
+    .btn-accent  { background: var(--accent);  color: #000; }
+    .btn-outline { background: #222; color: var(--accent); border: 1px solid var(--accent); }
+    .btn-danger  { background: var(--danger);  color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
 
-.menu-section {
-  margin-bottom: 14px;
-  border: 1px solid #333;
-  border-radius: 8px;
-  overflow: hidden;
-}
+    /* ==================== MODAL ==================== */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 999;
+      overflow: auto;
+    }
 
-.menu-section-header {
-  background: #222;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-}
+    .modal-content {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #1a1a1a;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
 
-.menu-section-header h3 { margin: 0; color: var(--accent); font-size: 1rem; }
-.menu-section-header .toggle { font-size: 24px; background: transparent; color: #fff; border: none; cursor: pointer; }
+    /* ==================== CARDÁPIO NO MODAL ==================== */
+    .menu-section {
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
 
-.menu-items { display: none; padding: 10px 12px; background: #1f1f1f; }
-.menu-items.show { display: block; }
+    .menu-section-header {
+      background: #222;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
 
-.menu-item {
-  background: #222;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
+    .menu-section-header h3 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
 
-.carrinho-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+    .menu-section-header .toggle {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--accent);
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
 
-/* --- INPUTS GERAIS --- */
-select {
-  background: #222;
-  color: #fff;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 8px;
-}
+    .menu-items { display: none; padding: 10px 12px; background: #1f1f1f; }
+    .menu-items.show { display: block; }
 
-.swal2-radio label { color: #000 !important; }
+    .menu-item {
+      background: #222;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
 
-/* --- MEDIA QUERIES --- */
-@media (max-width:1024px) {
-  .grid, .mesas-grid { grid-template-columns: repeat(2, 1fr); }
-}
+    .menu-item h4 {
+      margin: 0 0 2px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
 
-@media (max-width:768px) {
-  .grid, .mesas-grid { grid-template-columns: 1fr; }
-  .mesas-grid.highlight-mode { grid-template-columns: 1fr; }
-  .mesa-card.highlight { transform: scale(1.03); }
-  .btn { padding: 10px 12px; }
-}
-/* --- NOVA SIDEBAR --- */
-#sidebar {
-  position: fixed;
-  top: 0;
-  left: -280px;
-  width: 280px;
-  height: 100%;
-  background: #1a1a1a;
-  border-right: 1px solid #333;
-  z-index: 1000;
-  transition: 0.3s;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-}
-#sidebar.open { left: 0; }
+    .menu-item small {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #00ff00;
+    }
 
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  z-index: 1000;
-}
-.sidebar-overlay.active { display: block; }
+    .carrinho-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
 
-.sidebar-nav { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+    /* ==================== INPUTS ==================== */
+    select, input[type="text"], input[type="number"], input[type="email"], input[type="password"] {
+      background: #222;
+      color: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
 
-.sidebar-btn {
-  background: #222;
-  color: #fff;
-  border: 1px solid #333;
-  padding: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: bold;
-}
-.sidebar-btn:hover { background: var(--accent); color: #000; }
-.swal2-container {
-  z-index: 10000 !important;
-}
-/* Ajuste do Header */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start !important;
-  gap: 15px;
-  padding: 10px 20px;
-}
-/* --- DELIVERY CARDS GLASS --- */
-.dcard {
-  position: relative;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12) !important;
-  border-radius: 16px !important;
-  overflow: hidden;
-}
-.dcard::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-}
-.dcard-delivery::before { background: linear-gradient(90deg, #3b82f6, #6366f1); }
-.dcard-retirada::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+    /* ==================== DELIVERY CARDS ==================== */
+    .dcard {
+      position: relative;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      border-radius: 16px !important;
+      overflow: hidden;
+    }
 
-.dcard-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
-.dcard-nome { font-size: 17px; font-weight: 500; color: #fff; margin: 0 0 2px; }
-.dcard-num { font-size: 12px; color: #888; }
+    .dcard::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
 
-.dcard-badge { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
-.dcard-badge-delivery { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
-.dcard-badge-retirada { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+    .dcard-delivery::before { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+    .dcard-retirada::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+    .dcard-mesa::before     { background: linear-gradient(90deg, #25d366, #059669); }
 
-.dcard-info-row { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #aaa; margin-bottom: 6px; }
-.dcard-icon { font-size: 12px; width: 16px; flex-shrink: 0; margin-top: 2px; }
+    .dcard-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .dcard-nome { font-size: 17px; font-weight: 500; color: #fff; margin: 0 0 2px; }
+    .dcard-num  { font-size: 12px; color: #888; }
 
-.dcard-pag-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 3px 10px; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #aaa; margin-bottom: 10px; }
+    .dcard-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
 
-.dcard-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 10px 0; }
+    .dcard-badge-delivery { background: rgba(59,130,246,0.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+    .dcard-badge-retirada { background: rgba(245,158,11,0.15);  color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+    .dcard-badge-mesa     { background: rgba(37,211,102,0.15);  color: #6ee7b7; border: 1px solid rgba(37,211,102,0.3); }
 
-.dcard-itens { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-.dcard-item-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
-.dcard-item-nome { color: #eee; flex: 1; }
-.dcard-item-obs { font-size: 11px; color: #888; }
-.dcard-item-preco { font-size: 13px; font-weight: 500; color: #6ee7b7; flex-shrink: 0; margin-left: 8px; }
+    .dcard-info-row { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #aaa; margin-bottom: 6px; }
+    .dcard-icon { font-size: 12px; width: 16px; flex-shrink: 0; margin-top: 2px; }
 
-.dcard-footer { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 4px; }
-.dcard-total-label { font-size: 11px; color: #888; margin-bottom: 2px; }
-.dcard-total-valor { font-size: 22px; font-weight: 500; color: #34d399; line-height: 1; }
-.dcard-hora { font-size: 11px; color: #888; text-align: right; }
-.dcard-badge-mesa { background: rgba(37,211,102,0.15); color: #6ee7b7; border: 1px solid rgba(37,211,102,0.3); }
-.dcard-mesa::before { background: linear-gradient(90deg, #25d366, #059669); }
+    .dcard-pag-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #aaa;
+      margin-bottom: 10px;
+    }
 
-.menu-section-header h3 {
-    font-size: 1.4rem !important; 
-    font-weight: 800 !important;
-    color: #ffbf00 !important;   
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
+    .dcard-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 10px 0; }
 
-/* 2. Botão de + e - das categorias */
-.menu-section-header .toggle {
-    font-size: 1.6rem !important;
-    font-weight: bold;
-    color: #ffbf00 !important;
-    width: 40px;
-    height: 40px;
-}
+    .dcard-itens { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
 
-/* 3. Título "Itens Selecionados" (Carrinho no modal) */
-#menu-modal h3:contains("Mesa"), 
-#menu-modal h4:contains("Itens"),
-#menu-modal b, 
-.modal-content h3 {
-    font-size: 1.3rem !important;
-    color: #25d366 !important; 
-    font-weight: 800 !important;
-}
+    .dcard-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 13px;
+    }
 
-/* 4. ITENS DO CARDÁPIO (O ajuste que você pediu) */
-.menu-item h4 {
-    font-size: 1.25rem !important; /* Aumentado para leitura rápida */
-    font-weight: 800 !important;  /* Fonte bem "viva" e grossa */
-    color: #ffffff !important;    /* Branco puro para brilhar no escuro */
-    margin-bottom: 2px;
-}
+    .dcard-item-nome  { color: #eee; flex: 1; }
+    .dcard-item-obs   { font-size: 11px; color: #888; }
+    .dcard-item-preco { font-size: 13px; font-weight: 500; color: #6ee7b7; flex-shrink: 0; margin-left: 8px; }
 
-/* 5. Preço dos itens no Menu */
-.menu-item small {
-    font-size: 1.05rem !important; /* Preço um pouco maior também */
-    color: #00ff00 !important;     /* Verde limão vivo para o preço saltar aos olhos */
-    font-weight: 700;
-}
+    .dcard-footer { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 4px; }
+    .dcard-total-label { font-size: 11px; color: #888; margin-bottom: 2px; }
+    .dcard-total-valor { font-size: 22px; font-weight: 500; color: #34d399; line-height: 1; }
+    .dcard-hora { font-size: 11px; color: #888; text-align: right; }
 
-/* 6. Itens já adicionados no Carrinho (Aumentados também) */
-#carrinho-list div {
-    font-size: 1.2rem !important;  /* Mais visível no checkout */
-    font-weight: 700 !important;
-    color: #fff !important;
-    padding: 10px 0;
-    border-bottom: 1px solid #444;
-}
+    /* ==================== SWEETALERT FIXES ==================== */
+    .swal2-container { z-index: 10000 !important; }
+    .swal2-radio label { color: #000 !important; }
 
-/* 7. Botão X de remover do carrinho */
-#carrinho-list .btn-danger {
-    padding: 6px 14px !important;
-    font-size: 1.1rem !important;
-    margin-left: 10px;
-}
+    /* ==================== OVERLAY SITE FECHADO ==================== */
+    /* (Esse overlay fica no index2.html, mas o botão fica aqui) */
 
-/* 8. Botão Adicionar (Add) e Obs no Menu */
-.menu-item .btn-outline {
-    font-size: 1rem !important;
-    font-weight: bold !important;
-    padding: 8px 12px !important;
-}
+    /* ==================== RESPONSIVO ==================== */
+    @media (max-width: 1024px) {
+      .grid, .mesas-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .grid, .mesas-grid { grid-template-columns: 1fr; }
+      .btn { padding: 10px 12px; }
+    }
   </style>
 </head>
-
 <body>
-  <!-- Tela de Login -->
- <div id="login-screen">
+
+<!-- ==================== TELA DE LOGIN ==================== -->
+<div id="login-screen">
   <h2><i class="fas fa-lock"></i> Login — BURGUER GRILL</h2>
-  
   <input id="login-email" type="email" placeholder="Email">
-  
   <div class="password-container">
     <input id="login-password" type="password" placeholder="Senha">
     <i id="toggle-password" class="fas fa-eye"></i>
   </div>
-  
-  <button id="btn-login" class="btn btn-accent">
+  <button id="btn-login" class="btn btn-accent" style="margin-top:12px;">
     <i class="fas fa-sign-in-alt"></i> Entrar
   </button>
-  
-  <div id="login-error" class="muted" style="margin-top:10px;"></div>
+  <div id="login-error" style="margin-top:10px; color:var(--danger);"></div>
 </div>
-  <!-- Painel principal -->
- <div id="main-panel" style="display:none;">
-  
+
+<!-- ==================== PAINEL PRINCIPAL ==================== -->
+<div id="main-panel" style="display:none;">
+
+  <!-- Overlay da sidebar -->
   <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
   <div id="sidebar">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <h3 style="color:var(--accent); margin:0;">Menu</h3>
       <button onclick="toggleSidebar()" style="background:none; border:none; color:#fff; font-size:25px; cursor:pointer;">&times;</button>
     </div>
-    
+
     <nav class="sidebar-nav">
-      <button id="btn-pdf" class="sidebar-btn"><i class="fas fa-file-pdf"></i> Baixar PDF Vendas</button>
-      <button id="btn-bip" class="sidebar-btn"><i class="fas fa-bell"></i> Bip: ON</button>
-      <a href="index2.html" style="text-decoration:none;"><button class="sidebar-btn"><i class="fas fa-utensils"></i> Ir para Menu</button></a>
-      <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
-      <button id="btn-apagar-tudo" class="sidebar-btn" style="color:#d32f2f;"><i class="fas fa-trash"></i> Apagar Vendas (Firebase)</button>
-      <button id="btn-logout" class="sidebar-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      <button id="btn-pdf" class="sidebar-btn">
+        <i class="fas fa-file-pdf"></i> Baixar PDF Vendas
+      </button>
+      <button id="btn-bip" class="sidebar-btn">
+        <i class="fas fa-bell"></i> Bip: ON
+      </button>
+      <!-- <a href="index2.html" style="text-decoration:none;">
+        <button class="sidebar-btn"><i class="fas fa-utensils"></i> Ir para Menu</button>
+      </a> -->
+
+      <hr style="border:0; border-top:1px solid var(--border); margin:10px 0;">
+
+      <!-- Fechar / Abrir site -->
+      <button id="btn-fechar-site" class="sidebar-btn" style="color:#ff4444;">
+        <i class="fas fa-power-off"></i> Fechar Site
+      </button>
+      <button id="btn-abrir-site" class="sidebar-btn" style="color:var(--success);">
+        <i class="fas fa-power-off"></i> Abrir Site
+      </button>
+
+      <hr style="border:0; border-top:1px solid var(--border); margin:10px 0;">
+
+      <button id="btn-apagar-tudo" class="sidebar-btn" style="color:var(--danger);">
+        <i class="fas fa-trash"></i> Apagar Vendas
+      </button>
+      <button id="btn-logout" class="sidebar-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
     </nav>
   </div>
 
+  <!-- Header -->
   <header>
-    <button onclick="toggleSidebar()" class="btn btn-outline" style="min-width:auto; padding: 10px 15px;">
+    <button onclick="toggleSidebar()" class="btn btn-outline" style="min-width:auto; padding:10px 15px;">
       <i class="fas fa-bars"></i>
     </button>
     <h1><i class="fas fa-receipt"></i> Painel — BURGUER GRILL</h1>
   </header>
 
+  <!-- Abas principais -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="openTab('delivery')"><i class="fas fa-truck"></i>Pedidos/Mesas</button>
-    <button class="tab-btn" onclick="openTab('mesas')"><i class="fas fa-chair"></i> Mesas</button>
-    <button class="tab-btn" onclick="openTab('staff')"><i class="fas fa-users"></i> Funcionarios & Despesas</button>
+    <button class="tab-btn active" onclick="openTab('delivery')">
+      <i class="fas fa-truck"></i> Pedidos/Mesas
+    </button>
+    <button class="tab-btn" onclick="openTab('mesas')">
+      <i class="fas fa-chair"></i> Mesas
+    </button>
+    <button class="tab-btn" onclick="openTab('staff')">
+      <i class="fas fa-users"></i> Funcionários & Despesas
+    </button>
   </div>
 
+  <!-- ===== ABA: PEDIDOS ===== -->
   <section id="delivery" class="tab active">
     <div class="subtabs">
       <button class="subtab-btn active" onclick="openSubtab('delivery-list')">Pedidos</button>
       <button class="subtab-btn" onclick="openSubtab('delivery-hist')">Histórico</button>
     </div>
+
     <div id="delivery-list" class="subtab active">
       <div class="grid" id="orders-grid"></div>
-      <div class="muted" id="orders-count" style="margin-top:8px;"></div>
+      <div id="orders-count" style="margin-top:8px; color:var(--muted);"></div>
     </div>
+
     <div id="delivery-hist" class="subtab">
       <div class="hist-list" id="delivery-historico"></div>
+      <div id="delivery-total" class="mesa-total" style="margin-top:10px;"></div>
     </div>
   </section>
 
+  <!-- ===== ABA: MESAS ===== -->
   <section id="mesas" class="tab">
     <div class="subtabs">
       <button class="subtab-btn active" onclick="openSubtab('mesas-controle')">Controle</button>
       <button class="subtab-btn" onclick="openSubtab('mesas-hist')">Histórico</button>
     </div>
+
     <div id="mesas-controle" class="subtab active">
       <div class="mesas-grid" id="mesas-grid"></div>
     </div>
+
     <div id="mesas-hist" class="subtab">
       <div class="hist-list" id="mesas-historico"></div>
+      <div id="mesas-total" class="mesa-total" style="margin-top:10px;"></div>
     </div>
   </section>
 
+  <!-- ===== ABA: STAFF ===== -->
   <section id="staff" class="tab">
     <div class="grid" style="grid-template-columns: 1fr 1.5fr; gap: 20px;">
-      
-     <div class="card">
-  <h3><i class="fas fa-edit"></i> Registar Movimentação</h3>
-  
-  <label>Tipo de Lançamento:</label>
-  <select id="staff-tipo" class="swal2-input" style="width:100%; margin:10px 0;" onchange="toggleStaffFields()">
-    <option value="consumo">Consumo de Funcionário</option>
-    <option value="despesa">Despesa Diversa (Saída de Caixa)</option>
-  </select>
 
-  <div id="field-funcionario">
-    <label>Funcionário:</label>
-    <select id="staff-nome" class="swal2-input" style="width:100%; margin-bottom:10px;">
-      <option value="Ana">Ana</option>
-      <option value="Mônica">Mônica</option>
-      <option value="Vitória">Vitória</option>
-      <option value="Lorrane">Lorrane</option>
-      <option value="Michely">Michely</option>
-      <option value="Renato">Renato</option>
-      <option value="Ingrid">Ingrid</option>
-      <option value="Simone">Simone</option>
-      <option value="Luciano">Luciano</option>
-    </select>
-    
-    <label>Produto Consumido:</label>
-    <select id="staff-item" class="swal2-input" style="width:100%;"></select>
-  </div>
+      <!-- Formulário de lançamento -->
+      <div class="card">
+        <h3><i class="fas fa-edit"></i> Registrar Movimentação</h3>
 
-  <div id="field-despesa" style="display:none;">
-  <label>O que foi comprado?</label>
-  <input id="staff-desc" type="text" class="swal2-input" placeholder="Ex: Gelo, Coentro, Alface..." style="width:100%; margin-bottom: 10px;">
-  
-  <label>Valor da Despesa:</label>
-  <input id="staff-valor-formatado" type="text" class="swal2-input" placeholder="R$ 0,00" style="width:100%;" oninput="mascaraMoeda(this)">
-</div>
+        <label>Tipo de Lançamento:</label>
+        <select id="staff-tipo" style="width:100%; margin:10px 0;" onchange="toggleStaffFields()">
+          <option value="consumo">Consumo de Funcionário</option>
+          <option value="despesa">Despesa Diversa (Saída de Caixa)</option>
+        </select>
 
-  <button class="btn btn-accent" style="width:100%; margin-top:20px;" onclick="lancarLocal()">
-    <i class="fas fa-check"></i> Confirmar Lançamento
-  </button>
-</div>
+        <div id="field-funcionario">
+          <label>Funcionário:</label>
+          <select id="staff-nome" style="width:100%; margin-bottom:10px;">
+            <option>Ana</option><option>Mônica</option><option>Vitória</option>
+            <option>Lorrane</option><option>Michely</option><option>Renato</option>
+            <option>Ingrid</option><option>Simone</option><option>Luciano</option>
+          </select>
+          <label>Produto Consumido:</label>
+          <select id="staff-item" style="width:100%;"></select>
+        </div>
 
+        <div id="field-despesa" style="display:none;">
+          <label>O que foi comprado?</label>
+          <input id="staff-desc" type="text" placeholder="Ex: Gelo, Coentro..." style="width:100%; margin-bottom:10px;">
+          <label>Valor da Despesa:</label>
+          <input id="staff-valor-formatado" type="text" placeholder="R$ 0,00" style="width:100%;" oninput="mascaraMoeda(this)">
+        </div>
+
+        <button class="btn btn-accent" style="width:100%; margin-top:20px;" onclick="lancarLocal()">
+          <i class="fas fa-check"></i> Confirmar Lançamento
+        </button>
+      </div>
+
+      <!-- Resumo interno -->
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
           <h3>Resumo Interno</h3>
@@ -608,216 +616,817 @@ header {
         <div id="staff-local-list"></div>
         <div id="staff-local-total" class="mesa-total" style="margin-top:15px;"></div>
       </div>
+
     </div>
   </section>
 
-</div>
+</div><!-- fim #main-panel -->
 
-  <!-- Botão flutuante para alternar destaque -->
-  <button id="floating-toggle"><i class="fas fa-layer-group"></i> Ver todas as mesas</button>
+<!-- Botão flutuante para voltar visão geral das mesas -->
+<button id="floating-toggle"><i class="fas fa-layer-group"></i> Ver todas as mesas</button>
 
-  <!-- Modal de menu com carrinho -->
- <div id="menu-modal" class="modal">
+<!-- ==================== MODAL: MENU DA MESA ==================== -->
+<div id="menu-modal" class="modal">
   <div class="modal-content">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
       <h2 style="margin:0;">Mesa <span id="mesa-atual"></span> — Itens</h2>
-      <button class="btn btn-danger" onclick="window.fecharMenuMesa()"><i class="fas fa-times"></i> Fechar</button>
+      <button class="btn btn-danger" onclick="fecharMenuMesa()"><i class="fas fa-times"></i> Fechar</button>
     </div>
 
-    <div style="margin-bottom: 15px; position: relative;">
-      <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #ffbf00; font-size: 1.2rem;"></i>
-      <input type="text" id="input-busca-menu" 
-             placeholder="Digite para buscar (ex: Coca, X-Tudo...)" 
-             style="width: 100%; padding: 14px 14px 14px 42px; border-radius: 10px; border: 2px solid #444; background: #1a1a1a; color: #fff; font-size: 1.1rem; outline: none;"
-             onkeyup="window.filtrarMenu(this.value)">
+    <!-- Busca no cardápio -->
+    <div style="margin-bottom:15px; position:relative;">
+      <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--accent); font-size:1.2rem;"></i>
+      <input type="text" id="input-busca-menu"
+             placeholder="Buscar item..."
+             style="width:100%; padding:14px 14px 14px 42px; border-radius:10px; border:2px solid #444; background:#1a1a1a; color:#fff; font-size:1.1rem; outline:none;"
+             onkeyup="filtrarMenu(this.value)">
     </div>
 
-    <div id="menu-produtos" style="max-height: 50vh; overflow-y: auto; border-radius: 8px;"></div>
+    <div id="menu-produtos" style="max-height:50vh; overflow-y:auto; border-radius:8px;"></div>
 
-    <h3 style="margin-top:15px; border-top: 1px solid #333; padding-top: 15px;">
+    <h3 style="margin-top:15px; border-top:1px solid var(--border); padding-top:15px;">
       <i class="fas fa-shopping-basket"></i> Itens selecionados
     </h3>
-    <div id="carrinho-list" class="carrinho-list"></div>
+    <div id="carrinho-list"></div>
 
     <div class="carrinho-actions">
-      <button class="btn btn-outline" onclick="window.limparCarrinho(window.mesaAtual)">
+      <button class="btn btn-outline" onclick="limparCarrinho(window.mesaAtual)">
         <i class="fas fa-trash"></i> Limpar
       </button>
-      <button class="btn btn-accent" style="background: #25d366; border: none;" onclick="window.confirmarCarrinho(window.mesaAtual)">
+      <button class="btn btn-success" onclick="confirmarCarrinho(window.mesaAtual)">
         <i class="fas fa-check"></i> Confirmar
       </button>
     </div>
   </div>
 </div>
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- ==================== SCRIPTS EXTERNOS ==================== -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, getDocs, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+<!-- ==================== SCRIPT PRINCIPAL (MODULE) ==================== -->
+<script type="module">
 
-    // Firebase (configuração original)
-    const firebaseConfig = {
-      apiKey: "AIzaSyBlyifaLH-2uUcCybMgjV5nSvOnFtv-Ht0",
-      authDomain: "pedidodegas-ac6de.firebaseapp.com",
-      projectId: "pedidodegas-ac6de",
-      storageBucket: "pedidodegas-ac6de.firebasestorage.app",
-      messagingSenderId: "1015887736520",
-      appId: "1:1015887736520:web:a7de5fd3208d6a0afa3ffd",
-      measurementId: "G-VGNYJD2KK1"
-    };
+/* ====================================================
+   1. FIREBASE – INICIALIZAÇÃO E IMPORTS
+   ==================================================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, onSnapshot,
+  query, getDocs, deleteDoc, doc, setDoc
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyBlyifaLH-2uUcCybMgjV5nSvOnFtv-Ht0",
+  authDomain: "pedidodegas-ac6de.firebaseapp.com",
+  projectId: "pedidodegas-ac6de",
+  storageBucket: "pedidodegas-ac6de.firebasestorage.app",
+  messagingSenderId: "1015887736520",
+  appId: "1:1015887736520:web:a7de5fd3208d6a0afa3ffd",
+  measurementId: "G-VGNYJD2KK1"
+};
 
-    // Elementos
-    const ordersGrid = document.getElementById('orders-grid');
-    const ordersCountEl = document.getElementById('orders-count');
-    const mesasGrid = document.getElementById('mesas-grid');
-    const deliveryHistEl = document.getElementById('delivery-historico');
-    const deliveryTotalEl = document.getElementById('delivery-total');
-    const mesasHistEl = document.getElementById('mesas-historico');
-    const mesasTotalEl = document.getElementById('mesas-total');
-    const floatingToggle = document.getElementById('floating-toggle');
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
 
-    // Estado global (Sincronizado via Firebase agora)
-    window.mesasState = {};
-    window.carrinhoMesa = {};
-    window.mesaAtual = null;
-    window.highlightMesa = null;
+/* ====================================================
+   2. ESTADO GLOBAL
+   ==================================================== */
+window.mesasState    = {};
+window.carrinhoMesa  = {};
+window.mesaAtual     = null;
+window.highlightMesa = null;
+window.bipAtivo      = true;
 
-    // --- FUNÇÕES DE SINCRONIZAÇÃO FIREBASE (Substituem o LocalStorage) ---
-    async function saveMesaFirebase(numero) {
-      const mesaData = window.mesasState[numero];
-      if (mesaData && mesaData.status === 'Ocupada') {
-        await setDoc(doc(db, "mesasAtivas", numero.toString()), mesaData);
-      } else {
-        await deleteDoc(doc(db, "mesasAtivas", numero.toString()));
-      }
-    }
+/* ====================================================
+   3. CARDÁPIO
+   ==================================================== */
+const menuData = [
+  { id:112, name:'COMBO FAMILIA',                  category:'burguers', price:100.00 },
+  // { id:114, name:'COMBO GRILL',                    category:'burguers', price:35.99  },
+  { id:113, name:'Combo Caramelizado',                  category:'burguers', price:39.90  },
+  { id:114, name:'California Grill',                  category:'burguers', price:35.00  },
+  { id:101, name:'Grill Burguer',                  category:'burguers', price:32.00  },
+  { id:102, name:'Picanha Grill',                  category:'burguers', price:34.00  },
+  { id:103, name:'Burguer de Filé',                category:'burguers', price:33.00  },
+  { id:104, name:'Caramelizado',                   category:'burguers', price:27.00  },
+  { id:105, name:'Smash Gill',                     category:'burguers', price:20.00  },
+  { id:106, name:'Smash Grill Duplo',              category:'burguers', price:22.00  },
+  { id:107, name:'Grill Clássico',                 category:'burguers', price:24.00  },
+  { id:108, name:'Grill Cheddar',                  category:'burguers', price:23.00  },
+  { id:109, name:'Frango Burguer',                 category:'burguers', price:23.00  },
+  { id:110, name:'Kids',                           category:'burguers', price:17.00  },
+  { id:201, name:'Fritas P',                       category:'fritas',   price:8.00   },
+  { id:202, name:'Fritas M',                       category:'fritas',   price:15.00  },
+  { id:203, name:'Fritas Cheddar e Bacon',         category:'fritas',   price:22.00  },
+  { id:205, name:'Frango no Balde P',              category:'fritas',   price:35.00  },
+  { id:206, name:'Frango no Balde M',              category:'fritas',   price:42.00  },
+  { id:207, name:'Frango no Balde G',              category:'fritas',   price:80.00  },
+  { id:301, name:'Bife Acebolado',                 category:'jantinha', price:30.00  },
+  { id:302, name:'Jantinha Carne de Sol',          category:'jantinha', price:30.00  },
+  { id:303, name:'Jantinha Frango Grill',          category:'jantinha', price:27.00  },
+  { id:401, name:'Picanha na Chapa 400g',          category:'chapas',   price:95.00  },
+  { id:402, name:'Picanha na Chapa 600g',          category:'chapas',   price:100.00 },
+  { id:403, name:'Picanha na Chapa 800g',          category:'chapas',   price:130.00 },
+  { id:404, name:'Picanha na Chapa 1Kg',           category:'chapas',   price:160.00 },
+  { id:501, name:'Filé com Batata',                category:'tiragosto',price:75.00  },
+  { id:502, name:'Carne de Sol com Macaxeira',     category:'tiragosto',price:65.00  },
+  { id:503, name:'Frango a Passarinho (10 un)',    category:'tiragosto',price:60.00  },
+  { id:504, name:'Calabresa com Batata',           category:'tiragosto',price:30.00  },
+  { id:601, name:'Arroz Branco P',                 category:'adicionais',price:6.00  },
+  { id:602, name:'Arroz Branco M',                 category:'adicionais',price:15.00 },
+  { id:604, name:'Baião P',                        category:'adicionais',price:6.00  },
+  { id:605, name:'Baião M',                        category:'adicionais',price:15.00 },
+  { id:607, name:'Salada',                         category:'adicionais',price:5.00  },
+  { id:701, name:'Skol 600ml',                     category:'alcoolico',price:12.00  },
+  { id:702, name:'Original 600ml',                 category:'alcoolico',price:14.00  },
+  { id:703, name:'Brahma 600ml',                   category:'alcoolico',price:12.00  },
+  { id:704, name:'Amstel 600ml',                   category:'alcoolico',price:12.00  },
+  { id:705, name:'Heineken 600ml',                 category:'alcoolico',price:17.00  },
+  { id:706, name:'Budweiser Long Neck 330ml',      category:'alcoolico',price:12.00  },
+  { id:712, name:'Corona Long Neck 330ml',         category:'alcoolico',price:12.00  },
+  { id:711, name:'Skol Lata',                      category:'alcoolico',price:5.00   },
+  { id:713, name:'Heineken Long Neck 330ml',       category:'alcoolico',price:12.00  },
+  { id:714, name:'Stella Long Neck 330ml',         category:'alcoolico',price:12.00  },
+  { id:715, name:'Budweiser Lata 0',               category:'alcoolico',price:12.00  },
+  { id:801, name:'Suco Maracujá (Copo)',           category:'bebida',   price:9.00   },
+  { id:802, name:'Suco Maracujá (Jarra)',          category:'bebida',   price:27.00  },
+  { id:803, name:'Suco Acerola (Copo)',            category:'bebida',   price:8.00   },
+  { id:804, name:'Suco Acerola (Jarra)',           category:'bebida',   price:20.00  },
+  { id:807, name:'Coca Cola Lata 350ml',           category:'bebida',   price:6.00   },
+  { id:808, name:'Guaraná Lata 350ml',             category:'bebida',   price:6.00   },
+  { id:809, name:'Coca Cola Lata 220ml',           category:'bebida',   price:4.00   },
+  { id:814, name:'Coca Cola 1L',                   category:'bebida',   price:12.00  },
+  { id:815, name:'Coca Cola 2L',                   category:'bebida',   price:15.00  },
+  { id:825, name:'Fanta Laranja 350ml',            category:'bebida',   price:6.00   },
+  { id:832, name:'Coca Cola Zero 350ml',           category:'bebida',   price:6.00   },
+  { id:819, name:'Soda Limonada',                  category:'bebida',   price:6.00   },
+  { id:818, name:'Água sem Gás',                   category:'bebida',   price:4.00   },
+  { id:831, name:'Água com Gás',                   category:'bebida',   price:6.00   },
+  { id:820, name:'Água Tônica',                    category:'bebida',   price:6.00   },
+  { id:821, name:'Red Bull',                       category:'bebida',   price:15.00  },
+  { id:822, name:'Guaraná 1L',                     category:'bebida',   price:10.00  },
+  { id:823, name:'H2OH! Limão',                    category:'bebida',   price:8.00   },
+  { id:824, name:'H2OH! Limoneto',                 category:'bebida',   price:8.00   },
+  { id:826, name:'Ice Limão',                      category:'bebida',   price:12.00  },
+  { id:827, name:'Ice Balada',                     category:'bebida',   price:12.00  },
+  { id:828, name:'Dose Campari',                   category:'bebida',   price:15.00  },
+];
 
-    // --- CARDÁPIO COMPLETO ---
-    const menuData = [
-      { id: 112, name: 'COMBO FAMILIA', category: 'burguers', price: 100.00 },
-      { id: 114, name: 'COMBO GRILL', category: 'burguers', price: 35.99 }, 
-      { id: 101, name: 'Grill Burguer', category: 'burguers', price: 32.00 },
-      { id: 102, name: 'Picanha Grill', category: 'burguers', price: 34.00 },
-      { id: 103, name: 'Burguer de Filé', category: 'burguers', price: 33.00 },
-      { id: 104, name: 'Caramelizado', category: 'burguers', price: 27.00 },
-      { id: 105, name: 'Smash Gill', category: 'burguers', price: 20.00 },
-      { id: 106, name: 'Smash Grill Duplo', category: 'burguers', price: 22.00 },
-      { id: 107, name: 'Grill Clássico', category: 'burguers', price: 24.00 },
-      { id: 108, name: 'Grill Cheddar', category: 'burguers', price: 23.00 },
-      { id: 109, name: 'Frango Burguer', category: 'burguers', price: 23.00 },
-      // { id: 113, name: 'RIB Burguer', category: 'burguers', price: 33.00,},
-      { id: 110, name: 'Kids', category: 'burguers', price: 12.00 },
-      { id: 201, name: 'Fritas P', category: 'fritas', price: 8.00 },
-      { id: 202, name: 'Fritas M', category: 'fritas', price: 15.00 },
-      { id: 203, name: 'Fritas Cheddar e Bacon', category: 'fritas', price: 22.00 },
-      // { id: 204, name: 'Porção de Macaxeira', category: 'fritas', price: 15.00 },
-      { id: 301, name: 'Bife Acebolado', category: 'jantinha', price: 30.00 },
-      { id: 302, name: 'Jantinha Carne de Sol', category: 'jantinha', price: 30.00 },
-      { id: 303, name: 'Jantinha Frango Grill - Coxinha da Asa', category: 'jantinha', price: 27.00 },
-      { id: 401, name: 'Picanha na Chapa 400g', category: 'chapas', price: 95.00 },
-      { id: 402, name: 'Picanha na Chapa 600g', category: 'chapas', price: 100.00 },
-      { id: 403, name: 'Picanha na Chapa 800g', category: 'chapas', price: 130.00 },
-      { id: 404, name: 'Picanha na Chapa 1Kg', category: 'chapas', price: 160.00 },
-      { id: 501, name: 'Filé com Batata', category: 'tiragosto', price: 75.00 },
-      { id: 502, name: 'Carne de Sol com Macaxeira', category: 'tiragosto', price: 65.00 },
-      { id: 503, name: 'Frango a Passarinho (10 un)', category: 'tiragosto', price: 60.00 },
-      { id: 504, name: 'Calabresa com Batata', category: 'tiragosto', price: 30.00 },
-      { id: 601, name: 'Arroz Branco P', category: 'adicionais', price: 6.00 },
-      { id: 602, name: 'Arroz Branco M', category: 'adicionais', price: 15.00 },
-      { id: 604, name: 'Baião P', category: 'adicionais', price: 6.00 },
-      { id: 605, name: 'Baião M', category: 'adicionais', price: 15.00 },
-      { id: 607, name: 'Salada', category: 'adicionais', price: 5.00 },
-      { id: 701, name: 'Skol 600ml', category: 'alcoolico', price: 12.00 },
-      { id: 702, name: 'Original 600ml', category: 'alcoolico', price: 14.00 },
-      { id: 703, name: 'Brahma 600ml', category: 'alcoolico', price: 12.00 },
-      { id: 704, name: 'Amstel 600ml', category: 'alcoolico', price: 12.00 },
-      { id: 705, name: 'Heineken 600ml', category: 'alcoolico', price: 17.00 },
-      { id: 706, name: 'Budweiser Long Neck 330ml', category: 'alcoolico', price: 12.00 },
-      { id: 712, name: 'Corona Long Neck 330ml', category: 'alcoolico', price: 12.00 },
-      { id: 711, name: 'Skol Lata', category: 'alcoolico', price: 5.00 },
-      { id: 713, name: 'Heineken Long Neck 330ml', category: 'alcoolico', price: 12.00 },
-      { id: 714, name: 'Stella Long Neck 330ml', category: 'alcoolico', price: 12.00 },
-      { id: 715, name: 'Budweiser lata 0', category: 'alcoolico', price: 12.00 },
-      { id: 801, name: 'Suco Maracujá (Copo)', category: 'bebida', price: 9.00 },
-      { id: 828, name: 'Suco Acerola (Copo)', category: 'bebida', price: 8.00 },
-      { id: 829, name: 'Suco Maracujá (Jarra)', category: 'bebida', price: 27.00 },
-      { id: 830, name: 'Suco Acerola (Jarra)', category: 'bebida', price: 20.00 },
-      { id: 807, name: 'Coca Cola Lata 350ml', category: 'bebida', price: 6.00 },
-      { id: 808, name: 'Guarana Lata 350ml', category: 'bebida', price: 6.00 },
-      { id: 809, name: 'Coca Cola Lata 220ml', category: 'bebida', price: 4.00 },
-      { id: 814, name: 'Coca Cola 1L', category: 'bebida', price: 12.00 },
-      { id: 825, name: 'Fanta Laranja 350ml', category: 'bebida', price: 6.00 },
-      { id: 832, name: 'Coca 0 350ml', category: 'bebida', price: 6.00 },
-      { id: 815, name: 'Coca Cola 2L', category: 'bebida', price: 15.00 },
-      { id: 819, name: 'Soda limonada ', category: 'bebida', price: 6.00 },
-      { id: 818, name: 'Água sem Gás', category: 'bebida', price: 4.00 },
-      { id: 831, name: 'Água com Gás', category: 'bebida', price: 6.00 },
-      { id: 820, name: 'Água Tônica', category: 'bebida', price: 6.00 },
-      { id: 821, name: 'Red Bull', category: 'bebida', price: 15.00 },
-      { id: 822, name: 'Guaraná 1L', category: 'bebida', price: 10.00 },
-      { id: 823, name: 'H2OH! Limão', category: 'bebida', price: 8.00 },
-      { id: 824, name: 'H2OH! Limoneto', category: 'bebida', price: 8.00 },
-      { id: 825, name: 'Ice Limão', category: 'bebida', price: 12.00 },
-      { id: 826, name: 'Ice Balada', category: 'bebida', price: 12.00 },
-      { id: 827, name: 'Dose Campari', category: 'bebida', price: 15.00 },
+/* ====================================================
+   4. UTILITÁRIOS
+   ==================================================== */
 
-    ];
+/** Toast rápido */
+const Toast = Swal.mixin({
+  toast: true, position: 'top-end',
+  showConfirmButton: false, timer: 1400,
+  background: '#25d366', color: '#fff'
+});
 
+/** Tocar bip de notificação */
+function tocarBip() {
+  if (!window.bipAtivo) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1000, ctx.currentTime);
+    osc.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.2);
+  } catch (_) {}
+}
 
-    // Snapshot: atualiza delivery, históricos e mesas (TEMPO REAL)
-    onSnapshot(query(collection(db, "pedidos")), (snapshot) => {
-      const pedidos = [];
-      snapshot.forEach(docSnap => pedidos.push({ id: docSnap.id, ...docSnap.data() }));
-      renderDelivery(pedidos);
-      renderHistoricos(pedidos);
-    });
+/** Máscara de moeda R$ */
+window.mascaraMoeda = function(input) {
+  let v = input.value.replace(/\D/g, '');
+  v = (v / 100).toFixed(2).replace('.', ',');
+  v = v.replace(/(\d)(\d{3}),/, '$1.$2,');
+  input.value = 'R$ ' + v;
+};
 
-    onSnapshot(collection(db, "mesasAtivas"), (snapshot) => {
-      window.mesasState = {}; // Limpa para atualizar com o banco
-      snapshot.forEach(docSnap => {
-        window.mesasState[docSnap.id] = docSnap.data();
+/** Formatar float para string BR */
+function brl(val) {
+  return Number(val || 0).toFixed(2).replace('.', ',');
+}
+
+/** Agrupar itens iguais (para comanda) */
+function agruparItens(itens) {
+  const m = {};
+  itens.forEach(it => {
+    const k = it.name + '||' + (it.obs || '');
+    if (!m[k]) m[k] = { ...it, qty: 0 };
+    m[k].qty++;
+  });
+  return Object.values(m);
+}
+
+/** Salvar estado de mesa no Firebase */
+async function salvarMesa(num) {
+  const m = window.mesasState[num];
+  if (m && m.status === 'Ocupada') {
+    await setDoc(doc(db, 'mesasAtivas', String(num)), m);
+  } else {
+    await deleteDoc(doc(db, 'mesasAtivas', String(num)));
+  }
+}
+
+/** Solicitar senha de gerente */
+async function requireManager() {
+  const user = auth.currentUser;
+  const { value: pwd } = await Swal.fire({
+    title: 'Senha Gerente',
+    background: '#1a1a1a', color: '#fff',
+    html: `
+      <div style="position:relative; width:100%; margin-top:15px;">
+        <input id="swal-pwd" type="password" class="swal2-input"
+               placeholder="Digite a senha"
+               style="width:80%; background:#222; color:#fff; border:1px solid #444;">
+        <i id="swal-eye" class="fas fa-eye"
+           style="position:absolute; right:15%; top:50%; transform:translateY(-50%);
+                  cursor:pointer; color:var(--accent); z-index:100; font-size:18px;"></i>
+      </div>`,
+    showCancelButton: true,
+    confirmButtonText: 'Confirmar',
+    confirmButtonColor: '#ffbf00',
+    cancelButtonText: 'Cancelar',
+    focusConfirm: false,
+    didOpen: () => {
+      const eye = document.getElementById('swal-eye');
+      const inp = document.getElementById('swal-pwd');
+      eye.addEventListener('click', () => {
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+        eye.classList.toggle('fa-eye');
+        eye.classList.toggle('fa-eye-slash');
       });
-      renderMesas();
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') Swal.clickConfirm(); });
+    },
+    preConfirm: () => {
+      const v = document.getElementById('swal-pwd').value;
+      if (!v) Swal.showValidationMessage('Digite a senha');
+      return v;
+    }
+  });
+
+  if (!pwd) return false;
+
+  try {
+    await signInWithEmailAndPassword(auth, user.email, pwd);
+    return true;
+  } catch {
+    Swal.fire({ icon:'error', title:'Senha incorreta', background:'#1a1a1a', color:'#fff' });
+    return false;
+  }
+}
+
+/* ====================================================
+   5. FECHAR / ABRIR SITE
+   ==================================================== */
+
+document.getElementById('btn-fechar-site').addEventListener('click', async () => {
+  const { isConfirmed } = await Swal.fire({
+    title: 'Fechar o site?',
+    text: 'Os clientes verão a tela de "Fechado".',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, fechar',
+    confirmButtonColor: '#d33',
+    background: '#1a1a1a', color: '#fff'
+  });
+  if (!isConfirmed) return;
+
+  await setDoc(doc(db, 'config', 'status'), { fechado: true });
+  Swal.fire({ icon:'success', title:'Site fechado!', background:'#1a1a1a', color:'#fff' });
+});
+
+document.getElementById('btn-abrir-site').addEventListener('click', async () => {
+  await setDoc(doc(db, 'config', 'status'), { fechado: false });
+  Swal.fire({ icon:'success', title:'Site aberto!', background:'#1a1a1a', color:'#fff' });
+});
+
+/* ====================================================
+   6. MESAS – RENDERIZAÇÃO
+   ==================================================== */
+
+function renderMesas() {
+  const grid = document.getElementById('mesas-grid');
+  grid.innerHTML = '';
+
+  for (let i = 1; i <= 40; i++) {
+    const m = window.mesasState[i] || { status:'Livre', itens:[], total:0, pago:0, impresso:[], garcom:'' };
+    const livre = m.status === 'Livre';
+
+    const card = document.createElement('div');
+    card.className = `card mesa-card ${livre ? 'livre' : 'ocupada'}`;
+    card.setAttribute('data-mesa', i);
+
+    card.innerHTML = `
+      ${!livre ? `
+        <button onclick="cancelarAberturaMesa(${i})"
+          style="position:absolute;top:8px;right:8px;background:#ff4444;color:#fff;border:none;
+                 border-radius:50%;width:22px;height:22px;cursor:pointer;font-weight:bold;
+                 z-index:10;display:flex;align-items:center;justify-content:center;font-size:14px;">×</button>
+      ` : ''}
+
+      <h3><i class="fas fa-chair"></i> Mesa ${i}</h3>
+      <div style="color:var(--muted);">Status: <span>${m.status}</span></div>
+
+      <div style="margin:8px 0;">
+  <label style="font-weight: bold; color: #ffbf00; display: block; margin-bottom: 4px;">
+    <i class="fas fa-user-tie"></i> Atendente:
+  </label>
+  <select id="mesa-garcom-${i}" ${!livre ? 'disabled' : ''} onchange="selecionarGarcom(${i}, this.value)" style="width:100%; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 5px;">
+    <option value="">-- selecione --</option>
+    ${['Mônica','Vitória','Lorrany','Michely','Ana','Luciano'].map(g =>
+      `<option value="${g}" ${m.garcom===g?'selected':''}>${g}</option>`
+    ).join('')}
+  </select>
+</div>
+
+      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin:8px 0;">
+        <button class="btn btn-success" onclick="abrirMesa(${i})"><i class="fas fa-door-open"></i> Abrir</button>
+        <button class="btn btn-accent"  onclick="abrirMenuMesa(${i})"><i class="fas fa-plus"></i> Itens</button>
+        <button class="btn btn-outline" onclick="enviarParaCozinha(${i})"><i class="fas fa-print"></i> Cozinha</button>
+        <button class="btn btn-danger"  onclick="fecharMesa(${i})"><i class="fas fa-wallet"></i> Pagar</button>
+      </div>
+
+      <div class="mesa-items">
+        ${m.itens.map((it, idx) => `
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:.85rem;padding:2px 0;border-bottom:1px solid #2a2a2a;">
+            <span>• ${it.name}${it.obs ? ` <em style="color:#aaa">(${it.obs})</em>` : ''} — R$ ${brl(it.price)}</span>
+            <button onclick="cancelarItemMesa(${i},${idx})"
+              style="background:transparent;border:1px solid #d32f2f;color:#d32f2f;border-radius:4px;
+                     padding:1px 6px;cursor:pointer;font-size:.7rem;flex-shrink:0;margin-left:6px;">✕</button>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:10px;
+                  background:rgba(0,0,0,.2);border-radius:8px;margin-top:5px;">
+        <div style="font-size:.8rem;color:#aaa;line-height:1.4;">
+          Consumo: R$ ${brl(m.total)}<br>
+          Pago: <span style="color:#00ff00;">- R$ ${brl(m.pago)}</span>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:.75rem;color:#ff4444;font-weight:bold;text-transform:uppercase;">Falta Pagar</span><br>
+          <strong style="font-size:1.4rem;color:#ff4444;">
+            R$ ${brl(Math.max(0, (m.total||0) - (m.pago||0)))}
+          </strong>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', e => {
+      if (e.target.closest('button') || e.target.closest('select')) return;
+      setHighlightMesa(i);
     });
 
-    // Delivery (lista atual)
-  function renderDelivery(pedidosRaw) {
-  const pedidos = [...pedidosRaw]
-    .filter(p => !p.tipo || p.tipo === 'delivery' || p.tipo === 'retirada' || (p.tipo === 'fechamento' && (p.cliente || '').toLowerCase().includes('mesa')))
-    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    grid.appendChild(card);
+  }
+  applyHighlightUI();
+}
 
-  ordersGrid.innerHTML = '';
-  ordersCountEl.textContent = `${pedidos.length} pedidos`;
+/* ====================================================
+   7. MESAS – AÇÕES
+   ==================================================== */
 
-  if (pedidos.length === 0) {
-    ordersGrid.innerHTML = `<div class="card"><p class="muted"><i class="fas fa-inbox"></i> Nenhum pedido de delivery/retirada.</p></div>`;
+window.selecionarGarcom = function(num, nome) {
+  if (!window.mesasState[num]) window.mesasState[num] = { status:'Livre', itens:[], total:0, pago:0, impresso:[], garcom:'' };
+  if (window.mesasState[num].status === 'Ocupada') return;
+  window.mesasState[num].garcom = nome;
+};
+
+window.abrirMesa = async function(num) {
+  if (window.mesasState[num]?.status === 'Ocupada') {
+    Swal.fire({ icon:'error', title:'Mesa já ocupada', background:'#1a1a1a', color:'#fff' });
+    return;
+  }
+  const g = document.getElementById(`mesa-garcom-${num}`)?.value;
+  if (!g) { Swal.fire({ icon:'warning', title:'Selecione um garçom', background:'#1a1a1a', color:'#fff' }); return; }
+
+  window.mesasState[num] = { status:'Ocupada', itens:[], total:0, pago:0, impresso:[], garcom:g };
+  await salvarMesa(num);
+  setHighlightMesa(num);
+};
+
+window.cancelarAberturaMesa = async function(num) {
+  const m = window.mesasState[num];
+  if (!m || m.status === 'Livre') return;
+
+  if (m.itens && m.itens.length > 0) {
+    const { isConfirmed } = await Swal.fire({
+      title: 'Mesa com consumo!',
+      text: 'Somente o gerente pode cancelar uma mesa com itens.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Chamar Gerente',
+      cancelButtonText: 'Voltar',
+      background: '#1a1a1a', color: '#fff'
+    });
+    if (!isConfirmed) return;
+    if (!(await requireManager())) return;
+  }
+
+  window.mesasState[num] = { status:'Livre', itens:[], total:0, pago:0, impresso:[], garcom:'' };
+  await salvarMesa(num);
+  if (window.highlightMesa === num) clearHighlight();
+  Toast.fire({ icon:'success', title:'Mesa liberada!' });
+};
+
+window.cancelarItemMesa = async function(num, idx) {
+  const m = window.mesasState[num];
+  if (!m || !m.itens[idx]) return;
+  if (!(await requireManager())) return;
+
+  const item = m.itens[idx];
+  const { isConfirmed } = await Swal.fire({
+    title: 'Cancelar item?',
+    html: `<b style="color:var(--accent)">${item.name}</b><br><small>R$ ${brl(item.price)}</small>`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    confirmButtonText: 'Sim, cancelar',
+    cancelButtonText: 'Voltar',
+    background: '#1a1a1a', color: '#fff'
+  });
+  if (!isConfirmed) return;
+
+  m.itens.splice(idx, 1);
+  m.total = m.itens.reduce((s, i) => s + i.price, 0);
+  await salvarMesa(num);
+  Toast.fire({ icon:'success', title:'Item cancelado!' });
+};
+
+window.enviarParaCozinha = async function(num) {
+  const m = window.mesasState[num];
+  if (!m || m.itens.length === 0) return;
+
+  const chave = it => `${it.name}||${it.price}||${it.obs||''}`;
+  const contagem = {};
+  m.impresso.forEach(c => { contagem[c] = (contagem[c] || 0) + 1; });
+
+  const novos = [];
+  const novosImpressos = [...m.impresso];
+  m.itens.forEach(item => {
+    const c = chave(item);
+    if (contagem[c] > 0) { contagem[c]--; }
+    else { novos.push(item); novosImpressos.push(c); }
+  });
+
+  if (novos.length === 0) {
+    Swal.fire({ title:'Atenção', text:'Todos os itens já foram enviados!', icon:'info', background:'#1a1a1a', color:'#fff' });
     return;
   }
 
-  pedidos.forEach((p, idx) => {
-    const isMesa = p.tipo === 'fechamento' && (p.cliente || '').toLowerCase().includes('mesa');
-    const tipo = isMesa ? 'mesa' : (p.tipo === 'retirada' ? 'retirada' : 'delivery');
-    const badgeIcon = isMesa ? '🪑' : (tipo === 'retirada' ? '🏠' : '🛵');
-    const badgeLabel = isMesa ? 'Mesa' : (tipo === 'retirada' ? 'Retirada' : 'Delivery');
+  const agrupados = agruparItens(novos);
+  await addDoc(collection(db, 'pedidos'), {
+    tipo: 'mesa',
+    cliente: `Mesa ${num}`,
+    garcom: m.garcom || 'Geral',
+    itens: agrupados.map(i => `${i.qty}x ${i.name}||${brl(i.price * i.qty)}||${i.obs||''}`).join(';'),
+    createdAt: new Date().toISOString()
+  });
 
-    const itensHTML = (p.itens || '').split(';').map(item => {
-      const partes = item.split('||');
-      const nome = partes[0]?.trim();
-      const preco = partes[1]?.trim();
-      const obs = partes[2]?.trim();
+  m.impresso = novosImpressos;
+  await salvarMesa(num);
+  Swal.fire({ icon:'success', title:'Cozinha avisada!', timer:1000, showConfirmButton:false, background:'#1a1a1a', color:'#fff' });
+};
+
+window.fecharMesa = async function(num) {
+  const m = window.mesasState[num];
+  if (!m || m.status === 'Livre') return;
+
+  let consumo = m.itens.reduce((a, it) => a + it.price, 0);
+  let jaPago  = m.pago || 0;
+  let saldo   = consumo - jaPago;
+  let pagamentos = [];
+
+  window._addPag = function(metodo) {
+    const inp = document.getElementById('swal-valor-pago');
+    const raw = inp.value.replace('R$ ','').replace(/\./g,'').replace(',','.');
+    const val = parseFloat(raw);
+    if (isNaN(val) || val <= 0) return;
+    if (val > saldo + 0.05) { alert('Valor maior que o saldo!'); return; }
+    pagamentos.push({ metodo, valor: val });
+    saldo -= val;
+    inp.value = '';
+    _atualizarModalPag();
+  };
+
+  window._preencherTudo = function() {
+    const inp = document.getElementById('swal-valor-pago');
+    inp.value = `R$ ${brl(saldo)}`;
+  };
+
+  const _atualizarModalPag = () => {
+    const elSaldo = document.getElementById('swal-saldo');
+    const elTotal = document.getElementById('swal-pago-agora');
+    const elLista = document.getElementById('swal-lista-pags');
+    if (elSaldo) elSaldo.innerText = `R$ ${brl(saldo)}`;
+    if (elTotal) elTotal.innerText = `R$ ${brl(pagamentos.reduce((a,p)=>a+p.valor,0))}`;
+    if (elLista) {
+      elLista.innerHTML = pagamentos.map(p => `
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#10b981;
+                    padding:4px 0;border-bottom:1px solid #333;">
+          <span>${p.metodo}</span><span>R$ ${brl(p.valor)}</span>
+        </div>`).join('');
+    }
+  };
+
+  const html = `
+    <div style="text-align:left;">
+      <div style="background:#222;padding:15px;border-radius:10px;border:1px solid #333;
+                  display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <small style="color:#888;">Consumo:</small><br>
+          <strong style="font-size:1.1rem;">R$ ${brl(consumo)}</strong>
+        </div>
+        <div style="text-align:right;">
+          <small style="color:#ff4444;">Falta Pagar:</small><br>
+          <strong id="swal-saldo" style="font-size:1.3rem;color:#ff4444;">R$ ${brl(saldo)}</strong>
+        </div>
+        <div style="grid-column:span 2;border-top:1px solid #333;padding-top:5px;margin-top:5px;">
+          <small style="color:#00ff00;">Já abatido: R$ ${brl(jaPago)}</small>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;background:#222;padding:15px;border-radius:10px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+          <small style="color:#ffbf00;">LANÇAR VALOR:</small>
+          <small style="color:#aaa;">Nesta rodada: <strong id="swal-pago-agora" style="color:#fff;">R$ 0,00</strong></small>
+        </div>
+        <div style="display:flex;gap:5px;margin-bottom:10px;">
+          <input id="swal-valor-pago" type="text" placeholder="R$ 0,00"
+                 style="flex:1;background:#333;color:#fff;border:1px solid #444;border-radius:6px;padding:8px;"
+                 oninput="mascaraMoeda(this)">
+          <button onclick="window._preencherTudo()"
+                  style="background:#444;color:#fff;border:none;border-radius:6px;padding:0 12px;cursor:pointer;">Tudo</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <button onclick="window._addPag('PIX')"     class="btn btn-outline">PIX</button>
+          <button onclick="window._addPag('DINHEIRO')" class="btn btn-outline">DINHEIRO</button>
+          <button onclick="window._addPag('DÉBITO')"   class="btn btn-outline">DÉBITO</button>
+          <button onclick="window._addPag('CRÉDITO')"  class="btn btn-outline">CRÉDITO</button>
+        </div>
+      </div>
+      <div id="swal-lista-pags" style="margin-top:10px;max-height:100px;overflow-y:auto;"></div>
+    </div>`;
+
+  const { isConfirmed } = await Swal.fire({
+    title: `Acerto — Mesa ${num}`,
+    html,
+    showCancelButton: true,
+    confirmButtonText: 'Confirmar',
+    background: '#1a1a1a', color: '#fff'
+  });
+
+  delete window._addPag;
+  delete window._preencherTudo;
+
+  if (!isConfirmed || pagamentos.length === 0) return;
+
+  const totalPago  = pagamentos.reduce((a, p) => a + p.valor, 0);
+  const ehFinal    = saldo <= 0.05;
+  const pagStr     = pagamentos.map(p => `${p.metodo}: R$ ${brl(p.valor)}`).join(' | ');
+
+  await addDoc(collection(db, 'pedidos'), {
+    tipo: ehFinal ? 'fechamento' : 'venda_mesa',
+    cliente: `Mesa ${num}`,
+    garcom: m.garcom || 'Geral',
+    pagamento: pagStr,
+    total: brl(totalPago),
+    abatidoAnterior: (ehFinal && jaPago > 0) ? brl(jaPago) : null,
+    itens: ehFinal ? m.itens.map(it => `${it.name}||${brl(it.price)}||${it.obs||''}`).join(';') : '',
+    createdAt: new Date().toISOString()
+  });
+
+  if (ehFinal) {
+    window.mesasState[num] = { status:'Livre', itens:[], total:0, pago:0, impresso:[], garcom:'' };
+    clearHighlight();
+  } else {
+    m.total = consumo;
+    m.pago  = jaPago + totalPago;
+  }
+
+  await salvarMesa(num);
+  Swal.fire({ icon:'success', title:'Pagamento registrado!', timer:1000, showConfirmButton:false, background:'#1a1a1a', color:'#fff' });
+};
+
+/* ====================================================
+   8. MESAS – DESTAQUE (HIGHLIGHT)
+   ==================================================== */
+
+function setHighlightMesa(num) { window.highlightMesa = num; applyHighlightUI(); }
+function clearHighlight()       { window.highlightMesa = null; applyHighlightUI(); }
+
+function applyHighlightUI() {
+  const cards = document.querySelectorAll('.mesa-card');
+  cards.forEach(c => {
+    const n = Number(c.getAttribute('data-mesa'));
+    c.classList.toggle('highlight', window.highlightMesa === n);
+    c.style.display = (window.highlightMesa && n !== window.highlightMesa) ? 'none' : 'block';
+  });
+  document.getElementById('floating-toggle').style.display = window.highlightMesa ? 'block' : 'none';
+}
+
+document.getElementById('floating-toggle').addEventListener('click', clearHighlight);
+
+/* ====================================================
+   9. MODAL: CARDÁPIO DA MESA
+   ==================================================== */
+
+window.abrirMenuMesa = function(num) {
+  window.mesaAtual = num;
+  if (!window.carrinhoMesa[num]) window.carrinhoMesa[num] = [];
+  document.getElementById('mesa-atual').innerText = num;
+  document.getElementById('menu-modal').style.display = 'block';
+  renderMenuProdutos(num);
+  renderCarrinho(num);
+};
+
+window.fecharMenuMesa = function() {
+  document.getElementById('menu-modal').style.display = 'none';
+};
+
+function renderMenuProdutos(num) {
+  const el = document.getElementById('menu-produtos');
+  el.innerHTML = '';
+
+  const categorias = [
+    { key:'burguers',   label:'Burguers'    },
+    { key:'fritas',     label:'Fritas'      },
+    { key:'jantinha',   label:'Jantinha'    },
+    { key:'chapas',     label:'Chapas'      },
+    { key:'tiragosto',  label:'Tira Gosto'  },
+    { key:'adicionais', label:'Adicionais'  },
+    { key:'bebida',     label:'Bebidas'     },
+    { key:'alcoolico',  label:'Alcoólicos'  },
+  ];
+
+  categorias.forEach(cat => {
+    const items = menuData.filter(i => i.category === cat.key);
+    if (!items.length) return;
+
+    const section = document.createElement('div');
+    section.className = 'menu-section';
+
+    const header = document.createElement('div');
+    header.className = 'menu-section-header';
+    header.innerHTML = `<h3>${cat.label}</h3><button class="toggle">+</button>`;
+    section.appendChild(header);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'menu-items';
+
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'menu-item';
+      row.innerHTML = `
+        <div><h4>${item.name}</h4><small>R$ ${brl(item.price)}</small></div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline" onclick="addItemCarrinho(${num},${item.id})">Add</button>
+          <button class="btn btn-outline" onclick="addItemCarrinhoComObs(${num},${item.id})">Obs</button>
+        </div>`;
+      wrap.appendChild(row);
+    });
+
+    section.appendChild(wrap);
+
+    header.querySelector('.toggle').addEventListener('click', () => {
+      wrap.classList.toggle('show');
+      header.querySelector('.toggle').textContent = wrap.classList.contains('show') ? '−' : '+';
+    });
+
+    el.appendChild(section);
+  });
+}
+
+window.addItemCarrinho = function(num, id) {
+  const it = menuData.find(i => i.id === id);
+  window.carrinhoMesa[num].push({ name:it.name, price:it.price, obs:'' });
+  renderCarrinho(num);
+  Toast.fire({ icon:'success', title:it.name });
+};
+
+window.addItemCarrinhoComObs = async function(num, id) {
+  const it = menuData.find(i => i.id === id);
+  const { value: obs } = await Swal.fire({
+    title: it.name,
+    input: 'text',
+    inputPlaceholder: 'Observação...',
+    background: '#1a1a1a', color: '#fff',
+    showCancelButton: true
+  });
+  if (obs !== undefined) {
+    window.carrinhoMesa[num].push({ name:it.name, price:it.price, obs:obs.trim() });
+    renderCarrinho(num);
+  }
+};
+
+window.removerItemCarrinho = function(num, idx) {
+  window.carrinhoMesa[num].splice(idx, 1);
+  renderCarrinho(num);
+};
+
+window.limparCarrinho = function(num) {
+  window.carrinhoMesa[num] = [];
+  renderCarrinho(num);
+};
+
+function renderCarrinho(num) {
+  const el = document.getElementById('carrinho-list');
+  el.innerHTML = '';
+  (window.carrinhoMesa[num] || []).forEach((it, idx) => {
+    el.innerHTML += `
+      <div style="display:flex;align-items:center;justify-content:space-between;
+                  padding:6px 0;border-bottom:1px solid #333;font-size:.9rem;">
+        <span>• ${it.name}${it.obs ? ` <em style="color:#aaa">(${it.obs})</em>` : ''} — R$ ${brl(it.price)}</span>
+        <button class="btn btn-danger" style="padding:2px 8px;"
+                onclick="removerItemCarrinho(${num},${idx})">✕</button>
+      </div>`;
+  });
+}
+
+window.confirmarCarrinho = async function(num) {
+  const carr = window.carrinhoMesa[num] || [];
+  if (!carr.length) return;
+  if (!window.mesasState[num]) {
+    window.mesasState[num] = { status:'Ocupada', itens:[], total:0, pago:0, impresso:[], garcom:'' };
+  }
+  carr.forEach(it => window.mesasState[num].itens.push(it));
+  window.mesasState[num].total = window.mesasState[num].itens.reduce((s,i)=>s+i.price, 0);
+  await salvarMesa(num);
+  window.carrinhoMesa[num] = [];
+  fecharMenuMesa();
+  Toast.fire({ icon:'success', title:'Itens adicionados!' });
+};
+
+/* ====================================================
+   10. BUSCA NO MODAL
+   ==================================================== */
+
+window.filtrarMenu = function(termo) {
+  const busca = termo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  document.querySelectorAll('.menu-item').forEach(item => {
+    const nome = item.querySelector('h4').innerText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    item.style.display = nome.includes(busca) ? 'flex' : 'none';
+  });
+  document.querySelectorAll('.menu-section').forEach(sec => {
+    const temVisivel = Array.from(sec.querySelectorAll('.menu-item')).some(i=>i.style.display==='flex');
+    const lista = sec.querySelector('.menu-items');
+    const btn   = sec.querySelector('.toggle');
+    if (busca === '') {
+      sec.style.display = 'block';
+      lista?.classList.remove('show');
+      if (btn) btn.textContent = '+';
+    } else {
+      sec.style.display = temVisivel ? 'block' : 'none';
+      if (temVisivel) { lista?.classList.add('show'); if (btn) btn.textContent = '−'; }
+    }
+  });
+};
+
+/* ====================================================
+   11. PEDIDOS (DELIVERY/RETIRADA) – RENDERIZAÇÃO
+   ==================================================== */
+
+function renderDelivery(pedidos) {
+  const grid  = document.getElementById('orders-grid');
+  const count = document.getElementById('orders-count');
+
+  // Localize a função renderDelivery e altere a linha da constante 'lista'
+const lista = [...pedidos]
+  .filter(p => {
+    // Aqui aceitamos Delivery, Retirada e também as Mesas Fechadas
+    return !p.tipo || p.tipo === 'delivery' || p.tipo === 'retirada' || p.tipo === 'fechamento' || p.tipo === 'venda_mesa';
+  })
+  .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+
+  grid.innerHTML = '';
+  count.textContent = `${lista.length} pedidos`;
+
+  if (!lista.length) {
+    grid.innerHTML = `<div class="card"><p style="color:var(--muted)"><i class="fas fa-inbox"></i> Nenhum pedido.</p></div>`;
+    return;
+  }
+
+  lista.forEach((p, idx) => {
+    const tipo      = p.tipo === 'retirada' ? 'retirada' : 'delivery';
+    const badgeIcon = tipo === 'retirada' ? '🏠' : '🛵';
+    const badgeLabel= tipo === 'retirada' ? 'Retirada' : 'Delivery';
+
+    const itensHTML = (p.itens||'').split(';').map(item => {
+      const [nome, preco, obs] = item.split('||').map(s=>s?.trim());
       if (!nome) return '';
       return `
         <div class="dcard-item-row">
-          <span class="dcard-item-nome">${nome}${obs ? ` <span class="dcard-item-obs">(${obs})</span>` : ''}</span>
-          ${preco ? `<span class="dcard-item-preco">R$ ${preco}</span>` : ''}
+          <span class="dcard-item-nome">${nome}${obs?` <span class="dcard-item-obs">(${obs})</span>`:''}</span>
+          ${preco?`<span class="dcard-item-preco">R$ ${preco}</span>`:''}
         </div>`;
     }).join('');
 
@@ -826,1379 +1435,473 @@ header {
     card.innerHTML = `
       <div class="dcard-top">
         <div>
-          <p class="dcard-nome">${p.cliente || 'Cliente'}</p>
-          <span class="dcard-num">#${idx + 1}</span>
+          <p class="dcard-nome">${p.cliente||'Cliente'}</p>
+          <span class="dcard-num">#${idx+1}</span>
         </div>
         <span class="dcard-badge dcard-badge-${tipo}">${badgeIcon} ${badgeLabel}</span>
       </div>
-
-      ${p.telefone ? `<div class="dcard-info-row"><i class="fas fa-phone dcard-icon"></i><span>${p.telefone}</span></div>` : ''}
-      ${!isMesa && tipo !== 'retirada' && p.endereco ? `<div class="dcard-info-row"><i class="fas fa-map-marker-alt dcard-icon"></i><span>${p.endereco}${p.bairro ? ' — ' + p.bairro : ''}</span></div>` : ''}
-      ${isMesa && p.garcom ? `<div class="dcard-info-row"><i class="fas fa-user dcard-icon"></i><span>Garçom: ${p.garcom}</span></div>` : ''}
-      ${p.pagamento ? `<div class="dcard-pag-tag"><i class="fas fa-wallet"></i> ${p.pagamento}</div>` : ''}
-
+      ${p.telefone?`<div class="dcard-info-row"><i class="fas fa-phone dcard-icon"></i><span>${p.telefone}</span></div>`:''}
+      ${tipo!=='retirada'&&p.endereco?`<div class="dcard-info-row"><i class="fas fa-map-marker-alt dcard-icon"></i><span>${p.endereco}${p.bairro?' — '+p.bairro:''}</span></div>`:''}
+      ${p.pagamento?`<div class="dcard-pag-tag"><i class="fas fa-wallet"></i> ${p.pagamento}</div>`:''}
       <hr class="dcard-divider">
-
       <div class="dcard-itens">${itensHTML}</div>
-
       <div class="dcard-footer">
         <div>
           <div class="dcard-total-label">total do pedido</div>
-          <div class="dcard-total-valor">${p.total ? `R$ ${p.total}` : '—'}</div>
+          <div class="dcard-total-valor">${p.total?`R$ ${p.total}`:'—'}</div>
         </div>
-        ${p.createdAt ? `<div class="dcard-hora">${new Date(p.createdAt).toLocaleString('pt-BR')}</div>` : ''}
-      </div>
-    `;
-    ordersGrid.appendChild(card);
+        ${p.createdAt?`<div class="dcard-hora">${new Date(p.createdAt).toLocaleString('pt-BR')}</div>`:''}
+      </div>`;
+    grid.appendChild(card);
   });
 
-  if (window.bipAtivo && pedidos.length > 0) {
-    tocarBip();
-  }
+  if (window.bipAtivo && lista.length > 0) tocarBip();
 }
 
-function renderHistoricos(pedidosRaw) {
-  const histMesas = pedidosRaw
-    .filter(p => p.tipo === 'fechamento' && (p.cliente || '').toLowerCase().includes('mesa'))
-    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+/* ====================================================
+   12. HISTÓRICOS
+   ==================================================== */
 
-  const histDelivery = pedidosRaw
-    .filter(p => !p.tipo || p.tipo === 'delivery')
-    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-
+function renderHistoricos(pedidos) {
   // --- Mesas ---
+  const histMesas = pedidos
+    .filter(p => p.tipo === 'fechamento')
+    .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+
+  const mesasHistEl  = document.getElementById('mesas-historico');
+  const mesasTotalEl = document.getElementById('mesas-total');
   mesasHistEl.innerHTML = '';
   let totalMesas = 0;
+
   histMesas.forEach((p, idx) => {
-    const t = parseFloat(p.total || 0);
+    const t = parseFloat(p.total||0);
     totalMesas += isNaN(t) ? 0 : t;
     const card = document.createElement('div');
     card.className = 'card';
+    card.style.marginBottom = '12px';
     card.innerHTML = `
-      <h3><i class="fas fa-chair"></i> ${p.cliente || 'Mesa'}</h3>
-      <p class="muted">#${idx + 1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
-      ${p.garcom ? `<p><strong>Garçom:</strong> ${p.garcom}</p>` : ''}
-      ${p.pagamento ? `<p><strong>Pagamento:</strong> ${p.pagamento}</p>` : ''}
-      <p><strong>Itens:</strong><br>${
-        (p.itens || '').split(';').map(item => {
-          const partes = item.split('||');
-          const nome = partes[0]?.trim();
-          const preco = partes[1]?.trim();
-          const obs = partes[2]?.trim();
-          return `&nbsp;&nbsp;• ${nome}${preco ? ' — <b>R$ ' + preco + '</b>' : ''}${obs ? ' <em style="color:#aaa">(${obs})</em>' : ''}`;
-        }).join('<br>')
-      }</p>
-      ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
-      <button class="btn btn-outline" onclick="window.reimprimirNota('${p.id}')">
-        <i class="fas fa-print"></i> Reimprimir
-      </button>
-    `;
+      <h3><i class="fas fa-chair"></i> ${p.cliente||'Mesa'}</h3>
+      <p style="color:var(--muted);">#${idx+1} — ${p.createdAt?new Date(p.createdAt).toLocaleString('pt-BR'):''}</p>
+      ${p.garcom?`<p><strong>Garçom:</strong> ${p.garcom}</p>`:''}
+      ${p.pagamento?`<p><strong>Pagamento:</strong> ${p.pagamento}</p>`:''}
+      <p><strong>Itens:</strong><br>
+        ${(p.itens||'').split(';').map(item=>{
+          const [n,pr,ob]=item.split('||').map(s=>s?.trim());
+          return `&nbsp;&nbsp;• ${n}${pr?' — <b>R$ '+pr+'</b>':''}${ob?` <em style="color:#aaa">(${ob})</em>`:''}`;
+        }).join('<br>')}
+      </p>
+      ${p.total?`<p class="mesa-total">Total: R$ ${p.total}</p>`:''}`;
     mesasHistEl.appendChild(card);
   });
-  mesasTotalEl.textContent = `Total Mesas: R$ ${totalMesas.toFixed(2).replace('.', ',')}`;
+
+  mesasTotalEl.textContent = `Total Mesas: R$ ${brl(totalMesas)}`;
 
   // --- Delivery ---
+  const histDelivery  = pedidos
+    .filter(p => !p.tipo || p.tipo === 'delivery')
+    .sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+
+  const deliveryHistEl  = document.getElementById('delivery-historico');
+  const deliveryTotalEl = document.getElementById('delivery-total');
   deliveryHistEl.innerHTML = '';
   let totalDelivery = 0;
+
   histDelivery.forEach((p, idx) => {
-    const t = parseFloat(p.total || 0);
+    const t = parseFloat(p.total||0);
     totalDelivery += isNaN(t) ? 0 : t;
     const card = document.createElement('div');
     card.className = 'card';
+    card.style.marginBottom = '12px';
     card.innerHTML = `
-      <h3><i class="fas fa-truck"></i> ${p.cliente || 'Cliente'}</h3>
-      <p class="muted">#${idx + 1} — ${p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : ''}</p>
-      <p><strong>Itens:</strong><br>${
-        (p.itens || '').split(';').map(item => {
-          const partes = item.split('||');
-          const nome = partes[0]?.trim();
-          const preco = partes[1]?.trim();
-          const obs = partes[2]?.trim();
-          return `&nbsp;&nbsp;• ${nome}${preco ? ' — <b>R$ ' + preco + '</b>' : ''}${obs ? ' <em style="color:#aaa">(${obs})</em>' : ''}`;
-        }).join('<br>')
-      }</p>
-      ${p.total ? `<p class="mesa-total">Total: R$ ${p.total}</p>` : ''}
-      <button class="btn btn-outline" onclick="window.reimprimirNota('${p.id}')">
-        <i class="fas fa-print"></i> Reimprimir
-      </button>
-    `;
+      <h3><i class="fas fa-truck"></i> ${p.cliente||'Cliente'}</h3>
+      <p style="color:var(--muted);">#${idx+1} — ${p.createdAt?new Date(p.createdAt).toLocaleString('pt-BR'):''}</p>
+      <p><strong>Itens:</strong><br>
+        ${(p.itens||'').split(';').map(item=>{
+          const [n,pr,ob]=item.split('||').map(s=>s?.trim());
+          return `&nbsp;&nbsp;• ${n}${pr?' — <b>R$ '+pr+'</b>':''}${ob?` <em style="color:#aaa">(${ob})</em>`:''}`;
+        }).join('<br>')}
+      </p>
+      ${p.total?`<p class="mesa-total">Total: R$ ${p.total}</p>`:''}`;
     deliveryHistEl.appendChild(card);
   });
-  deliveryTotalEl.textContent = `Total Delivery: R$ ${totalDelivery.toFixed(2).replace('.', ',')}`;
+
+  deliveryTotalEl.textContent = `Total Delivery: R$ ${brl(totalDelivery)}`;
 }
 
-window.reimprimirNota = async function (pedidoId) {
-  const docRef = doc(db, "pedidos", pedidoId);
-  const snap = await getDocs(query(collection(db, "pedidos")));
-  const pedido = (await getDocs(query(collection(db, "pedidos")))).docs.find(d => d.id === pedidoId)?.data();
+/* ====================================================
+   13. STAFF – CONSUMO INTERNO E DESPESAS
+   ==================================================== */
 
-  if (!pedido) {
-    Swal.fire('Erro', 'Pedido não encontrado', 'error');
+function popularItensStaff() {
+  const sel = document.getElementById('staff-item');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Selecione --</option>';
+  menuData.forEach(it => {
+    sel.innerHTML += `<option value="${it.name}||${it.price}">${it.name} — R$ ${brl(it.price)}</option>`;
+  });
+}
+
+window.toggleStaffFields = function() {
+  const tipo = document.getElementById('staff-tipo').value;
+  document.getElementById('field-funcionario').style.display = tipo==='consumo' ? 'block' : 'none';
+  document.getElementById('field-despesa').style.display     = tipo==='despesa'  ? 'block' : 'none';
+};
+
+window.lancarLocal = function() {
+  const tipo  = document.getElementById('staff-tipo').value;
+  const lista = JSON.parse(localStorage.getItem('burguer_staff')||'[]');
+  const item  = { id:Date.now(), tipo };
+
+  if (tipo === 'consumo') {
+    const raw  = document.getElementById('staff-item').value;
+    const func = document.getElementById('staff-nome').value;
+    if (!raw) return Swal.fire('Erro','Selecione um item','error');
+    const [nome, preco] = raw.split('||');
+    item.desc  = `Funcionário: ${func} (${nome})`;
+    item.valor = parseFloat(preco);
+  } else {
+    const desc = document.getElementById('staff-desc').value;
+    const raw  = document.getElementById('staff-valor-formatado').value;
+    const val  = parseFloat(raw.replace('R$ ','').replace(/\./g,'').replace(',','.'));
+    if (!desc || isNaN(val) || val<=0) return Swal.fire('Erro','Preencha todos os campos','error');
+    item.desc  = `DESPESA: ${desc}`;
+    item.valor = val;
+    document.getElementById('staff-desc').value = '';
+    document.getElementById('staff-valor-formatado').value = '';
+  }
+
+  lista.push(item);
+  localStorage.setItem('burguer_staff', JSON.stringify(lista));
+  renderStaffLocal();
+  Toast.fire({ icon:'success', title:'Lançado!' });
+};
+
+window.renderStaffLocal = function() {
+  const el     = document.getElementById('staff-local-list');
+  const totEl  = document.getElementById('staff-local-total');
+  if (!el || !totEl) return;
+
+  const dados = JSON.parse(localStorage.getItem('burguer_staff')||'[]');
+  let totC=0, totD=0;
+  el.innerHTML = '';
+
+  if (!dados.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">Sem lançamentos.</div>';
+    totEl.innerHTML = 'Consumo: R$ 0,00 | Despesas: R$ 0,00';
     return;
   }
 
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
+  dados.forEach((item, idx) => {
+    const val  = parseFloat(item.valor)||0;
+    const cor  = item.tipo==='consumo' ? '#ffbf00' : '#ff4444';
+    const icon = item.tipo==='consumo' ? '🍴' : '💸';
+    if (item.tipo==='consumo') totC+=val; else totD+=val;
 
-  pdf.setFontSize(14);
-  pdf.text(`Nota - ${pedido.cliente || 'Cliente'}`, 10, 10);
-  pdf.text(`Itens: ${pedido.itens || ''}`, 10, 20);
-  if (pedido.total) pdf.text(`Total: R$ ${pedido.total}`, 10, 30);
-  if (pedido.pagamento) pdf.text(`Pagamento: ${pedido.pagamento}`, 10, 40);
-  pdf.text(`Data: ${new Date(pedido.createdAt).toLocaleString('pt-BR')}`, 10, 50);
+    el.innerHTML += `
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#222;
+                  padding:10px;margin-bottom:8px;border-radius:5px;border-left:5px solid ${cor};">
+        <div style="flex:1;">
+          <small style="color:#888;">${new Date(item.id).toLocaleTimeString('pt-BR')}</small><br>
+          <span>${icon} <strong>${item.desc}</strong></span>
+        </div>
+        <div style="text-align:right;margin-right:15px;min-width:95px;">
+          <strong>R$ ${brl(val)}</strong>
+        </div>
+        <button class="btn btn-danger" style="padding:4px 10px;font-size:12px;"
+                onclick="removerItemStaffLocal(${idx})"><i class="fas fa-times"></i></button>
+      </div>`;
+  });
 
-  pdf.save(`nota-${pedidoId}.pdf`);
+  totEl.innerHTML = `
+    <div style="display:flex;justify-content:space-between;padding:5px 10px;font-size:.9rem;">
+      <span>Consumo Staff: <strong style="color:#ffbf00;">R$ ${brl(totC)}</strong></span>
+      <span>Despesas: <strong style="color:#ff4444;">R$ ${brl(totD)}</strong></span>
+    </div>
+    <div style="text-align:center;margin-top:8px;border-top:1px solid #444;padding-top:8px;">
+      Total Interno: <strong style="font-size:1.1rem;">R$ ${brl(totC+totD)}</strong>
+    </div>`;
 };
 
-    // Render Mesas
-function renderMesas() {
-  mesasGrid.innerHTML = '';
-  for (let i = 1; i <= 40; i++) {
-    const m = window.mesasState[i] || { status: 'Livre', itens: [], total: 0, pago: 0, impresso: [], garcom: '' };
-    const card = document.createElement('div');
-    
-    // Adicionado position: relative para o botão X se posicionar corretamente
-    card.className = `card mesa-card ${m.status === 'Livre' ? 'livre' : 'ocupada'}`;
-    card.style.position = 'relative'; 
-    card.setAttribute('data-mesa', i);
-
-    card.innerHTML = `
-      <!-- Botão X para cancelar abertura (Só aparece se estiver ocupada) -->
-      ${m.status === 'Ocupada' ? `
-        <button class="btn-cancelar-mesa" 
-                onclick="window.cancelarAberturaMesa(${i})" 
-                title="Cancelar abertura"
-                style="position: absolute; top: 8px; right: 8px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 14px;">
-          ×
-        </button>
-      ` : ''}
-
-      <h3><i class="fas fa-chair"></i> Mesa ${i}</h3>
-      <div class="muted">Status: <span id="mesa-status-${i}">${m.status}</span></div>
-      
-      <div style="margin:8px 0;">
-        <label>Garçom:</label>
-        <select id="mesa-garcom-${i}" ${m.status === 'Ocupada' ? 'disabled' : ''} onchange="window.selecionarGarcom(${i}, this.value)">
-          <option value="">-- selecione --</option>
-          <option value="Mônica" ${m.garcom === 'Mônica' ? 'selected' : ''}>Mônica</option>
-          <option value="Vitória" ${m.garcom === 'Vitória' ? 'selected' : ''}>Vitória</option>
-          <option value="Lorrany" ${m.garcom === 'Lorrany' ? 'selected' : ''}>Lorrany</option>
-          <option value="Michely" ${m.garcom === 'Michely' ? 'selected' : ''}>Michely</option>
-          <option value="Ana" ${m.garcom === 'Ana' ? 'selected' : ''}>Ana</option>
-          <option value="Luciano" ${m.garcom === 'Luciano' ? 'selected' : ''}>Luciano</option>
-        </select>
-      </div>
-
-      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin:8px 0;">
-        <button class="btn btn-success" onclick="window.abrirMesa(${i})"><i class="fas fa-door-open"></i> Abrir</button>
-        <button class="btn btn-accent" onclick="window.abrirMenuMesa(${i})"><i class="fas fa-plus"></i> Itens</button>
-        <button class="btn btn-outline" onclick="window.enviarParaCozinha(${i})"><i class="fas fa-print"></i> Cozinha</button>
-        <button class="btn btn-danger" onclick="window.fecharMesa(${i})"><i class="fas fa-wallet"></i> Pagar</button>
-      </div>
-
-      <div class="mesa-items" id="mesa-items-${i}" style="max-height: 80px; overflow-y: auto; border-bottom: 1px dashed #444; margin-bottom: 5px;">
-        ${m.itens.map((it, idx) => `
-          <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.85rem; padding:2px 0; border-bottom:1px solid #2a2a2a;">
-            <span>• ${it.name}${it.obs ? ` <em style="color:#aaa">(${it.obs})</em>` : ''} — R$ ${it.price.toFixed(2)}</span>
-            <button onclick="window.cancelarItemMesa(${i}, ${idx})" style="background:transparent; border:1px solid #d32f2f; color:#d32f2f; border-radius:4px; padding:1px 6px; cursor:pointer; font-size:0.7rem; flex-shrink:0; margin-left:6px;">✕</button>
-          </div>
-        `).join('')}
-      </div>
-
-      <div class="mesa-valores" style="display: flex; justify-content: space-between; align-items: flex-end; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 5px;">
-        <div style="font-size: 0.8rem; color: #aaa; line-height: 1.4;">
-          Consumo: R$ ${Number(m.total || 0).toFixed(2).replace('.', ',')}<br>
-          Pago: <span style="color: #00ff00;">- R$ ${Number(m.pago || 0).toFixed(2).replace('.', ',')}</span>
-        </div>
-        <div style="text-align: right;">
-          <span style="font-size: 0.75rem; color: #ff4444; font-weight: bold; text-transform: uppercase;">Falta Pagar</span><br>
-          <strong style="font-size: 1.4rem; color: #ff4444; letter-spacing: -1px;">
-            R$ ${Math.max(0, (Number(m.total || 0) - Number(m.pago || 0))).toFixed(2).replace('.', ',')}
-          </strong>
-        </div>
-      </div>
-    `;
-    
-    mesasGrid.appendChild(card);
-    card.addEventListener('click', (e) => {
-      // Evita disparar o highlight se clicar no botão de fechar ou outros controles
-      if (e.target.closest('button') || e.target.closest('select')) return;
-      setHighlightMesa(i);
-    });
-  }
-  applyHighlightUI();
-}
-
-window.cancelarAberturaMesa = async function (num) {
-  const m = window.mesasState[num];
-  if (!m || m.status === 'Livre') return;
-
-  // 1. VERIFICAÇÃO DE SEGURANÇA: Tem itens lançados?
-  const temConsumo = m.itens && m.itens.length > 0;
-
-  if (temConsumo) {
-    // Se tem itens, exige a senha do gerente (sua função requireManager com HASH)
-    const confirm = await Swal.fire({
-      title: 'Mesa com Itens!',
-      text: "Esta mesa possui consumo lançado. Somente o gerente pode cancelar.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Chamar Gerente',
-      cancelButtonText: 'Voltar',
-      background: '#1a1a1a',
-      color: '#fff'
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    // Chama sua função de senha que já existe no código
-    const autorizado = await requireManager();
-    if (!autorizado) return; // Se a senha estiver errada ou cancelar, para aqui
-  }
-
-  // 2. PROCESSO DE LIMPEZA (Se não tinha itens OU se o gerente autorizou)
-  try {
-    // Reseta os dados da mesa no Firebase
-    window.mesasState[num] = { 
-      status: 'Livre', 
-      itens: [], 
-      total: 0, 
-      pago: 0, 
-      impresso: [], 
-      garcom: '' 
-    };
-
-    await saveMesaFirebase(num);
-
-    // Se estiver no modo de foco (highlight), limpa a visão
-    if (window.highlightMesa === num) clearHighlight();
-
-    Toast.fire({ 
-      icon: 'success', 
-      title: 'Mesa liberada com sucesso',
-      background: '#2d2d2d'
-    });
-    
-  } catch (error) {
-    console.error("Erro ao resetar mesa:", error);
-    Swal.fire('Erro', 'Não foi possível comunicar com o banco de dados.', 'error');
-  }
+window.removerItemStaffLocal = function(idx) {
+  const lista = JSON.parse(localStorage.getItem('burguer_staff')||'[]');
+  lista.splice(idx,1);
+  localStorage.setItem('burguer_staff', JSON.stringify(lista));
+  renderStaffLocal();
 };
-    // apagar itens
-window.cancelarItemMesa = async function(num, idx) {
-  const m = window.mesasState[num];
-  if (!m || !m.itens[idx]) return;
 
-  const item = m.itens[idx];
-
-  // Pede senha de gerente
-  if (!(await requireManager())) return;
-
+window.limparStaffLocal = async function() {
   const { isConfirmed } = await Swal.fire({
-    title: 'Cancelar item?',
-    html: `<b style="color:#ffbf00">${item.name}</b><br><small>R$ ${item.price.toFixed(2)}</small>`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    confirmButtonText: 'Sim, cancelar',
-    cancelButtonText: 'Voltar',
-    background: '#1a1a1a',
-    color: '#fff'
+    title:'Zerar Relatório Interno?',
+    icon:'warning', showCancelButton:true,
+    confirmButtonColor:'#d33', confirmButtonText:'Sim, apagar!',
+    background:'#1a1a1a', color:'#fff'
   });
-
-  if (!isConfirmed) return;
-
-  // Remove o item e recalcula o total
-  m.itens.splice(idx, 1);
-  m.total = m.itens.reduce((s, i) => s + i.price, 0);
-  await saveMesaFirebase(num);
-
-  Swal.fire({ icon: 'success', title: 'Item cancelado!', timer: 900, showConfirmButton: false });
-};
-    function setHighlightMesa(numero) { window.highlightMesa = numero; applyHighlightUI(); }
-    function clearHighlight() { window.highlightMesa = null; applyHighlightUI(); }
-    function applyHighlightUI() {
-      const cards = mesasGrid.querySelectorAll('.mesa-card');
-      cards.forEach(c => {
-        const n = Number(c.getAttribute('data-mesa'));
-        c.classList.toggle('highlight', window.highlightMesa === n);
-        if (window.highlightMesa && n !== window.highlightMesa) c.style.display = 'none';
-        else c.style.display = 'block';
-      });
-      floatingToggle.style.display = window.highlightMesa ? 'block' : 'none';
-    }
-    floatingToggle.addEventListener('click', clearHighlight);
-
-    window.selecionarGarcom = function (numero, nome) {
-      if (!window.mesasState[numero]) window.mesasState[numero] = { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
-      if (window.mesasState[numero].status === 'Ocupada') return;
-      window.mesasState[numero].garcom = nome;
-    };
-
-    window.abrirMesa = async function (numero) {
-      if (window.mesasState[numero] && window.mesasState[numero].status === 'Ocupada') {
-        Swal.fire({ icon: 'error', title: 'Mesa já ocupada' }); return;
-      }
-      const g = document.getElementById(`mesa-garcom-${numero}`).value;
-      if (!g) { Swal.fire({ icon: 'warning', title: 'Selecione um garçom' }); return; }
-
-      window.mesasState[numero] = { status: 'Ocupada', itens: [], total: 0, impresso: [], garcom: g };
-      await saveMesaFirebase(numero);
-      setHighlightMesa(numero);
-    };
-
-
-    // Modal Menu
-    window.abrirMenuMesa = function (numero) {
-      window.mesaAtual = numero;
-      if (!window.carrinhoMesa[numero]) window.carrinhoMesa[numero] = [];
-      document.getElementById('mesa-atual').innerText = numero;
-      document.getElementById('menu-modal').style.display = 'block';
-      renderMenuProdutos(numero);
-      renderCarrinho(numero);
-    };
-    window.fecharMenuMesa = function () { document.getElementById('menu-modal').style.display = 'none'; };
-
-    function renderMenuProdutos(numero) {
-  const menuEl = document.getElementById('menu-produtos');
-  menuEl.innerHTML = '';
-  const categorias = [
-    { key: 'burguers', label: 'Burguers' }, { key: 'fritas', label: 'Fritas' },
-    { key: 'jantinha', label: 'Jantinha' }, { key: 'chapas', label: 'Chapas' },
-    { key: 'tiragosto', label: 'Tira Gosto' }, { key: 'adicionais', label: 'Adicionais' },
-    { key: 'bebida', label: 'Bebidas' }, { key: 'alcoolico', label: 'Alcoólicos' }
-  ];
-
-  categorias.forEach(cat => {
-    const items = menuData.filter(i => i.category === cat.key);
-    if (items.length === 0) return;
-
-    const section = document.createElement('div');
-    section.className = 'menu-section';
-
-    // Cabeçalho com botão toggle
-    const header = document.createElement('div');
-    header.className = 'menu-section-header';
-    header.innerHTML = `<h3>${cat.label}</h3>
-      <button class="toggle">+</button>`;
-    section.appendChild(header);
-
-    // Lista de itens
-    const itemsWrap = document.createElement('div');
-    itemsWrap.className = 'menu-items';
-    items.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'menu-item';
-      row.innerHTML = `
-        <div><h4>${item.name}</h4><small>R$ ${item.price.toFixed(2)}</small></div>
-        <div style="display:flex; gap:6px;">
-          <button class="btn btn-outline" onclick="window.addItemCarrinho(${numero}, ${item.id})">Add</button>
-          <button class="btn btn-outline" onclick="window.addItemCarrinhoComObs(${numero}, ${item.id})">Obs</button>
-        </div>`;
-      itemsWrap.appendChild(row);
-    });
-    section.appendChild(itemsWrap);
-
-    // Evento de abrir/fechar
-    header.querySelector('.toggle').addEventListener('click', () => {
-      itemsWrap.classList.toggle('show');
-      header.querySelector('.toggle').textContent = itemsWrap.classList.contains('show') ? '−' : '+';
-    });
-
-    menuEl.appendChild(section);
-  });
-}
-
-    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1400, background: '#25d366', color: '#fff' });
-
-    window.addItemCarrinho = function (num, id) {
-      const it = menuData.find(i => i.id === id);
-      window.carrinhoMesa[num].push({ name: it.name, price: it.price, obs: '' });
-      renderCarrinho(num);
-      Toast.fire({ icon: 'success', title: it.name });
-    };
-
-    window.addItemCarrinhoComObs = async function (num, id) {
-      const it = menuData.find(i => i.id === id);
-      const { value: obs } = await Swal.fire({ title: it.name, input: 'text', background: '#1a1a1a', color: '#fff', showCancelButton: true });
-      if (obs !== undefined) {
-        window.carrinhoMesa[num].push({ name: it.name, price: it.price, obs: obs.trim() });
-        renderCarrinho(num);
-      }
-    };
-
-    window.removerItemCarrinho = function (num, idx) { window.carrinhoMesa[num].splice(idx, 1); renderCarrinho(num); };
-
-    function renderCarrinho(num) {
-      const el = document.getElementById('carrinho-list'); el.innerHTML = '';
-      (window.carrinhoMesa[num] || []).forEach((it, idx) => {
-        el.innerHTML += `<div>• ${it.name} <button class="btn btn-danger" style="padding:2px 5px" onclick="window.removerItemCarrinho(${num}, ${idx})">X</button></div>`;
-      });
-    }
-
-    window.confirmarCarrinho = async function (num) {
-      const carr = window.carrinhoMesa[num] || [];
-      if (carr.length === 0) return;
-      if (!window.mesasState[num]) window.mesasState[num] = { status: 'Ocupada', itens: [], total: 0, impresso: [], garcom: '' };
-      carr.forEach(it => window.mesasState[num].itens.push(it));
-      window.mesasState[num].total = window.mesasState[num].itens.reduce((s, i) => s + i.price, 0);
-      await saveMesaFirebase(num);
-      window.carrinhoMesa[num] = [];
-      window.fecharMenuMesa();
-    };
-
-   window.enviarParaCozinha = async function (num) {
-  const m = window.mesasState[num];
-  if (!m || m.itens.length === 0) return;
-
-  // chave para evitar duplicados
-  const chave = (it) => `${it.name}||${it.price}||${it.obs || ''}`;
- const novos = m.itens; // imprime sempre todos os itens
-if (novos.length === 0) { 
-  Swal.fire({ title: 'Nenhum item para enviar' }); 
-  return; 
-}
-
-
-  // grava no Firestore já no formato esperado pela impressora
-  await addDoc(collection(db, "pedidos"), {
-    tipo: 'mesa',
-    cliente: `Mesa ${num}`,
-    garcom: m.garcom,
-    itens: novos.map(i => `${i.name}||${i.price.toFixed(2)}||${i.obs || ''}`).join(';'),
-    createdAt: new Date().toISOString()
-  });
-
-  // marca como impresso
-  novos.forEach(it => m.impresso.push(chave(it)));
-  await saveMesaFirebase(num);
-
-  Swal.fire({ icon: 'success', title: 'Cozinha avisada' });
+  if (isConfirmed) { localStorage.removeItem('burguer_staff'); renderStaffLocal(); }
 };
 
-window.fecharMesa = async function (num) {
-  const m = window.mesasState[num];
-  if (!m || m.status === 'Livre') return;
+window.gerarPDFStaffLocal = function() {
+  const { jsPDF } = window.jspdf;
+  const dados = JSON.parse(localStorage.getItem('burguer_staff')||'[]');
+  if (!dados.length) return Swal.fire('Aviso','Nenhum dado para gerar PDF','info');
 
-  const { value: pag } = await Swal.fire({
-    title: 'Pagamento',
-    input: 'radio',
-    inputOptions: { 
-      'NO LOCAL': 'NO LOCAL',  
-    },
-    background: '#1a1a1a',
-    color: '#fff',
-    customClass: {
-      input: 'swal-radio'
-    }
+  const pdf  = new jsPDF();
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const hora = new Date().toLocaleTimeString('pt-BR');
+
+  pdf.setFillColor(30,30,30); pdf.rect(0,0,210,35,'F');
+  pdf.setTextColor(255,191,0); pdf.setFont('helvetica','bold'); pdf.setFontSize(20);
+  pdf.text('BURGUER GRILL',105,15,{align:'center'});
+  pdf.setTextColor(255,255,255); pdf.setFontSize(10);
+  pdf.text('RELATÓRIO INTERNO',105,23,{align:'center'});
+  pdf.text(`Gerado em: ${hoje} às ${hora}`,105,29,{align:'center'});
+
+  let y=45, totC=0, totD=0;
+  pdf.setTextColor(0); pdf.setFontSize(11);
+
+  dados.forEach((item,i) => {
+    if (y>270){ pdf.addPage(); y=20; }
+    const val = parseFloat(item.valor)||0;
+    if (item.tipo==='consumo') totC+=val; else totD+=val;
+    if (i%2===0){ pdf.setFillColor(245,245,245); pdf.rect(10,y-5,190,10,'F'); }
+    pdf.setFont('helvetica','bold');   pdf.text(item.desc,15,y);
+    pdf.setFont('helvetica','normal'); pdf.text(`R$ ${brl(val)}`,195,y,{align:'right'});
+    y+=10;
   });
 
-  if (!pag) return;
+  y+=10; pdf.setDrawColor(200); pdf.line(10,y,200,y); y+=10;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.text('RESUMO:',10,y); y+=8;
+  pdf.setFont('helvetica','normal');
+  pdf.text('Total Consumo Staff:',15,y); pdf.text(`R$ ${brl(totC)}`,195,y,{align:'right'}); y+=6;
+  pdf.text('Total Despesas:',15,y);      pdf.text(`R$ ${brl(totD)}`,195,y,{align:'right'}); y+=10;
+  pdf.setFillColor(255,191,0); pdf.rect(10,y,190,12,'F');
+  pdf.setFont('helvetica','bold'); pdf.setTextColor(0);
+  pdf.text('CUSTO TOTAL INTERNO:',15,y+8); pdf.text(`R$ ${brl(totC+totD)}`,195,y+8,{align:'right'});
 
-  // grava fechamento com itens completos
-  await addDoc(collection(db, "pedidos"), {
-    tipo: 'fechamento',
-    cliente: `Mesa ${num}`,
-    garcom: m.garcom,
-    pagamento: pag,
-    itens: m.itens.map(i => `${i.name}||${i.price.toFixed(2)}||${i.obs || ''}`).join(';'),
-    total: m.total.toFixed(2),
-    createdAt: new Date().toISOString()
-  });
-
-  // libera mesa
-  window.mesasState[num] = { status: 'Livre', itens: [], total: 0, impresso: [], garcom: '' };
-  await saveMesaFirebase(num);
-  clearHighlight();
+  pdf.save(`Relatorio_Interno_${hoje.replace(/\//g,'-')}.pdf`);
 };
 
-  // --- Proteção de Gerente com Olhinho no SweetAlert ---
-async function requireManager() {
-  const user = auth.currentUser;
-  
-  const { value: pwd } = await Swal.fire({
-    title: 'Senha Gerente',
-    background: '#1a1a1a',
-    color: '#fff',
-    html: `
-      <div style="position:relative; width: 100%; margin-top: 15px;">
-        <input id="swal-input-password" type="password" class="swal2-input" 
-               placeholder="Digite a senha" 
-               style="width: 80%; background: #222; color: #fff; border: 1px solid #444;">
-        <i id="swal-toggle-password" class="fas fa-eye" 
-           style="position:absolute; right:15%; top:50%; transform:translateY(-50%); cursor:pointer; color: #ffbf00; z-index:100; font-size: 18px;"></i>
-      </div>
-    `,
-    showCancelButton: true,
-    confirmButtonText: 'Confirmar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#ffbf00',
-    focusConfirm: false,
-    didOpen: () => {
-      // Lógica do olhinho dentro do alerta
-      const toggleBtn = document.getElementById('swal-toggle-password');
-      const pwdInput = document.getElementById('swal-input-password');
-      
-      toggleBtn.addEventListener('click', () => {
-        const isPassword = pwdInput.type === 'password';
-        pwdInput.type = isPassword ? 'text' : 'password';
-        toggleBtn.classList.toggle('fa-eye');
-        toggleBtn.classList.toggle('fa-eye-slash');
-      });
+/* ====================================================
+   14. PDF DE VENDAS
+   ==================================================== */
 
-      // Permitir apertar "Enter" para confirmar
-      pwdInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') Swal.clickConfirm();
-      });
-    },
-    preConfirm: () => {
-      const val = document.getElementById('swal-input-password').value;
-      if (!val) {
-        Swal.showValidationMessage('Por favor, digite a senha');
-      }
-      return val;
-    }
-  });
-
-  if (!pwd) return false;
-
-  try {
-    // Re-autentica o usuário para garantir que é o gerente
-    await signInWithEmailAndPassword(auth, user.email, pwd);
-    return true;
-  } catch (e) {
-    Swal.fire({ icon: 'error', title: 'Erro', text: 'Senha incorreta', background: '#1a1a1a', color: '#fff' });
-    return false;
-  }
-}
-
-// --- Botão Apagar Tudo ---
-document.getElementById('btn-apagar-tudo').addEventListener('click', async () => {
-  const confirm = await Swal.fire({
-    title: 'Tem certeza?',
-    text: "Isso apagará TODO o histórico de pedidos!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#333',
-    confirmButtonText: 'Sim, apagar tudo',
-    background: '#1a1a1a',
-    color: '#fff'
-  });
-
-  if (!confirm.isConfirmed) return;
-
-  if (!(await requireManager())) return;
-
-  const snap = await getDocs(collection(db, 'pedidos'));
-  const promises = snap.docs.map(d => deleteDoc(doc(db, 'pedidos', d.id)));
-  await Promise.all(promises);
-  
-  Swal.fire({ title: 'Limpo!', icon: 'success', background: '#1a1a1a', color: '#fff' });
-});
-
-// --- Botão Gerar PDF (Versão Corrigida para Cartões e Acentos) ---
 document.getElementById('btn-pdf').addEventListener('click', async () => {
   if (!(await requireManager())) return;
 
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-  
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(22);
-  pdf.setTextColor(255, 191, 0); 
-  pdf.text("BURGUER GRILL", 105, 15, { align: "center" });
-  
-  pdf.setFontSize(10);
-  pdf.setTextColor(100);
-  pdf.text(`RELATORIO DE VENDAS E FECHAMENTO`, 105, 21, { align: "center" });
-  pdf.setFontSize(9);
-  pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 105, 26, { align: "center" });
-  
-  pdf.setDrawColor(200);
-  pdf.line(10, 30, 200, 30);
+  const pdf  = new jsPDF();
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const hora = new Date().toLocaleTimeString('pt-BR');
 
-  let y = 40;
-  let totalGeral = 0;
-  let totalPix = 0;
-  let totalCartao = 0;
-  let totalDinheiro = 0;
+  pdf.setFillColor(30,30,30); pdf.rect(0,0,210,35,'F');
+  pdf.setTextColor(255,191,0); pdf.setFont('helvetica','bold'); pdf.setFontSize(22);
+  pdf.text('BURGUER GRILL',105,15,{align:'center'});
+  pdf.setTextColor(255,255,255); pdf.setFontSize(10);
+  pdf.text('RELATÓRIO DE VENDAS',105,23,{align:'center'});
+  pdf.text(`Gerado em: ${hoje} às ${hora}`,105,29,{align:'center'});
 
-  const snap = await getDocs(collection(db, 'pedidos'));
-  const docs = snap.docs.map(d => d.data())
-                       .filter(p => ['venda_mesa', 'delivery', 'retirada', 'fechamento'].includes(p.tipo)) 
-                       .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  let y=45, totGeral=0, totPix=0, totCartao=0, totDinheiro=0;
 
-  docs.forEach((p) => {
-    const valor = parseFloat(p.total || 0);
-    if (isNaN(valor) || valor <= 0) return;
+  const snap = await getDocs(collection(db,'pedidos'));
+  const docs = snap.docs.map(d=>d.data())
+    .filter(p=>['fechamento','delivery','retirada','venda_mesa'].includes(p.tipo))
+    .sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
 
-    totalGeral += valor;
+  docs.forEach(p => {
+    const valor = parseFloat(p.total||0);
+    if (isNaN(valor)||valor<=0) return;
+    totGeral += valor;
 
-    const pagTxt = (p.pagamento || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+    const pagTxt = (p.pagamento||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+    const partes = pagTxt.split('|');
+    let temExplicito = false;
 
-    const partesComValor = pagTxt.split('|');
-    let temValorExplicito = false;
-
-    partesComValor.forEach(parte => {
-      const matchValor = parte.match(/([\d]+[.,][\d]{2})/);
-      if (!matchValor) return;
-      const val = parseFloat(matchValor[1].replace(',', '.'));
-      if (isNaN(val) || val <= 0) return;
-      temValorExplicito = true;
-
-      if (parte.includes('PIX')) totalPix += val;
-      else if (parte.includes('DIN')) totalDinheiro += val;
-      else if (parte.includes('CRED') || parte.includes('DEB') || parte.includes('CART')) totalCartao += val;
+    partes.forEach(parte => {
+      const m = parte.match(/([\d]+[.,][\d]{2})/);
+      if (!m) return;
+      const v = parseFloat(m[1].replace(',','.'));
+      if (isNaN(v)||v<=0) return;
+      temExplicito = true;
+      if (parte.includes('PIX'))          totPix     += v;
+      else if (parte.includes('DIN'))     totDinheiro+= v;
+      else                                totCartao  += v;
     });
 
-    if (!temValorExplicito) {
-      if (pagTxt.includes('PIX')) totalPix += valor;
-      else if (pagTxt.includes('DIN')) totalDinheiro += valor;
-      else if (pagTxt.includes('CART') || pagTxt.includes('CRED') || pagTxt.includes('DEB')) totalCartao += valor;
-      else totalDinheiro += valor;
+    if (!temExplicito) {
+      if (pagTxt.includes('PIX'))          totPix     += valor;
+      else if (pagTxt.includes('DIN'))     totDinheiro+= valor;
+      else                                 totCartao  += valor;
     }
 
-    // --- VERIFICA ESPAÇO ANTES DE CADA VENDA ---
-    // Estima altura necessária para este registro
-    const partesPagEstimativa = (p.pagamento || "").split('|').map(s => s.trim()).filter(Boolean);
-    const linhasEstimadas = partesPagEstimativa.length > 1 ? (partesPagEstimativa.length + 2) : 1;
-    const alturaEstimada = 11 + (linhasEstimadas * 5) + 9 + 4;
-
-    if (y + alturaEstimada > 265) { 
-      pdf.addPage(); 
-      y = 20; 
-    }
-
-    // --- LISTAGEM ---
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(10);
-    pdf.setTextColor(40);
-    pdf.text(`${p.cliente || 'Venda'} | Garcom: ${p.garcom || "Geral"}`, 10, y);
-
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(8);
+    if (y+30>265){ pdf.addPage(); y=20; }
+    pdf.setFont('helvetica','bold');   pdf.setFontSize(10); pdf.setTextColor(40);
+    pdf.text(`${p.cliente||'Venda'} | Garçom: ${p.garcom||'Geral'}`,10,y);
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(8);
     const dataF = p.createdAt ? new Date(p.createdAt).toLocaleString('pt-BR') : '---';
-    pdf.text(`Data: ${dataF}`, 10, y + 5);
-    y += 11;
+    pdf.text(`Data: ${dataF}`,10,y+5);
+    y+=11;
 
-    const partesPag = (p.pagamento || "").split('|').map(s => s.trim()).filter(Boolean);
-
-    if (partesPag.length > 1) {
-      partesPag.forEach(parte => {
-        const matchValor = parte.match(/([\d]+[.,][\d]{2})/);
-        const valParte = matchValor ? parseFloat(matchValor[1].replace(',', '.')) : 0;
-        const nomeParte = parte.split(':')[0].trim();
-
-        pdf.setTextColor(80);
-        pdf.setFont("helvetica", "normal");
-        pdf.text(`  -> ${nomeParte}:`, 12, y);
-        if (valParte > 0) {
-          pdf.setFont("helvetica", "bold");
-          pdf.setTextColor(40);
-          pdf.text(`R$ ${valParte.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
-        }
-        y += 5;
-        if (y > 265) { pdf.addPage(); y = 20; }
+    if (partes.length>1) {
+      partes.forEach(parte=>{
+        const m2 = parte.match(/([\d]+[.,][\d]{2})/);
+        const v2 = m2?parseFloat(m2[1].replace(',','.')):0;
+        const nm = parte.split(':')[0].trim();
+        pdf.setTextColor(80); pdf.setFont('helvetica','normal'); pdf.text(`  -> ${nm}:`,12,y);
+        if(v2>0){ pdf.setFont('helvetica','bold'); pdf.setTextColor(40); pdf.text(`R$ ${brl(v2)}`,200,y,{align:'right'}); }
+        y+=5; if(y>265){pdf.addPage();y=20;}
       });
-
-      pdf.setFont("helvetica", "bold");
-      pdf.setTextColor(20);
-      pdf.text(`  TOTAL:`, 12, y);
-      pdf.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
-      y += 9;
-
+      pdf.setFont('helvetica','bold'); pdf.setTextColor(20);
+      pdf.text('  TOTAL:',12,y); pdf.text(`R$ ${brl(valor)}`,200,y,{align:'right'}); y+=9;
     } else {
-      const meioSimples = (p.pagamento || "Nao informado").split(':')[0].trim();
-      pdf.setTextColor(40);
-      pdf.setFont("helvetica", "normal");
-      pdf.text(`Meio: ${meioSimples}`, 10, y);
-      pdf.setFont("helvetica", "bold");
-      pdf.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" });
-      y += 9;
+      const meio = (p.pagamento||'Não informado').split(':')[0].trim();
+      pdf.setTextColor(40); pdf.setFont('helvetica','normal'); pdf.text(`Meio: ${meio}`,10,y);
+      pdf.setFont('helvetica','bold'); pdf.text(`R$ ${brl(valor)}`,200,y,{align:'right'}); y+=9;
     }
 
-    pdf.setDrawColor(220);
-    pdf.line(10, y, 200, y);
-    y += 4;
+    pdf.setDrawColor(220); pdf.line(10,y,200,y); y+=4;
   });
 
-  // --- RESUMO FINAL (com verificação de espaço garantida) ---
-  y += 5;
+  // Resumo final
+  y+=5; if(y+70>280){pdf.addPage();y=20;}
+  pdf.setDrawColor(0); pdf.line(10,y,200,y); y+=8;
+  pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(40);
+  pdf.text('RESUMO DE CAIXA',10,y); y+=7;
+  pdf.setFontSize(10); pdf.setFont('helvetica','normal');
+  pdf.text('Total em PIX:',    15,y); pdf.text(`R$ ${brl(totPix)}`,     200,y,{align:'right'}); y+=6;
+  pdf.text('Total em Cartões:',15,y); pdf.text(`R$ ${brl(totCartao)}`,  200,y,{align:'right'}); y+=6;
+  pdf.text('Total em Dinheiro:',15,y);pdf.text(`R$ ${brl(totDinheiro)}`,200,y,{align:'right'}); y+=12;
+  pdf.setFillColor(30,30,30); pdf.rect(10,y,190,12,'F');
+  pdf.setTextColor(255,191,0); pdf.setFontSize(12); pdf.setFont('helvetica','bold');
+  pdf.text('FATURAMENTO TOTAL:',15,y+8); pdf.text(`R$ ${brl(totGeral)}`,195,y+8,{align:'right'});
 
-  // Altura necessária para o bloco resumo: ~70px no total
-  if (y + 70 > 280) { 
-    pdf.addPage(); 
-    y = 20; 
-  }
-
-  pdf.setDrawColor(0);
-  pdf.line(10, y, 200, y);
-  y += 8;
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(11);
-  pdf.setTextColor(40);
-  pdf.text("RESUMO DE CAIXA POR METODO", 10, y);
-  y += 7;
-  
-  pdf.setFontSize(10);
-  pdf.setFont("helvetica", "normal");
-  pdf.text(`Total em PIX:`, 15, y); pdf.text(`R$ ${totalPix.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 6;
-  pdf.text(`Total em Cartoes:`, 15, y); pdf.text(`R$ ${totalCartao.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 6;
-  pdf.text(`Total em Dinheiro:`, 15, y); pdf.text(`R$ ${totalDinheiro.toFixed(2).replace('.', ',')}`, 200, y, { align: "right" }); y += 12;
-
-  pdf.setFillColor(30, 30, 30);
-  pdf.rect(10, y, 190, 12, 'F');
-  pdf.setTextColor(255, 191, 0);
-  pdf.setFontSize(12);
-  pdf.text("FATURAMENTO LIQUIDO TOTAL:", 15, y + 8);
-  pdf.setFontSize(14);
-  pdf.text(`R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 195, y + 8, { align: "right" });
-
-  pdf.save(`relatorio_financeiro.pdf`);
+  pdf.save(`relatorio_financeiro_${hoje.replace(/\//g,'-')}.pdf`);
 });
 
-    // Auth & Tabs
-// ATUALIZAÇÃO: openTab com trava de segurança para Staff
-window.openTab = async function (id) {
-  // Se tentar entrar na aba staff, exige senha de gerente
+/* ====================================================
+   15. ABAS (openTab / openSubtab)
+   ==================================================== */
+
+window.openTab = async function(id) {
   if (id === 'staff') {
-    if (!(await requireManager())) return; 
+    if (!(await requireManager())) return;
   }
-
-  // Remove o 'active' de todas as abas e botões
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-  // Ativa a aba selecionada
-  const targetTab = document.getElementById(id);
-  if (targetTab) {
-    targetTab.classList.add('active');
-  }
-
-  // Ativa o botão correspondente para manter o destaque visual
-  const targetBtn = document.querySelector(`.tab-btn[onclick*="'${id}'"]`);
-  if (targetBtn) {
-    targetBtn.classList.add('active');
-  }
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  document.querySelector(`.tab-btn[onclick*="'${id}'"]`)?.classList.add('active');
 };
 
-window.openSubtab = async function (id) {
-  if (id.endsWith('-hist')) { 
-    if (!(await requireManager())) return; 
+window.openSubtab = async function(id) {
+  if (id.endsWith('-hist')) {
+    if (!(await requireManager())) return;
   }
-  document.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active')); // Opcional: destaque no botão da subtab
-  
-  const targetSub = document.getElementById(id);
-  if (targetSub) targetSub.classList.add('active');
+  document.querySelectorAll('.subtab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.subtab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  document.querySelector(`.subtab-btn[onclick*="'${id}'"]`)?.classList.add('active');
 };
+
+/* ====================================================
+   16. SIDEBAR
+   ==================================================== */
+
+window.toggleSidebar = function() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('active');
+};
+
+/* ====================================================
+   17. BIP
+   ==================================================== */
+
+document.getElementById('btn-bip').addEventListener('click', function() {
+  window.bipAtivo = !window.bipAtivo;
+  this.innerHTML = window.bipAtivo
+    ? '<i class="fas fa-bell"></i> Bip: ON'
+    : '<i class="fas fa-bell-slash"></i> Bip: OFF';
+});
+
+/* ====================================================
+   18. APAGAR TUDO (Firebase)
+   ==================================================== */
+
+document.getElementById('btn-apagar-tudo').addEventListener('click', async () => {
+  const { isConfirmed } = await Swal.fire({
+    title:'Apagar TUDO?',
+    text:'Isso apagará todo o histórico de pedidos do Firebase!',
+    icon:'warning', showCancelButton:true,
+    confirmButtonColor:'#d33', confirmButtonText:'Sim, apagar!',
+    background:'#1a1a1a', color:'#fff'
+  });
+  if (!isConfirmed) return;
+  if (!(await requireManager())) return;
+
+  const snap = await getDocs(collection(db,'pedidos'));
+  await Promise.all(snap.docs.map(d=>deleteDoc(doc(db,'pedidos',d.id))));
+  Swal.fire({ title:'Feito!', icon:'success', background:'#1a1a1a', color:'#fff' });
+});
+
+/* ====================================================
+   19. LOGIN / LOGOUT
+   ==================================================== */
+
+document.getElementById('toggle-password').addEventListener('click', function() {
+  const inp = document.getElementById('login-password');
+  inp.type  = inp.type === 'password' ? 'text' : 'password';
+  this.classList.toggle('fa-eye');
+  this.classList.toggle('fa-eye-slash');
+});
 
 document.getElementById('btn-login').addEventListener('click', async () => {
-  const e = document.getElementById('login-email').value;
-  const s = document.getElementById('login-password').value;
-  try { 
-    await signInWithEmailAndPassword(auth, e, s); 
-  } catch (err) { 
-    alert("Erro login"); 
+  const email = document.getElementById('login-email').value;
+  const senha = document.getElementById('login-password').value;
+  try {
+    await signInWithEmailAndPassword(auth, email, senha);
+  } catch {
+    document.getElementById('login-error').textContent = 'Email ou senha incorretos.';
   }
 });
 
 document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-onAuthStateChanged(auth, (user) => {
-  document.getElementById('login-screen').style.display = user ? 'none' : 'flex';
-  document.getElementById('main-panel').style.display = user ? 'block' : 'none';
-  if (user) openTab('mesas');
-});
-
-// Função auxiliar para agrupar itens iguais
-function agruparItens(itens) {
-  const grouped = {};
-  itens.forEach(it => {
-    const key = it.name + (it.obs || '');
-    if (!grouped[key]) {
-      grouped[key] = { ...it, qty: 0 };
-    }
-    grouped[key].qty += 1;
-  });
-  return Object.values(grouped);
-}
-
-window.enviarParaCozinha = async function (num) {
-  const m = window.mesasState[num];
-  if (!m || m.itens.length === 0) return;
-
-  // Função para criar a assinatura do item
-  const gerarChave = (it) => `${it.name}||${it.price}||${it.obs || ''}`;
-
-  // 1. Contabiliza quantas vezes cada chave já foi impressa
-  const contagemImpressos = {};
-  m.impresso.forEach(c => {
-    contagemImpressos[c] = (contagemImpressos[c] || 0) + 1;
-  });
-
-  // 2. Filtra apenas o que sobrou (o que é novo ou repetição nova)
-  const novosParaImprimir = [];
-  const copiaImpressos = [...m.impresso]; // Cópia para atualizar o estado depois
-
-  m.itens.forEach(item => {
-    const chave = gerarChave(item);
-    if (contagemImpressos[chave] > 0) {
-      // Se já imprimiu antes, decrementa a contagem e não adiciona nos "novos"
-      contagemImpressos[chave]--;
-    } else {
-      // Se a contagem acabou ou nunca existiu, é um item novo/repetido
-      novosParaImprimir.push(item);
-      copiaImpressos.push(chave);
-    }
-  });
-
-  if (novosParaImprimir.length === 0) {
-    Swal.fire({ title: 'Atenção', text: 'Todos os itens atuais já foram enviados!', icon: 'info' });
-    return;
-  }
-
-  // 3. Agrupa os novos itens para a comanda sair bonita (ex: 2x Coca)
-  const agrupados = agruparItens(novosParaImprimir);
-
-  try {
-    // 4. Grava no Firestore para o servidor Node.js ler
-    await addDoc(collection(db, "pedidos"), {
-      tipo: 'mesa',
-      cliente: `Mesa ${num}`,
-      garcom: m.garcom || 'Geral',
-      itens: agrupados.map(i => `${i.qty}x ${i.name}||${(i.price * i.qty).toFixed(2)}||${i.obs || ''}`).join(';'),
-      createdAt: new Date().toISOString()
-    });
-
-    // 5. Atualiza o estado da mesa com a nova lista de impressos
-    m.impresso = copiaImpressos;
-    await saveMesaFirebase(num);
-
-    Swal.fire({ icon: 'success', title: 'Cozinha Avisada!', timer: 1000, showConfirmButton: false });
-  } catch (error) {
-    console.error("Erro ao enviar:", error);
-    Swal.fire('Erro', 'Não foi possível enviar para a cozinha', 'error');
-  }
-};
-
-// --- FUNÇÃO GLOBAL DE FECHAMENTO DE MESA (VERSÃO COM ABATIMENTO PARA GERENTE) ---
-window.fecharMesa = async function (num) {
-  const m = window.mesasState[num];
-  if (!m || m.status === 'Livre') return;
-
-  // RECALCULO DINÂMICO: Garante que o consumo seja a soma real dos itens no momento
-  let consumoTotalAtual = m.itens.reduce((acc, it) => acc + it.price, 0);
-  let jaPagoAcumulado = m.pago || 0; 
-  let saldoMesa = consumoTotalAtual - jaPagoAcumulado;
-
-  let novosPagamentos = []; 
-
-  window.acaoAddPagamento = function(metodo) {
-    const input = document.getElementById('swal-valor-pago');
-    let valorStr = input.value.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
-    let valor = parseFloat(valorStr);
-
-    if (isNaN(valor) || valor <= 0) return;
-    if (valor > saldoMesa + 0.05) { alert("Valor maior que o saldo!"); return; }
-
-    novosPagamentos.push({ metodo, valor });
-    saldoMesa -= valor;
-    input.value = "";
-    atualizarInterface();
-  };
-
-  window.preencherRestante = function() {
-    const input = document.getElementById('swal-valor-pago');
-    input.value = `R$ ${saldoMesa.toFixed(2).replace('.', ',')}`;
-    window.mascaraMoeda(input);
-  };
-
-  const atualizarInterface = () => {
-    const displaySaldo = document.getElementById('swal-saldo');
-    if(displaySaldo) displaySaldo.innerText = `R$ ${saldoMesa.toFixed(2).replace('.', ',')}`;
-    
-    const totalNestaRodada = novosPagamentos.reduce((acc, p) => acc + p.valor, 0);
-    const displayRodada = document.getElementById('swal-pago-agora');
-    if(displayRodada) displayRodada.innerText = `R$ ${totalNestaRodada.toFixed(2).replace('.', ',')}`;
-
-    const lista = document.getElementById('swal-lista-pags');
-    if(lista) {
-      lista.innerHTML = novosPagamentos.map((p) => `
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#10b981; padding:4px 0; border-bottom:1px solid #333;">
-          <span>${p.metodo}</span>
-          <span>R$ ${p.valor.toFixed(2).replace('.', ',')}</span>
-        </div>
-      `).join('');
-    }
-  };
-
-  const htmlModal = `
-    <div style="text-align: left; background: #1a1a1a; padding: 5px;">
-      <div style="background:#222; padding:15px; border-radius:10px; border:1px solid #333; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <div>
-          <small style="color:#888;">Consumo Bruto:</small><br>
-          <strong style="font-size:1.1rem; color:#fff;">R$ ${consumoTotalAtual.toFixed(2).replace('.', ',')}</strong>
-        </div>
-        <div style="text-align:right">
-          <small style="color:#ff4444;">Faltando Pagar:</small><br>
-          <strong id="swal-saldo" style="font-size:1.3rem; color:#ff4444;">R$ ${saldoMesa.toFixed(2).replace('.', ',')}</strong>
-        </div>
-        <div style="grid-column: span 2; border-top: 1px solid #333; padding-top: 5px; margin-top: 5px;">
-           <small style="color:#00ff00;">Total já abatido anteriormente: R$ ${jaPagoAcumulado.toFixed(2).replace('.', ',')}</small>
-        </div>
-      </div>
-
-      <div style="margin-top:20px; background:#222; padding:15px; border-radius:10px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <small style="color:#ffbf00;">LANÇAR VALOR:</small>
-            <small style="color:#aaa;">Soma agora: <strong id="swal-pago-agora" style="color:#fff;">R$ 0,00</strong></small>
-        </div>
-        <div style="display:flex; gap:5px; margin-bottom:10px;">
-            <input id="swal-valor-pago" class="swal2-input" type="text" placeholder="R$ 0,00" style="flex:1; margin:0;" oninput="window.mascaraMoeda(this)">
-            <button onclick="window.preencherRestante()" style="background:#444; color:white; border:none; border-radius:5px; padding:0 10px; cursor:pointer;">Tudo</button>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-          <button type="button" onclick="window.acaoAddPagamento('PIX')" class="btn btn-outline">PIX</button>
-          <button type="button" onclick="window.acaoAddPagamento('DINHEIRO')" class="btn btn-outline">DINHEIRO</button>
-          <button type="button" onclick="window.acaoAddPagamento('DÉBITO')" class="btn btn-outline">DÉBITO</button>
-          <button type="button" onclick="window.acaoAddPagamento('CRÉDITO')" class="btn btn-outline">CRÉDITO</button>
-        </div>
-      </div>
-      <div id="swal-lista-pags" style="margin-top:10px; max-height:100px; overflow-y:auto;"></div>
-    </div>
-  `;
-
-  const { isConfirmed } = await Swal.fire({
-    title: 'Acerto de Mesa ' + num,
-    html: htmlModal,
-    showCancelButton: true,
-    confirmButtonText: 'Confirmar Lançamento',
-    background: '#1a1a1a',
-    color: '#fff',
-    didOpen: () => {
-        const input = document.getElementById('swal-valor-pago');
-        if(input) input.focus();
-    }
-  });
-
-  if (!isConfirmed || novosPagamentos.length === 0) {
-    delete window.acaoAddPagamento;
-    delete window.preencherRestante;
-    return;
-  }
-
-  const totalPagoAgora = novosPagamentos.reduce((acc, cur) => acc + cur.valor, 0);
-  const ehFechamentoTotal = (saldoMesa <= 0.05);
-
-  try {
-    // 1. Registra no Firebase
-    await addDoc(collection(db, "pedidos"), {
-      tipo: ehFechamentoTotal ? 'fechamento' : 'venda_mesa',
-      cliente: `Mesa ${num}`,
-      garcom: m.garcom || "Geral",
-      pagamento: novosPagamentos.map(p => `${p.metodo}: R$ ${p.valor.toFixed(2)}`).join(' | '),
-      total: totalPagoAgora.toFixed(2),
-      
-      // CAMPO PARA O GERENTE: Envia o valor pago anteriormente se for o fechamento final
-      abatidoAnterior: (ehFechamentoTotal && jaPagoAcumulado > 0) ? jaPagoAcumulado.toFixed(2) : null,
-      
-      // SE FOR FECHAMENTO TOTAL, ENVIA OS ITENS PARA A IMPRESSORA MOSTRAR O CONSUMO
-      itens: ehFechamentoTotal ? m.itens.map(it => `${it.name} || ${it.price.toFixed(2)} || ${it.obs || ''}`).join(';') : "",
-      createdAt: new Date().toISOString()
-    });
-
-    // 2. Atualiza o estado local da mesa
-    if (ehFechamentoTotal) {
-      window.mesasState[num] = { status: 'Livre', itens: [], total: 0, pago: 0, impresso: [], garcom: '' };
-    } else {
-      window.mesasState[num].total = consumoTotalAtual; 
-      window.mesasState[num].pago = jaPagoAcumulado + totalPagoAgora;
-    }
-
-    await saveMesaFirebase(num);
-    if (typeof renderMesas === 'function') renderMesas();
-    
-    Swal.fire({ icon: 'success', title: 'Pagamento registrado!', timer: 1000, showConfirmButton: false });
-  } catch (e) { 
-    console.error(e); 
-    Swal.fire('Erro', 'Erro ao salvar no banco.', 'error');
-  } finally {
-    delete window.acaoAddPagamento;
-    delete window.preencherRestante;
-  }
-};
-// Estado do bip
-window.bipAtivo = true;
-const btnBip = document.getElementById('btn-bip');
-
-btnBip.addEventListener('click', () => {
-  window.bipAtivo = !window.bipAtivo;
-  btnBip.innerHTML = window.bipAtivo 
-    ? '<i class="fas fa-bell"></i> Bip: ON' 
-    : '<i class="fas fa-bell-slash"></i> Bip: OFF';
-});
-
-// Função para tocar 3 bips curtos
-function tocarBip() {
-  if (!window.bipAtivo) return;
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  for (let i = 0; i < 1; i++) {
-    const osc = audioCtx.createOscillator();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(1000, audioCtx.currentTime + i * 0.4);
-    osc.connect(audioCtx.destination);
-    osc.start(audioCtx.currentTime + i * 0.4);
-    osc.stop(audioCtx.currentTime + i * 0.4 + 0.2);
-  }
-}
-
-// Lógica para mostrar/esconder senha
-const togglePassword = document.getElementById('toggle-password');
-const passwordInput = document.getElementById('login-password');
-
-togglePassword.addEventListener('click', function() {
-  // Alterna entre 'password' (escondido) e 'text' (visível)
-  const isPassword = passwordInput.type === 'password';
-  passwordInput.type = isPassword ? 'text' : 'password';
-
-  // Alterna o ícone entre olho aberto e olho cortado
-  this.classList.toggle('fa-eye');
-  this.classList.toggle('fa-eye-slash');
-});
-
-// --- CONFIGURAÇÃO INICIAL E RENDERIZAÇÃO ---
-
-// Carregar itens do cardápio no select ao iniciar
-function popularItensStaff() {
-  const select = document.getElementById('staff-item');
-  if (!select) return;
-  select.innerHTML = '<option value="">-- Selecione o Item --</option>';
-  menuData.forEach(item => {
-    select.innerHTML += `<option value="${item.name}||${item.price}">${item.name} - R$ ${item.price.toFixed(2)}</option>`;
-  });
-}
-
-// Chamar ao carregar a página
-document.addEventListener('DOMContentLoaded', () => {
-  popularItensStaff();
-  renderStaffLocal();
-});
-
-// --- FUNÇÕES DE INTERFACE (MÁSCARAS E TOGGLE) ---
-
-// Formata o input em tempo real (R$ 0,00)
-window.mascaraMoeda = function(i) {
-  let v = i.value.replace(/\D/g, '');
-  v = (v / 100).toFixed(2).replace(".", ",");
-  v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
-  v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
-  i.value = "R$ " + v;
-};
-
-// Alterna entre campos de Consumo e Despesa
-window.toggleStaffFields = function() {
-  const tipo = document.getElementById('staff-tipo').value;
-  const divFunc = document.getElementById('field-funcionario');
-  const divDesp = document.getElementById('field-despesa');
-  
-  if (tipo === 'consumo') {
-    divFunc.style.display = 'block';
-    divDesp.style.display = 'none';
-  } else {
-    divFunc.style.display = 'none';
-    divDesp.style.display = 'block';
-  }
-};
-
-// --- LÓGICA DE DADOS (LOCALSTORAGE) ---
-
-// Salvar Lançamento
-window.lancarLocal = function() {
-  const tipo = document.getElementById('staff-tipo').value;
-  const listaAtual = JSON.parse(localStorage.getItem('burguer_staff') || '[]');
-  
-  let novoItem = {
-    id: Date.now(),
-    tipo: tipo
-  };
-
-  if (tipo === 'consumo') {
-    const itemRaw = document.getElementById('staff-item').value;
-    const funcNome = document.getElementById('staff-nome').value;
-    if (!itemRaw) return Swal.fire('Erro', 'Selecione um item', 'error');
-    
-    const [nomeItem, precoItem] = itemRaw.split('||');
-    novoItem.desc = `Funcionário: ${funcNome} (${nomeItem})`;
-    novoItem.valor = parseFloat(precoItem);
-  } else {
-    const desc = document.getElementById('staff-desc').value;
-    const valorF = document.getElementById('staff-valor-formatado').value;
-    
-    // Converte "R$ 1.250,50" -> 1250.50
-    const valorNumerico = parseFloat(valorF.replace("R$ ", "").replace(/\./g, "").replace(",", "."));
-
-    if (!desc || isNaN(valorNumerico) || valorNumerico <= 0) {
-      return Swal.fire('Erro', 'Preencha a descrição e o valor corretamente', 'error');
-    }
-
-    novoItem.desc = `DESPESA: ${desc}`;
-    novoItem.valor = valorNumerico;
-  }
-
-  listaAtual.push(novoItem);
-  localStorage.setItem('burguer_staff', JSON.stringify(listaAtual));
-  
-  // Limpar campos de despesa
-  document.getElementById('staff-desc').value = '';
-  document.getElementById('staff-valor-formatado').value = '';
-  
-  renderStaffLocal();
-  
-  const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1000 });
-  Toast.fire({ icon: 'success', title: 'Lançado com sucesso!' });
-};
-
-// Renderizar lista e somar totais
-window.renderStaffLocal = function() {
-  const lista = document.getElementById('staff-local-list');
-  const totalEl = document.getElementById('staff-local-total');
-  if (!lista || !totalEl) return;
-
-  const dados = JSON.parse(localStorage.getItem('burguer_staff') || '[]');
-  
-  lista.innerHTML = '';
-  let totalConsumo = 0;
-  let totalDespesa = 0;
-
-  if (dados.length === 0) {
-    lista.innerHTML = '<div class="muted" style="text-align:center; padding:20px;">Carrinho vazio.</div>';
-    totalEl.innerHTML = "Consumo: R$ 0,00 | Despesas: R$ 0,00";
-    return;
-  }
-
-  dados.forEach((item, index) => {
-    const valor = parseFloat(item.valor) || 0;
-    if (item.tipo === 'consumo') totalConsumo += valor; else totalDespesa += valor;
-
-    const bordaCor = item.tipo === 'consumo' ? '#ffbf00' : '#ff4444';
-    const icone = item.tipo === 'consumo' ? '🍴' : '💸';
-
-    lista.innerHTML += `
-      <div style="display:flex; justify-content:space-between; align-items:center; background:#222; padding:10px; margin-bottom:8px; border-radius:5px; border-left: 5px solid ${bordaCor};">
-        <div style="flex:1">
-          <small style="color:#888;">${new Date(item.id).toLocaleTimeString('pt-BR')}</small><br>
-          <span style="font-size: 0.9rem;">${icone} <strong>${item.desc}</strong></span>
-        </div>
-        <div style="text-align:right; margin-right:15px; min-width:95px;">
-          <strong style="color:#fff">R$ ${valor.toFixed(2).replace('.', ',')}</strong>
-        </div>
-        <button class="btn btn-danger" style="padding:4px 10px; font-size:12px; min-width:auto;" onclick="removerItemStaffLocal(${index})">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    `;
-  });
-
-  totalEl.innerHTML = `
-    <div style="display:flex; justify-content:space-between; width:100%; padding: 5px 10px; font-size:0.9rem;">
-      <span>Consumo Funcionário: <strong style="color:#ffbf00">R$ ${totalConsumo.toFixed(2).replace('.', ',')}</strong></span>
-      <span>Despesas: <strong style="color:#ff4444">R$ ${totalDespesa.toFixed(2).replace('.', ',')}</strong></span>
-    </div>
-    <div style="text-align:center; margin-top:8px; border-top: 1px solid #444; padding-top:8px;">
-      Total Interno: <strong style="font-size:1.1rem;">R$ ${(totalConsumo + totalDespesa).toFixed(2).replace('.', ',')}</strong>
-    </div>
-  `;
-};
-
-// Remover Item Único
-window.removerItemStaffLocal = function(index) {
-  const atual = JSON.parse(localStorage.getItem('burguer_staff') || '[]');
-  atual.splice(index, 1);
-  localStorage.setItem('burguer_staff', JSON.stringify(atual));
-  renderStaffLocal();
-};
-
-// Limpar Tudo
-window.limparStaffLocal = async function() {
-  const { isConfirmed } = await Swal.fire({
-    title: 'Zerar Relatório Interno?',
-    text: "Isso apagará todos os consumos e despesas desta aba!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    confirmButtonText: 'Sim, apagar tudo!',
-    background: '#1a1a1a',
-    color: '#fff'
-  });
-
-  if (isConfirmed) {
-    localStorage.removeItem('burguer_staff');
+onAuthStateChanged(auth, user => {
+  document.getElementById('login-screen').style.display = user ? 'none'  : 'flex';
+  document.getElementById('main-panel').style.display   = user ? 'block' : 'none';
+  if (user) {
+    popularItensStaff();
     renderStaffLocal();
+    openTab('mesas');
   }
-};
-window.gerarPDFStaffLocal = function() {
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-  const dados = JSON.parse(localStorage.getItem('burguer_staff') || '[]');
-  
-  if (dados.length === 0) {
-    return Swal.fire('Aviso', 'Não há dados para gerar o PDF!', 'info');
-  }
-
-  const hoje = new Date().toLocaleDateString('pt-BR');
-  const hora = new Date().toLocaleTimeString('pt-BR');
-
-  // Cabeçalho Estilizado
-  pdf.setFillColor(30, 30, 30);
-  pdf.rect(0, 0, 210, 35, 'F');
-  pdf.setTextColor(255, 191, 0);
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(20);
-  pdf.text("BURGUER GRILL", 105, 15, { align: "center" });
-  
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(10);
-  pdf.text("RELATÓRIO DE CONSUMO INTERNO E DESPESAS", 105, 23, { align: "center" });
-  pdf.text(`Gerado em: ${hoje} às ${hora}`, 105, 29, { align: "center" });
-
-  let y = 45;
-  let totalC = 0;
-  let totalD = 0;
-
-  // Linhas do Relatório
-  pdf.setTextColor(0, 0, 0);
-  pdf.setFontSize(11);
-
-  dados.forEach((item, index) => {
-    // Alternar cor de fundo suave para leitura
-    if (index % 2 === 0) {
-      pdf.setFillColor(245, 245, 245);
-      pdf.rect(10, y - 5, 190, 10, 'F');
-    }
-
-    const valor = parseFloat(item.valor) || 0;
-    if (item.tipo === 'consumo') totalC += valor; else totalD += valor;
-
-    pdf.setFont("helvetica", "bold");
-    pdf.text(item.desc, 15, y);
-    
-    pdf.setFont("helvetica", "normal");
-    pdf.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, 195, y, { align: "right" });
-
-    y += 10;
-
-    // Nova página se necessário
-    if (y > 270) {
-      pdf.addPage();
-      y = 20;
-    }
-  });
-
-  // Resumo Final
-  y += 10;
-  pdf.setDrawColor(200);
-  pdf.line(10, y, 200, y);
-  y += 10;
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  pdf.text("RESUMO FINANCEIRO:", 10, y);
-  y += 8;
-
-  pdf.setFont("helvetica", "normal");
-  pdf.text(`Total Consumo Staff:`, 15, y);
-  pdf.text(`R$ ${totalC.toFixed(2).replace('.', ',')}`, 195, y, { align: "right" });
-  y += 6;
-
-  pdf.text(`Total Despesas Diversas:`, 15, y);
-  pdf.text(`R$ ${totalD.toFixed(2).replace('.', ',')}`, 195, y, { align: "right" });
-  y += 10;
-
-  // Total Geral Destacado
-  pdf.setFillColor(255, 191, 0);
-  pdf.rect(10, y, 190, 12, 'F');
-  pdf.setTextColor(0);
-  pdf.setFont("helvetica", "bold");
-  pdf.text("CUSTO TOTAL INTERNO:", 15, y + 8);
-  pdf.text(`R$ ${(totalC + totalD).toFixed(2).replace('.', ',')}`, 195, y + 8, { align: "right" });
-
-  // Nome do arquivo com data
-  const nomeArquivo = `Relatorio_Interno_${hoje.replace(/\//g, '-')}.pdf`;
-  pdf.save(nomeArquivo);
-};
-
-// BUSCAR MENU
-window.filtrarMenu = function(termo) {
-  // 1. Normaliza o termo de busca (tira acentos e deixa minúsculo)
-  const busca = termo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  const itens = document.querySelectorAll('.menu-item');
-  const secoes = document.querySelectorAll('.menu-section');
-
-  // 2. Filtra os itens individualmente
-  itens.forEach(item => {
-    const nome = item.querySelector('h4').innerText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    item.style.display = nome.includes(busca) ? 'flex' : 'none';
-  });
-
-  // 3. Gerencia a visibilidade das seções (categorias)
-  secoes.forEach(secao => {
-    const listaItens = secao.querySelector('.menu-items');
-    const btnToggle = secao.querySelector('.toggle');
-    
-    // Verifica se existe algum item visível nesta seção
-    const temVisivel = Array.from(secao.querySelectorAll('.menu-item')).some(i => i.style.display === 'flex');
-
-    if (busca === "") {
-      // --- ESTADO NORMAL: Se a busca estiver vazia, volta ao padrão fechado ---
-      secao.style.display = 'block';
-      if (listaItens) listaItens.classList.remove('show'); // Esconde a lista
-      if (btnToggle) btnToggle.textContent = '+';          // Volta o ícone para +
-    } else {
-      // --- ESTADO DE BUSCA: Mostra apenas se tiver o que o usuário quer ---
-      if (temVisivel) {
-        secao.style.display = 'block';
-        if (listaItens) listaItens.classList.add('show'); // Abre automaticamente
-        if (btnToggle) btnToggle.textContent = '−';       // Muda ícone para -
-      } else {
-        secao.style.display = 'none'; // Esconde a categoria se não tiver o item
-      }
-    }
-  });
-};
-// menu lateral
-window.toggleSidebar = function() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  
-  if (!sidebar || !overlay) {
-    console.error("ERRO: Elementos da sidebar não encontrados!");
-    return;
-  }
-
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('active');
-  
-  console.log("Sidebar status:", sidebar.classList.contains('open') ? "Aberta" : "Fechada");
-};
-// Garante que a lista comece zerada ou carregue o que já existe
-document.addEventListener('DOMContentLoaded', () => {
-  if(document.getElementById('staff-local-list')) renderStaffLocal();
 });
-// Chamar renderização ao abrir a aba
-renderStaffLocal();
-// Bloqueios de segurança (mantidos como no original)
-document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) { e.preventDefault(); }
-    if (e.key === 'F12') { e.preventDefault(); }
+
+/* ====================================================
+   20. FIREBASE – LISTENERS EM TEMPO REAL
+   ==================================================== */
+
+// Pedidos (delivery, retirada)
+onSnapshot(query(collection(db,'pedidos')), snap => {
+  const pedidos = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+  renderDelivery(pedidos);
+  renderHistoricos(pedidos);
 });
-document.addEventListener('keydown', function (event) {
-    if (event.ctrlKey && event.shiftKey && event.key === 'I') { event.preventDefault(); }
+
+// Mesas ativas
+onSnapshot(collection(db,'mesasAtivas'), snap => {
+  window.mesasState = {};
+  snap.forEach(d => { window.mesasState[d.id] = d.data(); });
+  renderMesas();
 });
-document.addEventListener('contextmenu', function (event) { event.preventDefault(); });
+
+/* ====================================================
+   21. BLOQUEIOS DE SEGURANÇA
+   ==================================================== */
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'F12') e.preventDefault();
+  if (e.ctrlKey && (e.key==='u'||e.key==='U')) e.preventDefault();
+  if (e.ctrlKey && e.shiftKey && e.key==='I') e.preventDefault();
+});
+document.addEventListener('contextmenu', e => e.preventDefault());
+
 </script>
-
 </body>
-
 </html>
