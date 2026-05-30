@@ -448,6 +448,51 @@
       .grid, .mesas-grid { grid-template-columns: 1fr; }
       .btn { padding: 10px 12px; }
     }
+    /* ===== ESTOQUE ===== */
+#estoque-tab .est-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.est-item {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: border-color .2s;
+}
+.est-item.esgotado { border-color: #d32f2f; background: rgba(211,47,47,0.08); }
+.est-item-nome { font-size: .85rem; font-weight: 600; flex: 1; line-height: 1.3; }
+.est-toggle {
+  width: 42px; height: 24px;
+  background: #444; border-radius: 999px;
+  position: relative; cursor: pointer;
+  border: none; flex-shrink: 0;
+  transition: background .2s;
+}
+.est-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 18px; height: 18px;
+  background: #fff; border-radius: 50%;
+  transition: left .2s;
+}
+.est-item.esgotado .est-toggle { background: #d32f2f; }
+.est-item.esgotado .est-toggle::after { left: 21px; }
+.est-cat-title {
+  grid-column: 1 / -1;
+  font-size: .7rem; font-weight: 700;
+  color: var(--accent); letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px; margin-top: 8px;
+}
   </style>
 </head>
 <body>
@@ -529,6 +574,9 @@
     </button>
     <button class="tab-btn" onclick="openTab('staff')">
       <i class="fas fa-users"></i> Funcionários & Despesas
+    </button>
+    <button class="tab-btn" onclick="openTab('estoque')">
+  <i class="fas fa-boxes"></i> Estoque
     </button>
   </div>
 
@@ -619,7 +667,19 @@
 
     </div>
   </section>
-
+<!-- ===== ABA: ESTOQUE ===== -->
+<section id="estoque-tab" class="tab" style="padding:16px 20px;">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+    <h3 style="margin:0; color:var(--accent);"><i class="fas fa-boxes"></i> Controle de Estoque</h3>
+    <button class="btn btn-danger" onclick="zerarEstoque()" style="font-size:.8rem; padding:6px 12px;">
+      <i class="fas fa-redo"></i> Tudo disponível
+    </button>
+  </div>
+  <p style="color:var(--muted); font-size:.82rem; margin-bottom:4px;">
+    Clique no botão para marcar como <b style="color:#d32f2f;">Esgotado</b> — aparece imediatamente no cardápio.
+  </p>
+  <div class="est-grid" id="est-grid"></div>
+</section>
 </div><!-- fim #main-panel -->
 
 <!-- Botão flutuante para voltar visão geral das mesas -->
@@ -777,6 +837,134 @@ const menuData = [
   { id:828, name:'Dose Campari',                   category:'bebida',   price:15.00  },
 ];
 
+
+/* ====================================================
+   ESTOQUE – estado local e Firestore
+   ==================================================== */
+window.esgotados = new Set();
+
+const menuDataEstoque = [
+  {id:112,name:'COMBO FAMILIA',cat:'Burguers'},
+  {id:113,name:'Combo Caramelizado',cat:'Burguers'},
+  {id:114,name:'California Grill',cat:'Burguers'},
+  {id:101,name:'Grill Burguer',cat:'Burguers'},
+  {id:102,name:'Picanha Grill',cat:'Burguers'},
+  {id:103,name:'Burguer de Filé',cat:'Burguers'},
+  {id:104,name:'Caramelizado',cat:'Burguers'},
+  {id:105,name:'Smash Grill',cat:'Burguers'},
+  {id:106,name:'Smash Grill Duplo',cat:'Burguers'},
+  {id:107,name:'Grill Clássico',cat:'Burguers'},
+  {id:108,name:'Grill Cheddar',cat:'Burguers'},
+  {id:109,name:'Frango Burguer',cat:'Burguers'},
+  {id:110,name:'Kids',cat:'Burguers'},
+  {id:201,name:'Fritas P',cat:'Fritas'},
+  {id:202,name:'Fritas M',cat:'Fritas'},
+  {id:203,name:'Fritas Cheddar e Bacon',cat:'Fritas'},
+  {id:205,name:'Frango no Balde P',cat:'Fritas'},
+  {id:206,name:'Frango no Balde M',cat:'Fritas'},
+  {id:207,name:'Frango no Balde G',cat:'Fritas'},
+  {id:301,name:'Bife Acebolado',cat:'Jantinha'},
+  {id:302,name:'Jantinha Carne de Sol',cat:'Jantinha'},
+  {id:303,name:'Jantinha Frango Grill',cat:'Jantinha'},
+  {id:401,name:'Picanha na Chapa 400g',cat:'Chapas'},
+  {id:402,name:'Picanha na Chapa 600g',cat:'Chapas'},
+  {id:403,name:'Picanha na Chapa 800g',cat:'Chapas'},
+  {id:404,name:'Picanha na Chapa 1Kg',cat:'Chapas'},
+  {id:501,name:'Filé com Batata',cat:'Tira Gosto'},
+  {id:502,name:'Carne de Sol com Macaxeira',cat:'Tira Gosto'},
+  {id:503,name:'Frango a Passarinho (10 un)',cat:'Tira Gosto'},
+  {id:504,name:'Calabresa com Batata',cat:'Tira Gosto'},
+  {id:601,name:'Arroz Branco P',cat:'Adicionais'},
+  {id:602,name:'Arroz Branco M',cat:'Adicionais'},
+  {id:604,name:'Baião P',cat:'Adicionais'},
+  {id:605,name:'Baião M',cat:'Adicionais'},
+  {id:701,name:'Skol 600ml',cat:'Alcoólicos'},
+  {id:702,name:'Original 600ml',cat:'Alcoólicos'},
+  {id:703,name:'Brahma 600ml',cat:'Alcoólicos'},
+  {id:704,name:'Amstel 600ml',cat:'Alcoólicos'},
+  {id:705,name:'Heineken 600ml',cat:'Alcoólicos'},
+  {id:706,name:'Budweiser Long Neck 330ml',cat:'Alcoólicos'},
+  {id:712,name:'Corona Long Neck 330ml',cat:'Alcoólicos'},
+  {id:711,name:'Skol Lata',cat:'Alcoólicos'},
+  {id:713,name:'Heineken Long Neck 330ml',cat:'Alcoólicos'},
+  {id:714,name:'Stella Long Neck 330ml',cat:'Alcoólicos'},
+  {id:801,name:'Suco Maracujá (Copo)',cat:'Bebidas'},
+  {id:802,name:'Suco Maracujá (Jarra)',cat:'Bebidas'},
+  {id:803,name:'Suco Acerola (Copo)',cat:'Bebidas'},
+  {id:804,name:'Suco Acerola (Jarra)',cat:'Bebidas'},
+  {id:807,name:'Coca Cola Lata 350ml',cat:'Bebidas'},
+  {id:808,name:'Guaraná Lata 350ml',cat:'Bebidas'},
+  {id:814,name:'Coca Cola 1L',cat:'Bebidas'},
+  {id:815,name:'Coca Cola 2L',cat:'Bebidas'},
+  {id:825,name:'Fanta Laranja 350ml',cat:'Bebidas'},
+  {id:832,name:'Coca Cola Zero 350ml',cat:'Bebidas'},
+  {id:818,name:'Água sem Gás',cat:'Bebidas'},
+  {id:831,name:'Água com Gás',cat:'Bebidas'},
+  {id:820,name:'Água Tônica',cat:'Bebidas'},
+  {id:821,name:'Red Bull',cat:'Bebidas'},
+  {id:822,name:'Guaraná 1L',cat:'Bebidas'},
+  {id:823,name:"H2OH! Limão",cat:'Bebidas'},
+  {id:824,name:"H2OH! Limoneto",cat:'Bebidas'},
+  {id:826,name:'Ice Limão',cat:'Bebidas'},
+  {id:827,name:'Ice Balada',cat:'Bebidas'},
+  {id:828,name:'Dose Campari',cat:'Bebidas'},
+];
+
+function renderEstoque() {
+  const grid = document.getElementById('est-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const cats = [...new Set(menuDataEstoque.map(i => i.cat))];
+  cats.forEach(cat => {
+    const titleEl = document.createElement('div');
+    titleEl.className = 'est-cat-title';
+    titleEl.textContent = cat;
+    grid.appendChild(titleEl);
+    menuDataEstoque.filter(i => i.cat === cat).forEach(item => {
+      const esg = window.esgotados.has(item.id);
+      const div = document.createElement('div');
+      div.className = `est-item${esg ? ' esgotado' : ''}`;
+      div.id = `est-item-${item.id}`;
+      div.innerHTML = `
+        <span class="est-item-nome">${item.name}</span>
+        <button class="est-toggle" title="${esg?'Marcar disponível':'Marcar esgotado'}"
+                onclick="toggleEstoque(${item.id})"></button>`;
+      grid.appendChild(div);
+    });
+  });
+}
+
+window.toggleEstoque = async function(id) {
+  if (window.esgotados.has(id)) window.esgotados.delete(id);
+  else window.esgotados.add(id);
+  // Atualiza UI imediatamente (sem esperar Firestore)
+  const el = document.getElementById(`est-item-${id}`);
+  if (el) el.className = `est-item${window.esgotados.has(id) ? ' esgotado' : ''}`;
+  // Grava 1 único documento no Firestore
+  await setDoc(doc(db, 'config', 'estoque'), { esgotados: [...window.esgotados] });
+};
+
+window.zerarEstoque = async function() {
+  const { isConfirmed } = await Swal.fire({
+    title: 'Marcar tudo como disponível?',
+    icon: 'question', showCancelButton: true,
+    confirmButtonText: 'Sim', background: '#1a1a1a', color: '#fff'
+  });
+  if (!isConfirmed) return;
+  window.esgotados.clear();
+  await setDoc(doc(db, 'config', 'estoque'), { esgotados: [] });
+  renderEstoque();
+};
+
+// Listener em tempo real no painel (1 doc, custo mínimo)
+onSnapshot(doc(db, 'config', 'estoque'), snap => {
+  if (snap.exists()) {
+    window.esgotados = new Set(snap.data().esgotados || []);
+  } else {
+    window.esgotados = new Set();
+  }
+  renderEstoque();
+});
 /* ====================================================
    4. UTILITÁRIOS
    ==================================================== */
@@ -899,14 +1087,22 @@ document.getElementById('btn-fechar-site').addEventListener('click', async () =>
     background: '#1a1a1a', color: '#fff'
   });
   if (!isConfirmed) return;
-
   await setDoc(doc(db, 'config', 'status'), { fechado: true });
-  Swal.fire({ icon:'success', title:'Site fechado!', background:'#1a1a1a', color:'#fff' });
+  Swal.fire({ icon:'success', title:'Site fechado!', timer:1200, showConfirmButton:false, background:'#1a1a1a', color:'#fff' });
 });
 
 document.getElementById('btn-abrir-site').addEventListener('click', async () => {
+  const { isConfirmed } = await Swal.fire({
+    title: 'Abrir o site?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, abrir',
+    confirmButtonColor: '#25d366',
+    background: '#1a1a1a', color: '#fff'
+  });
+  if (!isConfirmed) return;
   await setDoc(doc(db, 'config', 'status'), { fechado: false });
-  Swal.fire({ icon:'success', title:'Site aberto!', background:'#1a1a1a', color:'#fff' });
+  Swal.fire({ icon:'success', title:'Site aberto!', timer:1200, showConfirmButton:false, background:'#1a1a1a', color:'#fff' });
 });
 
 /* ====================================================
@@ -1780,13 +1976,14 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
    15. ABAS (openTab / openSubtab)
    ==================================================== */
 
+// Substitua a função openTab existente por esta:
 window.openTab = async function(id) {
-  if (id === 'staff') {
+  if (id === 'staff' || id === 'estoque') {
     if (!(await requireManager())) return;
   }
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id)?.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id === 'estoque' ? 'estoque-tab' : id)?.classList.add('active');
   document.querySelector(`.tab-btn[onclick*="'${id}'"]`)?.classList.add('active');
 };
 
