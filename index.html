@@ -838,6 +838,92 @@ const menuData = [
   { id:828, name:'Dose Campari',                   category:'bebida',   price:15.00  },
 ];
 
+const ADDON_GROUPS = [
+  {title:'Carnes Extras', items:[
+    {key:'carne180',label:'Carne Bovina 180g',price:8},
+    {key:'carnePicanha',label:'Carne Picanha 180g',price:12},
+    {key:'carneSmash',label:'Carne Smash 80g',price:7},
+    {key:'ovo',label:'Ovo Frito',price:2},
+  ]},
+  {title:'Bacon & Queijo', items:[
+    {key:'baconCubos',label:'Bacon em Cubos',price:4},
+    {key:'baconFatia',label:'Bacon em Fatia',price:5},
+    {key:'cheddarCremoso',label:'Cheddar Cremoso',price:5},
+  ]},
+  {title:'Vegetais', items:[
+    {key:'alface',label:'Alface',price:1.5},
+    {key:'tomate',label:'Tomate',price:1.5},
+    {key:'cebola',label:'Cebola',price:1},
+    {key:'cebolaCaram',label:'Cebola Caramelizada',price:5},
+    {key:'cebolaPremio',label:'Cebola Prêmio',price:4},
+  ]},
+  {title:'Molhos', items:[
+    {key:'molhoAlho',label:'Molho de Alho',price:5},
+    {key:'ketchupGoiaba',label:'Ketchup de Goiaba',price:4},
+    {key:'barbecue',label:'Barbecue',price:3},
+    {key:'barbecuePicante',label:'Barbecue Picante',price:4},
+    {key:'molhoDefumado',label:'Molho Defumado',price:4},
+  ]},
+];
+
+const ADDON_CATEGORIES = ['burguers','fritas','chapas','tiragosto'];
+
+async function perguntarAdicionais(itemBase) {
+  // Monta HTML dos grupos
+  const gruposHTML = ADDON_GROUPS.map(g => `
+    <div style="margin-bottom:14px;">
+      <div style="font-size:.75rem;font-weight:700;color:#ffbf00;letter-spacing:1.5px;
+                  text-transform:uppercase;border-bottom:1px solid #333;padding-bottom:4px;
+                  margin-bottom:8px;">${g.title}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        ${g.items.map(it => `
+          <label style="display:flex;align-items:center;gap:8px;background:#2a2a2a;
+                         border:1px solid #444;border-radius:8px;padding:8px 10px;
+                         cursor:pointer;transition:border-color .15s;"
+                 onmouseover="this.style.borderColor='#ffbf00'"
+                 onmouseout="this.style.borderColor=this.querySelector('input').checked?'#ffbf00':'#444'">
+            <input type="checkbox" data-key="${it.key}" data-label="${it.label}"
+                   data-price="${it.price}"
+                   style="accent-color:#ffbf00;width:16px;height:16px;cursor:pointer;"
+                   onchange="this.closest('label').style.borderColor=this.checked?'#ffbf00':'#444'">
+            <span style="flex:1;font-size:.82rem;color:#eee;line-height:1.3;">${it.label}</span>
+            <span style="font-size:.78rem;font-weight:700;color:#25d366;white-space:nowrap;">
+              +R$ ${brl(it.price)}
+            </span>
+          </label>`).join('')}
+      </div>
+    </div>`).join('');
+
+  const { isConfirmed } = await Swal.fire({
+    title: `<span style="font-size:1rem;color:#ffbf00;">Adicionais para</span><br>
+            <span style="font-size:1.1rem;">${itemBase.name}</span>`,
+    html: `
+      <div style="text-align:left;max-height:65vh;overflow-y:auto;padding-right:4px;">
+        ${gruposHTML}
+      </div>`,
+    showCancelButton: true,
+    confirmButtonText: '<i class="fas fa-check"></i> Confirmar',
+    cancelButtonText:  'Sem adicionais',
+    confirmButtonColor: '#ffbf00',
+    background: '#1a1a1a',
+    color: '#fff',
+    width: '520px',
+    customClass: { confirmButton: 'swal2-confirm' },
+  });
+
+  if (!isConfirmed) return [];
+
+  const checkboxes = Swal.getPopup().querySelectorAll('input[type=checkbox]:checked');
+  const selecionados = [];
+  checkboxes.forEach(cb => {
+    selecionados.push({
+      key:   cb.dataset.key,
+      label: cb.dataset.label,
+      price: parseFloat(cb.dataset.price),
+    });
+  });
+  return selecionados;
+}
 
 /* ====================================================
    ESTOQUE – estado local e Firestore
@@ -1503,11 +1589,22 @@ function renderMenuProdutos(num) {
   });
 }
 
-window.addItemCarrinho = function(num, id) {
+window.addItemCarrinho = async function(num, id) {
   const it = menuData.find(i => i.id === id);
-  window.carrinhoMesa[num].push({ name:it.name, price:it.price, obs:'' });
+  let obsExtra = '';
+  let precoFinal = it.price;
+
+  if (ADDON_CATEGORIES.includes(it.category)) {
+    const adicionais = await perguntarAdicionais(it);
+    if (adicionais.length) {
+      obsExtra = adicionais.map(a => a.label).join(', ');
+      precoFinal = it.price + adicionais.reduce((s, a) => s + a.price, 0);
+    }
+  }
+
+  window.carrinhoMesa[num].push({ name: it.name, price: precoFinal, obs: obsExtra });
   renderCarrinho(num);
-  Toast.fire({ icon:'success', title:it.name });
+  Toast.fire({ icon:'success', title: it.name });
 };
 
 window.addItemCarrinhoComObs = async function(num, id) {
@@ -2103,3 +2200,5 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 </script>
 </body>
 </html>
+
+
