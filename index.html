@@ -499,16 +499,22 @@
 
 <!-- ==================== TELA DE LOGIN ==================== -->
 <div id="login-screen">
-  <h2><i class="fas fa-lock"></i> Login — BURGUER GRILL</h2>
-  <input id="login-email" type="email" placeholder="Email">
-  <div class="password-container">
-    <input id="login-password" type="password" placeholder="Senha">
-    <i id="toggle-password" class="fas fa-eye"></i>
+  <h2 style="color:#ffbf00; margin-bottom:20px;">
+    <i class="fas fa-hamburger"></i> BURGUER GRILL
+  </h2>
+  <div style="background:#1e1e1e; border:1px solid #333; border-radius:12px; padding:30px; width:300px;">
+    <h3 style="margin:0 0 20px; text-align:center; color:#eee;">
+      <i class="fas fa-lock"></i> Acesso ao Painel
+    </h3>
+    <div class="password-container" style="margin:0 0 16px;">
+      <input id="login-password" type="password" placeholder="Digite sua senha" style="width:80%;">
+      <i id="toggle-password" class="fas fa-eye"></i>
+    </div>
+    <button id="btn-login" class="btn btn-accent" style="width:100%;">
+      <i class="fas fa-sign-in-alt"></i> Entrar
+    </button>
+    <div id="login-error" style="margin-top:10px; color:var(--danger); text-align:center; font-size:.9rem;"></div>
   </div>
-  <button id="btn-login" class="btn btn-accent" style="margin-top:12px;">
-    <i class="fas fa-sign-in-alt"></i> Entrar
-  </button>
-  <div id="login-error" style="margin-top:10px; color:var(--danger);"></div>
 </div>
 
 <!-- ==================== PAINEL PRINCIPAL ==================== -->
@@ -531,6 +537,9 @@
       <button id="btn-bip" class="sidebar-btn">
         <i class="fas fa-bell"></i> Bip: ON
       </button>
+      <button id="btn-alterar-senha" class="sidebar-btn">
+  <i class="fas fa-key"></i> Alterar Senha Gerente
+</button>
       <!-- <a href="index2.html" style="text-decoration:none;">
         <button class="sidebar-btn"><i class="fas fa-utensils"></i> Ir para Menu</button>
       </a> -->
@@ -733,10 +742,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import {
   getFirestore, collection, addDoc, onSnapshot,
-  query, getDocs, deleteDoc, doc, setDoc
+  query, getDocs, deleteDoc, doc, setDoc, getDoc
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  getAuth, signInAnonymously, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -1113,7 +1122,11 @@ async function salvarMesa(num) {
 
 /** Solicitar senha de gerente */
 async function requireManager() {
-  const user = auth.currentUser;
+  // Busca senha salva no Firestore
+  const senhaDoc = await import("https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js")
+    .then(m => m.getDoc(doc(db, 'config', 'senhaGerente')));
+  const senhaCorreta = senhaDoc.exists() ? senhaDoc.data().senha : '1234';
+
   const { value: pwd } = await Swal.fire({
     title: 'Senha Gerente',
     background: '#1a1a1a', color: '#fff',
@@ -1150,13 +1163,50 @@ async function requireManager() {
 
   if (!pwd) return false;
 
-  try {
-    await signInWithEmailAndPassword(auth, user.email, pwd);
-    return true;
-  } catch {
-    Swal.fire({ icon:'error', title:'Senha incorreta', background:'#1a1a1a', color:'#fff' });
+  if (pwd !== senhaCorreta) {
+    Swal.fire({ icon: 'error', title: 'Senha incorreta', background: '#1a1a1a', color: '#fff' });
     return false;
   }
+  return true;
+}
+
+async function alterarSenhaGerente() {
+  const senhaDoc = await import("https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js")
+    .then(m => m.getDoc(doc(db, 'config', 'senhaGerente')));
+  const senhaAtual = senhaDoc.exists() ? senhaDoc.data().senha : '1234';
+
+  const { value: formValues } = await Swal.fire({
+    title: 'Alterar Senha do Gerente',
+    background: '#1a1a1a', color: '#fff',
+    html: `
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+        <input id="swal-senha-atual" type="password" placeholder="Senha atual"
+               style="padding:10px; border-radius:6px; border:1px solid #444; background:#222; color:#fff; width:100%;">
+        <input id="swal-senha-nova" type="password" placeholder="Nova senha"
+               style="padding:10px; border-radius:6px; border:1px solid #444; background:#222; color:#fff; width:100%;">
+        <input id="swal-senha-confirm" type="password" placeholder="Confirmar nova senha"
+               style="padding:10px; border-radius:6px; border:1px solid #444; background:#222; color:#fff; width:100%;">
+      </div>`,
+    showCancelButton: true,
+    confirmButtonText: 'Salvar',
+    confirmButtonColor: '#ffbf00',
+    cancelButtonText: 'Cancelar',
+    focusConfirm: false,
+    preConfirm: () => {
+      const atual   = document.getElementById('swal-senha-atual').value;
+      const nova    = document.getElementById('swal-senha-nova').value;
+      const confirm = document.getElementById('swal-senha-confirm').value;
+      if (atual !== senhaAtual) { Swal.showValidationMessage('Senha atual incorreta!'); return false; }
+      if (!nova || nova.length < 3) { Swal.showValidationMessage('Nova senha muito curta!'); return false; }
+      if (nova !== confirm) { Swal.showValidationMessage('As senhas não coincidem!'); return false; }
+      return nova;
+    }
+  });
+
+  if (!formValues) return;
+
+  await setDoc(doc(db, 'config', 'senhaGerente'), { senha: formValues });
+  Swal.fire({ icon: 'success', title: 'Senha alterada!', timer: 1200, showConfirmButton: false, background: '#1a1a1a', color: '#fff' });
 }
 
 /* ====================================================
@@ -2115,6 +2165,7 @@ document.getElementById('btn-bip').addEventListener('click', function() {
     : '<i class="fas fa-bell-slash"></i> Bip: OFF';
 });
 
+document.getElementById('btn-alterar-senha').addEventListener('click', alterarSenhaGerente);
 /* ====================================================
    18. APAGAR TUDO (Firebase)
    ==================================================== */
@@ -2147,24 +2198,67 @@ document.getElementById('toggle-password').addEventListener('click', function() 
 });
 
 document.getElementById('btn-login').addEventListener('click', async () => {
-  const email = document.getElementById('login-email').value;
   const senha = document.getElementById('login-password').value;
-  try {
-    await signInWithEmailAndPassword(auth, email, senha);
-  } catch {
-    document.getElementById('login-error').textContent = 'Email ou senha incorretos.';
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+
+  if (!senha) { errEl.textContent = 'Digite a senha.'; return; }
+
+  const senhaDoc = await getDoc(doc(db, 'config', 'senhaGerente'));
+  const senhaCorreta = senhaDoc.exists() ? senhaDoc.data().senha : '1234';
+
+  if (senha !== senhaCorreta) {
+    errEl.textContent = 'Senha incorreta.';
+    return;
   }
+
+  // Login anônimo para manter autenticação Firebase ativa
+  const { signInAnonymously } = await import("https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js");
+  await signInAnonymously(auth);
 });
 
 document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
+let unsubPedidos   = null;
+let unsubMesas     = null;
+let unsubEstoque   = null;
+
 onAuthStateChanged(auth, user => {
   document.getElementById('login-screen').style.display = user ? 'none'  : 'flex';
   document.getElementById('main-panel').style.display   = user ? 'block' : 'none';
+
   if (user) {
     popularItensStaff();
     renderStaffLocal();
     openTab('mesas');
+
+    // Inicia listeners só após login
+    unsubPedidos = onSnapshot(query(collection(db, 'pedidos')), snap => {
+      const pedidos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderDelivery(pedidos);
+      renderHistoricos(pedidos);
+    });
+
+    unsubMesas = onSnapshot(collection(db, 'mesasAtivas'), snap => {
+      window.mesasState = {};
+      snap.forEach(d => { window.mesasState[d.id] = d.data(); });
+      renderMesas();
+    });
+
+    unsubEstoque = onSnapshot(doc(db, 'config', 'estoque'), snap => {
+      if (snap.exists()) {
+        window.esgotados = new Set(snap.data().esgotados || []);
+      } else {
+        window.esgotados = new Set();
+      }
+      renderEstoque();
+    });
+
+  } else {
+    // Para os listeners ao fazer logout
+    if (unsubPedidos)  { unsubPedidos();  unsubPedidos  = null; }
+    if (unsubMesas)    { unsubMesas();    unsubMesas    = null; }
+    if (unsubEstoque)  { unsubEstoque();  unsubEstoque  = null; }
   }
 });
 
@@ -2173,18 +2267,18 @@ onAuthStateChanged(auth, user => {
    ==================================================== */
 
 // Pedidos (delivery, retirada)
-onSnapshot(query(collection(db,'pedidos')), snap => {
-  const pedidos = snap.docs.map(d=>({ id:d.id, ...d.data() }));
-  renderDelivery(pedidos);
-  renderHistoricos(pedidos);
-});
+// onSnapshot(query(collection(db,'pedidos')), snap => {
+//   const pedidos = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+//   renderDelivery(pedidos);
+//   renderHistoricos(pedidos);
+// });
 
-// Mesas ativas
-onSnapshot(collection(db,'mesasAtivas'), snap => {
-  window.mesasState = {};
-  snap.forEach(d => { window.mesasState[d.id] = d.data(); });
-  renderMesas();
-});
+// // Mesas ativas
+// onSnapshot(collection(db,'mesasAtivas'), snap => {
+//   window.mesasState = {};
+//   snap.forEach(d => { window.mesasState[d.id] = d.data(); });
+//   renderMesas();
+// });
 
 /* ====================================================
    21. BLOQUEIOS DE SEGURANÇA
